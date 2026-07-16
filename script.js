@@ -33,3 +33,10 @@ document.querySelectorAll(".email-form").forEach(form=>{
     location.href=`mailto:support@brownstonecareers.agency?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(lines.join("\n"))}`;
   });
 });
+
+
+// Premium interactions
+const current=(document.body.dataset.page||'').replace('index','home');
+document.querySelectorAll('.main-nav a').forEach(a=>{const file=(a.getAttribute('href')||'').split('?')[0]; if((current==='home'&&file==='index.html')||file===current+'.html')a.classList.add('active');});
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');io.unobserve(e.target)}}),{threshold:.1});
+document.querySelectorAll('.premium-features article,.journey-list article,.role-card,.contact-card').forEach(el=>{el.classList.add('reveal');io.observe(el)});
