@@ -30,3 +30,12 @@ Upload every file in this folder to the document root for brownstonecareers.agen
 - Animated reveal interactions
 - Expanded home-page value proposition and candidate journey
 - Improved cards, forms, header, footer, and mobile responsiveness
+
+
+## Executive Upgrade
+- Removed the Home item from the navigation; the logo remains the homepage link.
+- Removed the telephone number from the footer.
+- Added an official-message verification notice.
+- Added a premium candidate-experience section.
+- Added accessibility skip navigation.
+- Refined cards, navigation, footer, and interaction styling.
