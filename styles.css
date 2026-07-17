@@ -365,3 +365,23 @@
   .cover-footer-feature-row>div:last-child{border-bottom:0}
   .cover-footer-bottom{flex-direction:column;align-items:flex-start}
 }
+
+/* Logo blend update */
+.cover-brand-logo{
+background:transparent!important;
+border:none!important;
+box-shadow:none!important;
+filter:none!important;
+width:74px!important;
+height:74px!important;
+padding:0!important;
+}
+.cover-brand-logo img{
+width:70px!important;
+height:auto!important;
+display:block;
+filter:drop-shadow(0 0 14px rgba(73,109,255,.18));
+}
+.cover-brand{gap:18px!important;}
+.cover-brand-copy strong{font-size:24px!important;}
+.cover-brand-copy small{color:#6f91ff!important;}
