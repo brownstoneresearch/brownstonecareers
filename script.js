@@ -1,7 +1,7 @@
 
-const toggle=document.querySelector(".menu-toggle"),nav=document.querySelector(".main-nav");
+const toggle=document.querySelector(".cover-menu-toggle"),nav=document.querySelector(".cover-main-nav");
 toggle?.addEventListener("click",()=>{const open=nav.classList.toggle("open");toggle.setAttribute("aria-expanded",String(open))});
-document.querySelectorAll(".main-nav a").forEach(a=>a.addEventListener("click",()=>nav?.classList.remove("open")));
+document.querySelectorAll(".cover-main-nav a").forEach(a=>a.addEventListener("click",()=>nav?.classList.remove("open")));
 const page=document.body.dataset.page;
 document.querySelectorAll("[data-nav]").forEach(link=>{if(link.dataset.nav===page)link.classList.add("active")});
 const year=document.getElementById("year");if(year)year.textContent=new Date().getFullYear();
