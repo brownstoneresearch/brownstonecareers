@@ -1,15 +1,17 @@
 {
-  "name": "brownstone-careers-cloudflare",
-  "version": "4.0.0",
+  "name": "brownstone-careers-pages",
+  "version": "5.0.0",
   "private": true,
-  "description": "Brownstone Careers website deployed as a Cloudflare Worker with static assets and Resend email delivery.",
+  "description": "Brownstone Careers static website with Cloudflare Pages Functions and Resend email delivery.",
   "type": "module",
-  "scripts": {
-    "dev": "wrangler dev",
-    "deploy": "wrangler deploy",
-    "check": "node --check src/index.js"
+  "engines": {
+    "node": ">=20 <23"
   },
-  "devDependencies": {
-    "wrangler": "^4.0.0"
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "check": "node scripts/check.mjs && node --check functions/_shared.js && node --check functions/api/applications.js && node --check functions/api/contact.js && node --check functions/api/health.js",
+    "test": "npm run check && npm run build",
+    "pages:dev": "npx --yes wrangler@4.112.0 pages dev dist",
+    "pages:deploy": "npm run build && npx --yes wrangler@4.112.0 pages deploy dist --project-name brownstone-careers"
   }
 }

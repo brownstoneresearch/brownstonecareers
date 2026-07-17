@@ -1,24 +1,59 @@
-# Brownstone Careers
+# Brownstone Careers — Cloudflare Pages
 
-Cloudflare-native recruitment website for Brownstone Careers.
+Production-ready static recruitment website with Cloudflare Pages Functions for form handling and Resend email delivery.
 
-## Architecture
-
-- Static website: `public/`
-- Worker APIs: `src/index.js`
-- Contact API: `POST /api/contact`
-- Application API: `POST /api/applications`
-- Health check: `GET /api/health`
-- Email provider: Resend REST API
-- Resume types: PDF, DOC, DOCX, up to 5 MB
-
-## Commands
+## Verified install and build
 
 ```bash
-npm install
-npm run dev
-npm run check
-npm run deploy
+npm ci --ignore-scripts --no-audit --no-fund
+npm test
 ```
 
-Read `CLOUDFLARE-DEPLOYMENT.md` and `GITHUB-UPDATE.md` before deployment.
+The project intentionally has no runtime or build dependencies. This keeps Cloudflare's dependency-install phase small and avoids the previous Wrangler/workerd/sharp installation failure.
+
+## Cloudflare Pages Git deployment
+
+1. Push this project to `https://github.com/brownstoneresearch/brownstonecareers.git`.
+2. In Cloudflare, open **Workers & Pages → Create → Pages → Connect to Git**.
+3. Select the GitHub repository and use:
+   - Production branch: `main`
+   - Build command: `npm run build`
+   - Build output directory: `dist`
+   - Root directory: `/`
+4. Add encrypted variables under **Settings → Variables and Secrets**:
+   - `RESEND_API_KEY`
+   - `EMAIL_FROM`
+   - `RECRUITMENT_EMAIL`
+5. Redeploy.
+
+Pages Functions are in the root-level `functions/` directory and are deployed automatically with Git builds.
+
+## API routes
+
+- `GET /api/health`
+- `POST /api/contact`
+- `POST /api/applications`
+
+Application uploads accept PDF, DOC, and DOCX resumes up to 5 MB. The resume is sent as a Resend attachment and is not stored in the repository or static site.
+
+## Local development
+
+Copy `.dev.vars.example` to `.dev.vars`, fill in a newly generated Resend key, then run:
+
+```bash
+npm ci
+npm run build
+npm run pages:dev
+```
+
+Never commit `.dev.vars`, `.env`, or API keys.
+
+## GitHub update
+
+```bash
+git remote set-url origin https://github.com/brownstoneresearch/brownstonecareers.git
+git branch -M main
+git add -A
+git commit -m "Rebuild site for Cloudflare Pages"
+git push -u origin main
+```
