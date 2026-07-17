@@ -21,3 +21,11 @@ Static forms prepare emails addressed to:
 support@brownstonecareers.agency
 
 For automatic server-side delivery, connect the forms to a secure backend or transactional email provider.
+
+
+## Current Cover Rebrand
+- Replaced the former homepage cover with the current Brownstone Careers recruitment-agency artwork.
+- Redesigned the homepage hero around the new dark-blue global recruitment identity.
+- Added a cover benefit bar for remote work, growth, trusted recruitment, and candidate support.
+- Updated social-sharing images to use the new cover.
+- Preserved all contentful role, process, FAQ, application, contact, and pillar-image sections.

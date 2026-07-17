@@ -25,3 +25,98 @@
 .reveal{opacity:0;transform:translateY(20px);transition:.7s}.reveal.visible{opacity:1;transform:none}.delay-1{transition-delay:.1s}
 @media(max-width:1020px){.main-nav{display:none;position:absolute;top:82px;left:18px;right:18px;padding:17px;background:#fff;border:1px solid var(--line);border-radius:15px;box-shadow:var(--shadow);flex-direction:column;align-items:stretch}.main-nav.open{display:flex}.menu-toggle{display:block}.hero-grid,.editorial-grid,.expectations-grid,.page-hero-grid,.story-grid,.contact-grid,.apply-layout,.faq-layout{grid-template-columns:1fr}.pillar-grid{grid-template-columns:1fr 1fr}.mini-process{grid-template-columns:repeat(3,1fr)}.role-profile{grid-template-columns:1fr}.role-profile:nth-child(even) .role-profile-image{order:0}.role-profile-image{min-height:360px}.values-grid{grid-template-columns:1fr 1fr}.footer-grid{grid-template-columns:1fr 1fr}.application-sidebar,.faq-aside{position:static}}
 @media(max-width:680px){.utility-bar{display:none}.section{padding:68px 0}.hero{padding:72px 0}.hero h1{font-size:44px}.hero-points,.insight-grid,.pillar-grid,.mini-process,.values-grid,.form-row,.footer-grid{grid-template-columns:1fr}.insight-grid div{border-right:0;border-bottom:1px solid rgba(255,255,255,.12)}.hero-caption{left:12px;bottom:12px}.cta-card,.footer-bottom{flex-direction:column;align-items:flex-start}.cta-card{padding:32px}.cta-card h2{font-size:34px}.role-profile-copy{padding:26px}.role-profile h2{font-size:34px}.role-profile-image{min-height:260px}.process-detailed article{grid-template-columns:1fr}.application-form{padding:22px}}
+
+
+/* Current Brownstone Careers cover rebrand */
+.hero-cover{
+  position:relative;min-height:760px;padding:0;overflow:hidden;
+  background:#041431;color:#fff;display:flex;flex-direction:column;justify-content:center
+}
+.hero-cover-image{
+  position:absolute;inset:0;
+  background-image:url("assets/cover.webp");
+  background-size:cover;background-position:center;
+  transform:scale(1.015)
+}
+.hero-cover-overlay{
+  position:absolute;inset:0;
+  background:
+    linear-gradient(90deg,rgba(3,16,43,.97) 0%,rgba(3,16,43,.88) 34%,rgba(3,16,43,.27) 67%,rgba(3,16,43,.32) 100%),
+    linear-gradient(180deg,rgba(3,16,43,.24),rgba(3,16,43,.54))
+}
+.hero-cover-content{
+  position:relative;z-index:2;display:grid;grid-template-columns:1.02fr .48fr;
+  gap:80px;align-items:center;padding-top:70px;padding-bottom:150px
+}
+.hero-cover-copy{max-width:680px}
+.light-eyebrow{color:#bed0ff}
+.hero-cover-copy h1{
+  color:#fff;font-size:clamp(54px,6.4vw,88px);line-height:.97;
+  text-shadow:0 8px 35px rgba(0,0,0,.22);margin-bottom:25px
+}
+.hero-cover-copy h1 span{color:#5577ff}
+.hero-cover-copy p{
+  max-width:650px;color:#d4deef;font-size:18px;line-height:1.7
+}
+.bright-button{
+  background:linear-gradient(135deg,#3478ff,#4b38ff);
+  box-shadow:0 15px 38px rgba(52,120,255,.32)
+}
+.btn-glass{
+  border-color:rgba(255,255,255,.32);background:rgba(255,255,255,.07);
+  color:#fff;backdrop-filter:blur(12px)
+}
+.hero-cover-panel{
+  justify-self:end;width:min(310px,100%);padding:28px;
+  border-left:2px solid #5678ff;background:rgba(2,16,45,.5);
+  backdrop-filter:blur(12px);border-radius:0 18px 18px 0
+}
+.hero-cover-panel span,.hero-cover-panel strong{display:block;text-transform:uppercase}
+.hero-cover-panel span{font-size:21px;color:#fff;line-height:1.4}
+.hero-cover-panel strong{font-size:24px;color:#587bff;margin-top:3px}
+.hero-cover-panel a{display:inline-block;margin-top:22px;color:#d8e3ff;font-size:12px;font-weight:700}
+.cover-benefit-bar{
+  position:absolute;z-index:3;left:50%;bottom:38px;transform:translateX(-50%);
+  display:grid;grid-template-columns:repeat(4,1fr);border:1px solid rgba(131,163,229,.3);
+  border-radius:18px;background:rgba(3,18,48,.82);backdrop-filter:blur(18px);
+  box-shadow:0 18px 55px rgba(0,0,0,.23)
+}
+.cover-benefit-bar article{
+  display:flex;align-items:center;gap:13px;padding:20px 24px;
+  border-right:1px solid rgba(255,255,255,.13)
+}
+.cover-benefit-bar article:last-child{border-right:0}
+.benefit-icon{
+  width:42px;height:42px;border-radius:50%;display:grid;place-items:center;
+  background:linear-gradient(145deg,#3b6eff,#253ecc);font-weight:800
+}
+.cover-benefit-bar strong,.cover-benefit-bar small{display:block}
+.cover-benefit-bar strong{font-size:12px;color:#fff}
+.cover-benefit-bar small{font-size:10px;color:#aebdd5;margin-top:3px}
+.brand-positioning-section{background:#fff}
+.cover-preview img{aspect-ratio:16/9;object-fit:cover}
+.site-header{
+  border-bottom:1px solid rgba(220,229,241,.75);
+  box-shadow:0 5px 22px rgba(8,35,77,.045)
+}
+.brand-copy strong{letter-spacing:-.015em}
+.main-nav a{letter-spacing:.005em}
+@media(max-width:1020px){
+  .hero-cover{min-height:auto}
+  .hero-cover-content{grid-template-columns:1fr;padding-top:90px;padding-bottom:205px}
+  .hero-cover-panel{justify-self:start}
+  .cover-benefit-bar{grid-template-columns:repeat(2,1fr);bottom:30px}
+  .cover-benefit-bar article:nth-child(2){border-right:0}
+  .cover-benefit-bar article:nth-child(-n+2){border-bottom:1px solid rgba(255,255,255,.13)}
+}
+@media(max-width:680px){
+  .hero-cover-image{background-position:58% center}
+  .hero-cover-overlay{background:linear-gradient(90deg,rgba(3,16,43,.97),rgba(3,16,43,.78))}
+  .hero-cover-content{padding-top:75px;padding-bottom:310px}
+  .hero-cover-copy h1{font-size:47px}
+  .hero-cover-copy p{font-size:16px}
+  .hero-cover-panel{display:none}
+  .cover-benefit-bar{grid-template-columns:1fr;bottom:20px}
+  .cover-benefit-bar article{border-right:0;border-bottom:1px solid rgba(255,255,255,.13);padding:14px 18px}
+  .cover-benefit-bar article:last-child{border-bottom:0}
+}
