@@ -133,3 +133,99 @@ input,select,textarea{padding:14px 15px;border-radius:11px}.btn{min-height:53px;
   .verification-inner{grid-template-columns:auto 1fr}
   .verification-link{grid-column:2}
 }
+
+
+/* Image-led Brownstone Careers upgrade */
+.hero-media{position:relative;z-index:1;min-width:0}
+.hero-poster-frame{
+  position:relative;overflow:hidden;border-radius:30px;padding:8px;
+  background:linear-gradient(145deg,rgba(255,255,255,.98),rgba(214,228,255,.75));
+  border:1px solid rgba(255,255,255,.9);box-shadow:0 35px 95px rgba(6,26,56,.22);
+  transform:perspective(1200px) rotateY(-3deg) rotateX(1deg)
+}
+.hero-poster-frame img{display:block;width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:23px}
+.poster-shine{
+  position:absolute;inset:8px;border-radius:23px;pointer-events:none;
+  background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.22) 48%,transparent 60%);
+  transform:translateX(-110%);animation:posterShine 6s ease-in-out infinite
+}
+@keyframes posterShine{0%,55%{transform:translateX(-110%)}80%,100%{transform:translateX(110%)}}
+.hero-floating-badge{
+  position:absolute;display:flex;align-items:center;gap:10px;padding:13px 16px;
+  border:1px solid rgba(255,255,255,.92);border-radius:15px;background:rgba(255,255,255,.93);
+  backdrop-filter:blur(14px);box-shadow:0 16px 40px rgba(7,25,54,.16)
+}
+.hero-floating-badge strong{font-size:20px;color:var(--blue)}
+.hero-floating-badge span{font-size:11px;font-weight:800;color:var(--navy)}
+.badge-top{right:-28px;top:55px}.badge-bottom{left:-38px;bottom:64px}
+
+.pillar-section{background:linear-gradient(180deg,#f5f8ff 0%,#fff 100%)}
+.pillar-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:28px}
+.pillar-card{
+  overflow:hidden;background:#fff;border:1px solid var(--line);border-radius:27px;
+  box-shadow:0 16px 55px rgba(7,25,54,.08);transition:.3s
+}
+.pillar-card:hover{transform:translateY(-8px);box-shadow:0 26px 70px rgba(7,25,54,.15)}
+.pillar-image{position:relative;display:block;overflow:hidden;aspect-ratio:16/10;background:#071936}
+.pillar-image img{width:100%;height:100%;object-fit:cover;transition:transform .55s ease}
+.pillar-card:hover .pillar-image img{transform:scale(1.035)}
+.pillar-image:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 55%,rgba(5,18,38,.55))}
+.pillar-number{
+  position:absolute;z-index:2;left:22px;bottom:18px;width:42px;height:42px;border-radius:13px;
+  background:rgba(255,255,255,.94);display:grid;place-items:center;color:var(--blue);
+  font-size:11px;font-weight:800;box-shadow:0 8px 20px rgba(0,0,0,.15)
+}
+.pillar-content{padding:27px}
+.pillar-content h3{font-size:24px;color:var(--navy);margin:14px 0 9px}
+.pillar-content p{font-size:14px;color:var(--muted);margin:0}
+.pillar-content>a{display:inline-block;margin-top:20px;color:var(--blue);font-size:13px;font-weight:800}
+.pillar-cta{text-align:center;margin-top:38px}
+
+.roles-visual-hero{overflow:hidden}
+.page-hero-grid{display:grid;grid-template-columns:1fr .68fr;gap:65px;align-items:center}
+.page-cover-card{position:relative;overflow:hidden;border-radius:25px;border:7px solid #fff;box-shadow:var(--shadow-lg)}
+.page-cover-card img{display:block;width:100%;aspect-ratio:1/1;object-fit:cover}
+.role-gallery{display:grid;gap:38px}
+.role-gallery-card{
+  display:grid;grid-template-columns:1.05fr .95fr;overflow:hidden;background:#fff;
+  border:1px solid var(--line);border-radius:28px;box-shadow:0 20px 65px rgba(7,25,54,.09)
+}
+.role-gallery-card.reverse .role-gallery-image{order:2}
+.role-gallery-image{min-height:440px;overflow:hidden;background:#071936}
+.role-gallery-image img{width:100%;height:100%;object-fit:cover;transition:.55s}
+.role-gallery-card:hover .role-gallery-image img{transform:scale(1.025)}
+.role-gallery-copy{padding:48px;display:flex;flex-direction:column;justify-content:center}
+.role-gallery-top{display:flex;align-items:center;justify-content:space-between}
+.role-index{font-size:11px;letter-spacing:.15em;color:var(--blue);font-weight:800}
+.role-gallery-copy h2{font-size:clamp(34px,4vw,50px);margin:19px 0 14px}
+.role-gallery-copy>p{color:var(--muted);font-size:16px}
+.role-competencies{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0 28px}
+.role-competencies span{padding:8px 11px;background:#eef4ff;color:#335179;border-radius:999px;font-size:10px;font-weight:800}
+.role-gallery-copy .btn{align-self:flex-start}
+
+.role-mosaic-section{padding:0 0 90px}
+.role-mosaic{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.role-mosaic img{width:100%;height:280px;object-fit:cover;border-radius:18px;box-shadow:0 14px 35px rgba(7,25,54,.1)}
+.role-mosaic img:nth-child(2),.role-mosaic img:nth-child(4){transform:translateY(24px)}
+
+.application-cover-image{margin-bottom:28px;border-radius:22px;overflow:hidden;border:1px solid var(--line);box-shadow:0 18px 50px rgba(7,25,54,.12)}
+.application-cover-image img{display:block;width:100%;aspect-ratio:1/1;object-fit:cover}
+
+@media(max-width:1000px){
+  .hero-poster-frame{transform:none}
+  .badge-top{right:14px}.badge-bottom{left:14px}
+  .pillar-grid,.page-hero-grid,.role-gallery-card{grid-template-columns:1fr}
+  .role-gallery-card.reverse .role-gallery-image{order:0}
+  .role-gallery-image{min-height:360px}
+  .role-mosaic{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:680px){
+  .hero-floating-badge{display:none}
+  .pillar-grid{grid-template-columns:1fr}
+  .pillar-content{padding:22px}
+  .role-gallery-copy{padding:27px}
+  .role-gallery-image{min-height:260px}
+  .role-mosaic{grid-template-columns:1fr 1fr}
+  .role-mosaic img{height:190px;border-radius:13px}
+  .role-mosaic img:nth-child(2),.role-mosaic img:nth-child(4){transform:none}
+}

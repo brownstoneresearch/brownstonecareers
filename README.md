@@ -39,3 +39,11 @@ Upload every file in this folder to the document root for brownstonecareers.agen
 - Added a premium candidate-experience section.
 - Added accessibility skip navigation.
 - Refined cards, navigation, footer, and interaction styling.
+
+
+## Visual Pillar Upgrade
+- Integrated the Brownstone Careers cover artwork into the homepage, roles page, social preview, and application page.
+- Added optimized WebP imagery for Finance Administration, Data Entry, Customer Service, and Administrative Support.
+- Rebuilt the homepage roles area as an image-led career pillar gallery.
+- Rebuilt the Open Roles page with full-width visual job profiles.
+- Added responsive image presentation, hover motion, and mobile layouts.
