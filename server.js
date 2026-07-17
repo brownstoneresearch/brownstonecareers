@@ -1,4 +1,4 @@
-require("dotenv").config();
+require("dotenv").config({ path: require("path").join(__dirname, ".env") });
 
 const crypto = require("crypto");
 const path = require("path");
@@ -10,7 +10,29 @@ const { Resend } = require("resend");
 
 const app = express();
 const port = Number(process.env.PORT || 3000);
-const resend = new Resend(process.env.RESEND_API_KEY);
+const requiredEnvironmentVariables = [
+  "RESEND_API_KEY",
+  "EMAIL_FROM",
+  "RECRUITMENT_EMAIL"
+];
+
+const missingEnvironmentVariables = requiredEnvironmentVariables.filter(
+  (name) => !process.env[name] || !String(process.env[name]).trim()
+);
+
+if (missingEnvironmentVariables.length > 0) {
+  console.error("\nBrownstone Careers could not start.");
+  console.error(
+    `Missing environment variable(s): ${missingEnvironmentVariables.join(", ")}`
+  );
+  console.error(
+    "Create a .env file beside server.js or configure these values in your hosting dashboard."
+  );
+  console.error("See RESEND-SETUP.md for exact instructions.\n");
+  process.exit(1);
+}
+
+const resend = new Resend(process.env.RESEND_API_KEY.trim());
 
 app.set("trust proxy", 1);
 app.disable("x-powered-by");

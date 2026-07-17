@@ -21,3 +21,16 @@ This package contains the complete website and a Node.js backend for:
 7. Open `http://localhost:3000`.
 
 Read `RESEND-SETUP.md` for full instructions.
+
+
+## Windows one-command environment setup
+
+Run:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\setup-env.ps1
+```
+
+The script securely prompts for a new Resend key and writes `.env` only on your computer.
+
+See `DEPLOYMENT-GITHUB.md` for complete GitHub, Render, Railway, and cPanel deployment steps.
