@@ -1,36 +1,24 @@
-# Brownstone Careers — Resend Emailing Edition
+# Brownstone Careers
 
-This package contains the complete website and a Node.js backend for:
+Cloudflare-native recruitment website for Brownstone Careers.
 
-- Secure job application submission
-- Resume/CV email attachments
-- Candidate confirmation emails
-- Application reference numbers
-- Support request emails
-- Support confirmation emails
-- Rate limiting, validation, and spam honeypot protection
+## Architecture
 
-## Start locally
+- Static website: `public/`
+- Worker APIs: `src/index.js`
+- Contact API: `POST /api/contact`
+- Application API: `POST /api/applications`
+- Health check: `GET /api/health`
+- Email provider: Resend REST API
+- Resume types: PDF, DOC, DOCX, up to 5 MB
 
-1. Install Node.js 20 or newer.
-2. Run `npm install`.
-3. Copy `.env.example` to `.env`.
-4. Add a newly generated Resend API key.
-5. Verify your sending domain in Resend.
-6. Run `npm start`.
-7. Open `http://localhost:3000`.
+## Commands
 
-Read `RESEND-SETUP.md` for full instructions.
-
-
-## Windows one-command environment setup
-
-Run:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File .\setup-env.ps1
+```bash
+npm install
+npm run dev
+npm run check
+npm run deploy
 ```
 
-The script securely prompts for a new Resend key and writes `.env` only on your computer.
-
-See `DEPLOYMENT-GITHUB.md` for complete GitHub, Render, Railway, and cPanel deployment steps.
+Read `CLOUDFLARE-DEPLOYMENT.md` and `GITHUB-UPDATE.md` before deployment.
