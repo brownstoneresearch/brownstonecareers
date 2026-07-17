@@ -44,3 +44,12 @@ For automatic server-side delivery, connect the forms to a secure backend or tra
 - Rebuilt the footer using the same global, technology-led visual language.
 - Added career-path links, official support links, trust features, and the “Real opportunities. Real careers. Real impact.” brand message.
 - Added responsive mobile navigation and footer layouts.
+
+
+## Refined Header and Footer Branding
+- Removed all blue background treatment from the logo placement.
+- Made the logo sit directly on the same dark navy background as the header and footer.
+- Removed logo borders, rounded containers, shadows, and glow effects.
+- Restyled “BROWNSTONE CAREERS” as a balanced single-line corporate wordmark.
+- Added a centered “RECRUITMENT AGENCY” subtitle with subtle divider lines.
+- Matched the header and footer wordmark styling for visual consistency.
