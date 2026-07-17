@@ -1,55 +1,23 @@
-# Brownstone Careers — Contentful Recruitment Website
+# Brownstone Careers — Resend Emailing Edition
 
-## Typography
-The website uses:
-- Inter for navigation, body copy, forms, buttons, and UI elements.
-- Source Serif 4 for headlines and editorial section titles.
+This package contains the complete website and a Node.js backend for:
 
-This pairing gives the site a modern recruitment-platform feel while keeping long-form content readable and authoritative.
+- Secure job application submission
+- Resume/CV email attachments
+- Candidate confirmation emails
+- Application reference numbers
+- Support request emails
+- Support confirmation emails
+- Rate limiting, validation, and spam honeypot protection
 
-## Content Improvements
-- Clear career-pillar explanations
-- Detailed role responsibilities and candidate profiles
-- Recruitment-readiness guidance
-- Six-stage hiring process
-- Expanded candidate FAQ
-- Improved application guidance and fields
-- Security and official-channel notices
+## Start locally
 
-## Submission
-Static forms prepare emails addressed to:
-support@brownstonecareers.agency
+1. Install Node.js 20 or newer.
+2. Run `npm install`.
+3. Copy `.env.example` to `.env`.
+4. Add a newly generated Resend API key.
+5. Verify your sending domain in Resend.
+6. Run `npm start`.
+7. Open `http://localhost:3000`.
 
-For automatic server-side delivery, connect the forms to a secure backend or transactional email provider.
-
-
-## Current Cover Rebrand
-- Replaced the former homepage cover with the current Brownstone Careers recruitment-agency artwork.
-- Redesigned the homepage hero around the new dark-blue global recruitment identity.
-- Added a cover benefit bar for remote work, growth, trusted recruitment, and candidate support.
-- Updated social-sharing images to use the new cover.
-- Preserved all contentful role, process, FAQ, application, contact, and pillar-image sections.
-
-
-## Dynamic Technology Ecosystem
-- Added a continuously animated platform showcase for Microsoft, Google, WhatsApp, Zoom, Slack, HubSpot, QuickBooks, and Dropbox.
-- Added hover interactions, glass-style cards, dynamic scrolling, and responsive layouts.
-- Added explanatory content about communication, collaboration, and role-specific digital readiness.
-- Included a clear non-affiliation notice to avoid implying unverified formal partnerships.
-
-
-## Cover-Style Header and Footer Rebrand
-- Rebuilt the header using the dark-blue Brownstone Careers cover identity.
-- Added the recruitment-agency subtitle, uppercase navigation, active underline, and outlined Apply Now button.
-- Rebuilt the footer using the same global, technology-led visual language.
-- Added career-path links, official support links, trust features, and the “Real opportunities. Real careers. Real impact.” brand message.
-- Added responsive mobile navigation and footer layouts.
-
-
-## Refined Header and Footer Branding
-- Removed all blue background treatment from the logo placement.
-- Made the logo sit directly on the same dark navy background as the header and footer.
-- Removed logo borders, rounded containers, shadows, and glow effects.
-- Restyled “BROWNSTONE CAREERS” as a balanced single-line corporate wordmark.
-- Added a centered “RECRUITMENT AGENCY” subtitle with subtle divider lines.
-- Matched the header and footer wordmark styling for visual consistency.
+Read `RESEND-SETUP.md` for full instructions.
