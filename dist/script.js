@@ -1,18 +1,37 @@
 const toggle = document.querySelector(".cover-menu-toggle");
 const nav = document.querySelector(".cover-main-nav");
+const backdrop = document.querySelector(".mobile-nav-backdrop");
 
 toggle?.addEventListener("click", () => {
   const open = nav.classList.toggle("open");
   toggle.setAttribute("aria-expanded", String(open));
+  toggle.setAttribute("aria-label", open ? "Close navigation" : "Open navigation");
+  document.body.classList.toggle("menu-open", open);
+  backdrop?.setAttribute("aria-hidden", String(!open));
 });
 
 document.querySelectorAll(".cover-main-nav a").forEach((link) => {
-  link.addEventListener("click", () => nav?.classList.remove("open"));
+  link.addEventListener("click", () => {
+    nav?.classList.remove("open");
+    toggle?.setAttribute("aria-expanded", "false");
+    toggle?.setAttribute("aria-label", "Open navigation");
+    document.body.classList.remove("menu-open");
+    backdrop?.setAttribute("aria-hidden", "true");
+  });
+});
+
+
+backdrop?.addEventListener("click", () => {
+  nav?.classList.remove("open");
+  toggle?.setAttribute("aria-expanded", "false");
+  toggle?.setAttribute("aria-label", "Open navigation");
+  document.body.classList.remove("menu-open");
+  backdrop.setAttribute("aria-hidden", "true");
 });
 
 const page = document.body.dataset.page;
 document.querySelectorAll("[data-nav]").forEach((link) => {
-  if (link.dataset.nav === page) link.classList.add("active");
+  if (link.dataset.nav === page) { link.classList.add("active"); link.setAttribute("aria-current", "page"); }
 });
 
 const year = document.getElementById("year");
@@ -107,3 +126,26 @@ const observer = new IntersectionObserver(
 );
 
 document.querySelectorAll(".reveal").forEach((element) => observer.observe(element));
+
+
+// Close mobile navigation when clicking outside or pressing Escape.
+document.addEventListener("click", (event) => {
+  if (!nav?.classList.contains("open")) return;
+  if (!nav.contains(event.target) && !toggle?.contains(event.target)) {
+    nav.classList.remove("open");
+    toggle?.setAttribute("aria-expanded", "false");
+    toggle?.setAttribute("aria-label", "Open navigation");
+    document.body.classList.remove("menu-open");
+    backdrop?.setAttribute("aria-hidden", "true");
+  }
+});
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && nav?.classList.contains("open")) {
+    nav.classList.remove("open");
+    toggle?.setAttribute("aria-expanded", "false");
+    toggle?.setAttribute("aria-label", "Open navigation");
+    document.body.classList.remove("menu-open");
+    backdrop?.setAttribute("aria-hidden", "true");
+    toggle?.focus();
+  }
+});

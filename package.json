@@ -12,6 +12,7 @@
     "check": "node scripts/check.mjs && node --check functions/_shared.js && node --check functions/api/applications.js && node --check functions/api/contact.js && node --check functions/api/health.js",
     "test": "npm run check && npm run build",
     "pages:dev": "npx --yes wrangler@4.112.0 pages dev dist",
-    "pages:deploy": "npm run build && npx --yes wrangler@4.112.0 pages deploy dist --project-name brownstone-careers"
+    "pages:deploy": "npm run build && npx --yes wrangler@4.112.0 pages deploy dist --project-name brownstone-careers",
+    "indexnow": "node scripts/submit-indexnow.mjs"
   }
 }

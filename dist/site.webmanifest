@@ -1,0 +1,16 @@
+{
+  "name": "Brownstone Careers",
+  "short_name": "Brownstone Careers",
+  "description": "Professional remote recruitment and career opportunities.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#092b66",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
