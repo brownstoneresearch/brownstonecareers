@@ -47,9 +47,17 @@
 <div class="contact-method"><span>✉</span><div><strong>Email</strong><a href="mailto:support@brownstonecareers.agency">support@brownstonecareers.agency</a></div></div>
 <div class="contact-method"><span>◉</span><div><strong>WhatsApp</strong><a href="https://wa.me/13025342829" target="_blank" rel="noopener">Open WhatsApp support</a></div></div>
 <div class="security-note"><strong>Protect your information</strong><p>Never send passwords, PINs, complete payment-card details, or online-banking login information.</p></div></div>
-<form class="application-form email-form" data-form-type="Support Request"><div class="form-head"><span>Support request</span><h3>Send a clear message</h3></div>
-<label>Full name<input type="text" name="name" required></label><label>Email address<input type="email" name="email" required></label><label>Subject<input type="text" name="subject" required></label><label>Message<textarea name="message" rows="7" required></textarea></label>
-<button class="btn btn-primary full" type="submit">Prepare Support Email</button><p class="form-note">Your email application will open with the official address already entered.</p></form>
+<form id="supportForm" class="application-form api-form" novalidate>
+<div class="form-head"><span>Support request</span><h3>Send a clear message</h3></div>
+<label>Full name<input type="text" name="name" autocomplete="name" maxlength="120" required></label>
+<label>Email address<input type="email" name="email" autocomplete="email" maxlength="160" required></label>
+<label>Subject<input type="text" name="subject" maxlength="160" required></label>
+<label>Message<textarea name="message" rows="7" maxlength="5000" required></textarea></label>
+<div class="website-field" aria-hidden="true"><label>Website<input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>
+<button class="btn btn-primary full" type="submit">Send Support Request</button>
+<p class="form-note">Your message will be sent securely to the official Brownstone Careers support inbox.</p>
+<div class="form-status" role="status" aria-live="polite"></div>
+</form>
 </div></section>
 </main>
 

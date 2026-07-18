@@ -41,24 +41,29 @@
 </header>
 
 <main id="main-content">
-<section class="page-hero compact"><div class="container"><span class="eyebrow">Candidate application</span><h1>Tell us what you can contribute.</h1><p>Provide complete, accurate, and role-relevant information. Your application will be prepared for our official recruitment email.</p></div></section>
+<section class="page-hero compact"><div class="container"><span class="eyebrow">Candidate application</span><h1>Tell us what you can contribute.</h1><p>Provide complete, accurate, and role-relevant information. Submit your application securely through our official recruitment system.</p></div></section>
 <section class="section apply-section"><div class="container apply-layout">
 <aside class="application-sidebar">
 <div class="application-cover-image"><img src="assets/cover.webp" alt="Brownstone Careers opportunities"></div>
 <span class="section-label">Application guidance</span><h2>Make every response useful.</h2>
 <div class="sidebar-list"><div><span>01</span><p><strong>Be specific</strong><small>Describe duties, tools, outcomes, and responsibilities.</small></p></div><div><span>02</span><p><strong>Stay relevant</strong><small>Focus on experience connected to your selected role.</small></p></div><div><span>03</span><p><strong>Be accurate</strong><small>Ensure dates, availability, and contact details are correct.</small></p></div><div><span>04</span><p><strong>Be professional</strong><small>Use complete sentences and clear communication.</small></p></div></div>
 <div class="official-email"><strong>Official submission email</strong><a href="mailto:support@brownstonecareers.agency">support@brownstonecareers.agency</a></div></aside>
-<form class="application-form email-form" data-form-type="Career Application"><div class="form-head"><span>Candidate profile</span><h3>Application information</h3></div>
-<div class="form-row"><label>First name<input type="text" name="firstName" required></label><label>Last name<input type="text" name="lastName" required></label></div>
-<div class="form-row"><label>Email address<input type="email" name="email" required></label><label>Phone number<input type="tel" name="phone" required></label></div>
+<form id="careerApplicationForm" class="application-form api-form" enctype="multipart/form-data" novalidate>
+<div class="form-head"><span>Candidate profile</span><h3>Application information</h3></div>
+<div class="form-row"><label>First name<input type="text" name="firstName" autocomplete="given-name" maxlength="80" required></label><label>Last name<input type="text" name="lastName" autocomplete="family-name" maxlength="80" required></label></div>
+<div class="form-row"><label>Email address<input type="email" name="email" autocomplete="email" maxlength="160" required></label><label>Phone number<input type="tel" name="phone" autocomplete="tel" maxlength="40" required></label></div>
 <label>Role of interest<select name="role" id="roleSelect" required><option value="">Select a role</option><option>Finance Administrator</option><option>Data Entry Specialist</option><option>Customer Service Representative</option><option>Administrative Assistant</option><option>Other</option></select></label>
-<div class="form-row"><label>Time zone<input type="text" name="timezone" placeholder="Example: Eastern Time" required></label><label>Available start date<input type="date" name="startDate" required></label></div>
-<label>Relevant professional experience<textarea name="experience" rows="6" placeholder="Describe responsibilities, tools used, and achievements." required></textarea></label>
-<label>Why are you interested in this role?<textarea name="interest" rows="5" placeholder="Explain how your experience and goals align with the role." required></textarea></label>
-<label>Software and technical skills<textarea name="skills" rows="5" placeholder="List office, finance, customer-support, data, or communication tools you use." required></textarea></label>
-<label>Remote-work readiness<textarea name="readiness" rows="4" placeholder="Describe your equipment, internet connection, workspace, and availability." required></textarea></label>
-<label class="consent"><input type="checkbox" required><span>I confirm that the information provided is accurate and may be reviewed for recruitment purposes.</span></label>
-<button class="btn btn-primary full" type="submit">Prepare Official Application Email</button><p class="form-note">The completed information will open in your email application addressed to support@brownstonecareers.agency.</p>
+<div class="form-row"><label>Time zone<input type="text" name="timezone" placeholder="Example: Eastern Time" maxlength="80" required></label><label>Available start date<input type="date" name="startDate" required></label></div>
+<label>Relevant professional experience<textarea name="experience" rows="6" maxlength="4000" placeholder="Describe responsibilities, tools used, and achievements." required></textarea></label>
+<label>Why are you interested in this role?<textarea name="interest" rows="5" maxlength="3000" placeholder="Explain how your experience and goals align with the role." required></textarea></label>
+<label>Software and technical skills<textarea name="skills" rows="5" maxlength="3000" placeholder="List office, finance, customer-support, data, or communication tools you use." required></textarea></label>
+<label>Remote-work readiness<textarea name="readiness" rows="4" maxlength="2500" placeholder="Describe your equipment, internet connection, workspace, and availability." required></textarea></label>
+<label>Resume or CV<input type="file" name="resume" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" required><small class="field-help">PDF, DOC, or DOCX only. Maximum file size: 5 MB.</small></label>
+<label class="consent"><input type="checkbox" name="consent" value="yes" required><span>I confirm that the information provided is accurate and may be reviewed for recruitment purposes.</span></label>
+<div class="website-field" aria-hidden="true"><label>Website<input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>
+<button class="btn btn-primary full" type="submit">Submit Application Securely</button>
+<p class="form-note">Your application will be delivered securely to the Brownstone Careers recruitment inbox. A confirmation email and reference number will be sent to you.</p>
+<div class="form-status" role="status" aria-live="polite"></div>
 </form></div></section>
 </main>
 
