@@ -67,6 +67,8 @@ The header and footer now use a true transparent PNG logo with responsive sizing
 
 This build includes Cloudflare Turnstile widgets on the application and contact forms using site key `0x4AAAAAAD4dZ6uvgEldqskh`. For full server-side verification on Cloudflare Pages, add `TURNSTILE_SECRET_KEY` as an environment variable in your Pages project settings. The site also includes a cookie consent banner with necessary, analytics, and marketing preference storage.
 
+Primary live domain for Turnstile: `www.brownstonecareers.agency`. This build includes a root-domain redirect file so `brownstonecareers.agency` redirects to the `www` domain.
+
 ## Cloudflare Turnstile setup
 
 This package includes a dedicated setup guide for Brownstone Careers Turnstile configuration:

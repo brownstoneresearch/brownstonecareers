@@ -12,9 +12,9 @@ npx wrangler pages deploy .\public --project-name brownstone-careers --branch ma
 
 ## 2. Bing Webmaster Tools
 
-1. Add `https://brownstonecareers.agency` in Bing Webmaster Tools.
+1. Add `https://www.brownstonecareers.agency` in Bing Webmaster Tools.
 2. Verify ownership by DNS, HTML file, meta tag, or import from Google Search Console.
-3. Submit `https://brownstonecareers.agency/sitemap.xml`.
+3. Submit `https://www.brownstonecareers.agency/sitemap.xml`.
 4. Inspect the homepage and important pages after deployment.
 
 ## 3. IndexNow
@@ -37,7 +37,7 @@ Add the domain to Google Search Console and submit the same sitemap. Yandex and 
 
 ## Validation URLs
 
-- `https://brownstonecareers.agency/robots.txt`
-- `https://brownstonecareers.agency/sitemap.xml`
-- `https://brownstonecareers.agency/llms.txt`
-- `https://brownstonecareers.agency/034daaf5f852e6791e5269922b8ae775.txt`
+- `https://www.brownstonecareers.agency/robots.txt`
+- `https://www.brownstonecareers.agency/sitemap.xml`
+- `https://www.brownstonecareers.agency/llms.txt`
+- `https://www.brownstonecareers.agency/034daaf5f852e6791e5269922b8ae775.txt`

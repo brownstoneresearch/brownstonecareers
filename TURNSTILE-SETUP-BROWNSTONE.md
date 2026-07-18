@@ -25,11 +25,14 @@ The site key is included in:
 ```text
 Widget name: Brownstone Careers Forms
 Widget mode: Managed
-Hostnames:
-- brownstonecareers.agency
+Primary production hostname:
 - www.brownstonecareers.agency
+Optional secondary hostname:
+- brownstonecareers.agency
 - your Cloudflare Pages preview domain, if testing preview deployments
 ```
+
+This package also includes Cloudflare Pages redirect rules in `public/_redirects` and `dist/_redirects` so `brownstonecareers.agency/*` redirects to `https://www.brownstonecareers.agency/*`. This keeps the Turnstile widget running on the `www` production domain.
 
 ## Required environment variable
 
@@ -110,9 +113,9 @@ git push origin main
 
 After deployment, test:
 
-- `https://brownstonecareers.agency/apply`
-- `https://brownstonecareers.agency/contact`
-- `https://brownstonecareers.agency/api/health`
+- `https://www.brownstonecareers.agency/apply`
+- `https://www.brownstonecareers.agency/contact`
+- `https://www.brownstonecareers.agency/api/health`
 
 The health route should report Turnstile as configured after the secret key is set in Cloudflare Pages.
 

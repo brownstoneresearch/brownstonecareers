@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://brownstonecareers.agency/sitemap.xml
+Sitemap: https://www.brownstonecareers.agency/sitemap.xml
