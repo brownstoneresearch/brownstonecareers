@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" role="img" aria-label="Administrative Assistant illustration">
+    <defs>
+      <linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F4A261"/><stop offset="1" stop-color="#8F4B1F"/></linearGradient>
+      <radialGradient id="r" cx="30%" cy="20%" r="80%"><stop offset="0" stop-color="#ffffff" stop-opacity=".36"/><stop offset="1" stop-color="#ffffff" stop-opacity="0"/></radialGradient>
+    </defs>
+    <rect width="400" height="400" rx="48" fill="url(#g)"/>
+    <rect width="400" height="400" rx="48" fill="url(#r)"/>
+    <path d="M44 340 C118 286 158 354 230 306 C288 268 316 308 356 248" fill="none" stroke="#fff" stroke-width="34" stroke-linecap="round" opacity=".09"/>
+    <rect x="74" y="116" width="252" height="216" rx="30" fill="rgba(255,255,255,.14)" stroke="rgba(255,255,255,.28)"/>
+        <rect x="100" y="156" width="200" height="38" rx="14" fill="#fff" opacity=".88"/><path d="M124 222h48M204 222h48M124 260h48M204 260h48" stroke="#fff" stroke-width="14" stroke-linecap="round" opacity=".58"/>
+        <path d="M122 96v50M278 96v50" stroke="#fff" stroke-width="18" stroke-linecap="round" opacity=".82"/>
+        <circle cx="286" cy="286" r="42" fill="#fff" opacity=".18"/><path d="M264 286l16 16 30-38" stroke="#fff" stroke-width="10" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="34" y="54" fill="#fff" font-family="Inter,Arial,sans-serif" font-size="24" font-weight="900" letter-spacing="-1">OPS</text>
+    <text x="34" y="372" fill="#fff" opacity=".85" font-family="Inter,Arial,sans-serif" font-size="15" font-weight="800">Administrative Support</text>
+    </svg>
