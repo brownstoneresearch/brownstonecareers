@@ -57,3 +57,7 @@ git add -A
 git commit -m "Rebuild site for Cloudflare Pages"
 git push -u origin main
 ```
+
+## Logo refinement
+
+The header and footer now use a true transparent PNG logo with responsive sizing, clean alignment, and no colored image background.
