@@ -65,4 +65,20 @@ The header and footer now use a true transparent PNG logo with responsive sizing
 
 ## Cloudflare Turnstile and cookies
 
-This build includes Cloudflare Turnstile widgets on the application and contact forms using site key `0x4AAAAAAD4dZ6uvgEldqskh-`. For full server-side verification on Cloudflare Pages, add `TURNSTILE_SECRET_KEY` as an environment variable in your Pages project settings. The site also includes a cookie consent banner with necessary, analytics, and marketing preference storage.
+This build includes Cloudflare Turnstile widgets on the application and contact forms using site key `0x4AAAAAAD4dZ6uvgEldqskh`. For full server-side verification on Cloudflare Pages, add `TURNSTILE_SECRET_KEY` as an environment variable in your Pages project settings. The site also includes a cookie consent banner with necessary, analytics, and marketing preference storage.
+
+## Cloudflare Turnstile setup
+
+This package includes a dedicated setup guide for Brownstone Careers Turnstile configuration:
+
+```text
+TURNSTILE-SETUP-BROWNSTONE.md
+```
+
+Current Turnstile site key in the website:
+
+```text
+0x4AAAAAAD4dZ6uvgEldqskh
+```
+
+Add `TURNSTILE_SECRET_KEY` in Cloudflare Pages environment variables for full server-side verification.
