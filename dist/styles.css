@@ -1620,3 +1620,322 @@ input:focus,select:focus,textarea:focus{outline:0;border-color:rgba(92,124,255,.
     max-height:31px !important;
   }
 }
+
+/* ==========================================================
+   Brownstone Careers — Sophisticated Footer Logo Lockup Fix
+   PC + tablet + mobile placement refinement.
+   This block intentionally comes last so it overrides older
+   footer-logo rules without requiring HTML changes.
+   ========================================================== */
+.premium-footer .footer-command{
+  grid-template-columns:minmax(0,1.16fr) minmax(340px,.84fr) !important;
+  align-items:stretch !important;
+  gap:26px !important;
+}
+.premium-footer .premium-brand-card.footer-logo-card{
+  min-height:334px !important;
+  padding:36px !important;
+  display:flex !important;
+  flex-direction:column !important;
+  justify-content:space-between !important;
+  gap:24px !important;
+  border-radius:40px !important;
+  overflow:hidden !important;
+  isolation:isolate !important;
+  background:
+    radial-gradient(circle at 15% 4%, rgba(118,145,255,.30), transparent 34%),
+    radial-gradient(circle at 92% 28%, rgba(62,214,255,.12), transparent 30%),
+    linear-gradient(145deg, rgba(255,255,255,.135), rgba(255,255,255,.045)) !important;
+  border:1px solid rgba(255,255,255,.145) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.15),
+    0 30px 95px rgba(0,0,0,.30) !important;
+}
+.premium-footer .premium-brand-card.footer-logo-card::before{
+  content:"" !important;
+  position:absolute !important;
+  inset:18px !important;
+  border-radius:32px !important;
+  border:1px solid rgba(255,255,255,.075) !important;
+  background:
+    linear-gradient(135deg, rgba(255,255,255,.052), transparent 48%),
+    radial-gradient(circle at 28% 14%, rgba(118,145,255,.14), transparent 34%) !important;
+  pointer-events:none !important;
+  z-index:0 !important;
+}
+.premium-footer .premium-brand-card.footer-logo-card::after{
+  content:"" !important;
+  position:absolute !important;
+  left:36px !important;
+  right:36px !important;
+  top:36px !important;
+  height:132px !important;
+  border-radius:32px !important;
+  background:
+    linear-gradient(145deg, rgba(2,9,24,.54), rgba(7,29,70,.26)) !important;
+  border:1px solid rgba(255,255,255,.105) !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.11), 0 22px 60px rgba(0,0,0,.18) !important;
+  pointer-events:none !important;
+  z-index:0 !important;
+}
+.premium-footer .footer-logo-lockup{
+  position:relative !important;
+  z-index:2 !important;
+  width:100% !important;
+  max-width:720px !important;
+  min-height:132px !important;
+  display:grid !important;
+  grid-template-columns:104px minmax(0,1fr) !important;
+  align-items:center !important;
+  gap:22px !important;
+  padding:18px 22px !important;
+  border-radius:30px !important;
+  text-decoration:none !important;
+}
+.premium-footer .footer-logo-mark{
+  width:96px !important;
+  height:96px !important;
+  flex:0 0 96px !important;
+  display:grid !important;
+  place-items:center !important;
+  border-radius:30px !important;
+  background:
+    radial-gradient(circle at 30% 20%, rgba(158,178,255,.38), transparent 42%),
+    linear-gradient(145deg, rgba(255,255,255,.14), rgba(255,255,255,.045)) !important;
+  border:1px solid rgba(255,255,255,.145) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.16),
+    0 20px 48px rgba(0,0,0,.30) !important;
+}
+.premium-footer .footer-logo-mark img{
+  width:74px !important;
+  height:74px !important;
+  max-width:74px !important;
+  max-height:74px !important;
+  object-fit:contain !important;
+  object-position:center !important;
+  display:block !important;
+  padding:0 !important;
+  margin:0 !important;
+  background:transparent !important;
+  border:0 !important;
+  border-radius:0 !important;
+  filter:drop-shadow(0 12px 22px rgba(0,0,0,.38)) !important;
+}
+.premium-footer .footer-logo-wordmark{
+  min-width:0 !important;
+  display:grid !important;
+  justify-items:start !important;
+  align-content:center !important;
+  gap:5px !important;
+  text-align:left !important;
+  text-transform:uppercase !important;
+}
+.premium-footer .footer-logo-wordmark strong{
+  display:block !important;
+  width:100% !important;
+  color:#ffffff !important;
+  font-family:var(--heading-font, Sora, Inter, sans-serif) !important;
+  font-size:clamp(34px,3.35vw,56px) !important;
+  line-height:.86 !important;
+  letter-spacing:-.066em !important;
+  font-weight:1000 !important;
+  white-space:nowrap !important;
+  text-shadow:0 18px 38px rgba(0,0,0,.32) !important;
+}
+.premium-footer .footer-logo-wordmark em{
+  display:block !important;
+  width:100% !important;
+  color:#8fa4ff !important;
+  font-family:var(--heading-font, Sora, Inter, sans-serif) !important;
+  font-style:normal !important;
+  font-size:clamp(22px,2.05vw,38px) !important;
+  line-height:.95 !important;
+  letter-spacing:.30em !important;
+  font-weight:850 !important;
+  white-space:nowrap !important;
+  text-shadow:0 14px 30px rgba(0,0,0,.25) !important;
+}
+.premium-footer .footer-logo-wordmark small{
+  display:grid !important;
+  grid-template-columns:28px auto 28px !important;
+  align-items:center !important;
+  gap:12px !important;
+  width:max-content !important;
+  max-width:100% !important;
+  color:#eef3ff !important;
+  font-family:var(--heading-font, Sora, Inter, sans-serif) !important;
+  font-size:11px !important;
+  line-height:1.1 !important;
+  letter-spacing:.205em !important;
+  font-weight:900 !important;
+  white-space:nowrap !important;
+  margin-top:6px !important;
+}
+.premium-footer .footer-logo-wordmark small::before,
+.premium-footer .footer-logo-wordmark small::after{
+  content:"" !important;
+  display:block !important;
+  width:28px !important;
+  height:2px !important;
+  border-radius:999px !important;
+  background:linear-gradient(90deg, transparent, #98aaff) !important;
+}
+.premium-footer .footer-logo-wordmark small::after{
+  background:linear-gradient(90deg, #98aaff, transparent) !important;
+}
+.premium-footer .footer-logo-card p,
+.premium-footer .footer-logo-card .footer-trust-row{
+  position:relative !important;
+  z-index:2 !important;
+}
+.premium-footer .footer-logo-card p{
+  max-width:650px !important;
+  color:#cbd8f4 !important;
+  font-size:15px !important;
+  line-height:1.78 !important;
+  margin:0 !important;
+}
+.premium-footer .footer-trust-row{
+  align-items:center !important;
+}
+.premium-footer .footer-trust-row span{
+  border:1px solid rgba(255,255,255,.12) !important;
+  background:rgba(255,255,255,.078) !important;
+  color:#eff4ff !important;
+}
+
+@media (max-width:1100px){
+  .premium-footer .footer-command{
+    grid-template-columns:1fr !important;
+  }
+  .premium-footer .premium-brand-card.footer-logo-card{
+    min-height:0 !important;
+  }
+  .premium-footer .footer-logo-lockup{
+    max-width:680px !important;
+  }
+}
+
+@media (max-width:760px){
+  .premium-footer .premium-brand-card.footer-logo-card{
+    padding:24px !important;
+    border-radius:30px !important;
+    gap:18px !important;
+  }
+  .premium-footer .premium-brand-card.footer-logo-card::before{
+    inset:12px !important;
+    border-radius:24px !important;
+  }
+  .premium-footer .premium-brand-card.footer-logo-card::after{
+    left:18px !important;
+    right:18px !important;
+    top:18px !important;
+    height:224px !important;
+    border-radius:24px !important;
+  }
+  .premium-footer .footer-logo-lockup{
+    max-width:100% !important;
+    min-height:224px !important;
+    grid-template-columns:1fr !important;
+    justify-items:center !important;
+    gap:14px !important;
+    padding:18px 16px !important;
+    border-radius:24px !important;
+    text-align:center !important;
+  }
+  .premium-footer .footer-logo-mark{
+    width:86px !important;
+    height:86px !important;
+    border-radius:26px !important;
+  }
+  .premium-footer .footer-logo-mark img{
+    width:66px !important;
+    height:66px !important;
+    max-width:66px !important;
+    max-height:66px !important;
+  }
+  .premium-footer .footer-logo-wordmark{
+    justify-items:center !important;
+    text-align:center !important;
+    width:100% !important;
+  }
+  .premium-footer .footer-logo-wordmark strong{
+    font-size:34px !important;
+    line-height:.92 !important;
+    letter-spacing:-.06em !important;
+    white-space:normal !important;
+    text-align:center !important;
+  }
+  .premium-footer .footer-logo-wordmark em{
+    font-size:23px !important;
+    line-height:1 !important;
+    letter-spacing:.25em !important;
+    white-space:normal !important;
+    text-align:center !important;
+    padding-left:.25em !important;
+  }
+  .premium-footer .footer-logo-wordmark small{
+    grid-template-columns:18px auto 18px !important;
+    gap:9px !important;
+    justify-content:center !important;
+    font-size:9.8px !important;
+    letter-spacing:.14em !important;
+    white-space:nowrap !important;
+    margin-inline:auto !important;
+  }
+  .premium-footer .footer-logo-wordmark small::before,
+  .premium-footer .footer-logo-wordmark small::after{
+    width:18px !important;
+  }
+  .premium-footer .footer-logo-card p{
+    font-size:14px !important;
+    line-height:1.7 !important;
+    text-align:left !important;
+  }
+}
+
+@media (max-width:420px){
+  .premium-footer .premium-brand-card.footer-logo-card{
+    padding:20px !important;
+  }
+  .premium-footer .premium-brand-card.footer-logo-card::after{
+    left:14px !important;
+    right:14px !important;
+    top:14px !important;
+    height:214px !important;
+  }
+  .premium-footer .footer-logo-lockup{
+    min-height:214px !important;
+    padding:16px 12px !important;
+  }
+  .premium-footer .footer-logo-mark{
+    width:78px !important;
+    height:78px !important;
+    border-radius:24px !important;
+  }
+  .premium-footer .footer-logo-mark img{
+    width:60px !important;
+    height:60px !important;
+    max-width:60px !important;
+    max-height:60px !important;
+  }
+  .premium-footer .footer-logo-wordmark strong{
+    font-size:29px !important;
+  }
+  .premium-footer .footer-logo-wordmark em{
+    font-size:20px !important;
+    letter-spacing:.20em !important;
+    padding-left:.20em !important;
+  }
+  .premium-footer .footer-logo-wordmark small{
+    grid-template-columns:12px auto 12px !important;
+    gap:7px !important;
+    font-size:9px !important;
+    letter-spacing:.09em !important;
+  }
+  .premium-footer .footer-logo-wordmark small::before,
+  .premium-footer .footer-logo-wordmark small::after{
+    width:12px !important;
+  }
+}
