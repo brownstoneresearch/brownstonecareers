@@ -1,0 +1,3 @@
+# Brownstone Careers canonical domain redirect
+# Keep Turnstile running on the primary production hostname: www.brownstonecareers.agency
+https://brownstonecareers.agency/* https://www.brownstonecareers.agency/:splat 301
