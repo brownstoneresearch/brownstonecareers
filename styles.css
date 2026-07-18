@@ -576,3 +576,170 @@ filter:drop-shadow(0 0 14px rgba(73,109,255,.18));
     letter-spacing:.14em !important;
   }
 }
+
+
+/* Secure Resend form integration */
+.field-help{
+  display:block;
+  margin-top:8px;
+  color:#68758b;
+  font-size:.78rem;
+  font-weight:500;
+}
+
+.form-status{
+  display:none;
+  margin-top:16px;
+  padding:14px 16px;
+  border-radius:10px;
+  font-size:.9rem;
+  font-weight:650;
+  line-height:1.5;
+}
+
+.form-status:not(:empty){display:block}
+.form-status.pending{background:#eef4ff;color:#183b72;border:1px solid #cadbfa}
+.form-status.success{background:#edf9f1;color:#17623a;border:1px solid #bce5ca}
+.form-status.error{background:#fff1f1;color:#9b2525;border:1px solid #f0c4c4}
+
+.api-form button[disabled]{
+  cursor:wait;
+  opacity:.72;
+}
+
+.website-field{
+  position:absolute !important;
+  width:1px !important;
+  height:1px !important;
+  padding:0 !important;
+  margin:-1px !important;
+  overflow:hidden !important;
+  clip:rect(0,0,0,0) !important;
+  white-space:nowrap !important;
+  border:0 !important;
+}
+
+/* 2026 polished transparent logo placement */
+.cover-header {
+  background: rgba(5, 22, 52, .94) !important;
+  border-bottom: 1px solid rgba(125, 151, 225, .18) !important;
+  box-shadow: 0 12px 34px rgba(1, 9, 27, .24) !important;
+}
+.cover-nav {
+  min-height: 88px !important;
+}
+.cover-brand {
+  gap: 14px !important;
+  padding: 7px 0;
+}
+.cover-brand-logo {
+  flex: 0 0 60px !important;
+  width: 60px !important;
+  height: 60px !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  overflow: visible !important;
+}
+.cover-brand-logo img {
+  width: 60px !important;
+  height: 60px !important;
+  object-fit: contain !important;
+  background: transparent !important;
+  border: 0 !important;
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, .18)) !important;
+  transition: transform .25s ease, filter .25s ease;
+}
+.cover-brand:hover .cover-brand-logo img {
+  transform: translateY(-1px) scale(1.025);
+  filter: drop-shadow(0 10px 20px rgba(33, 91, 255, .22)) !important;
+}
+.cover-brand-copy {
+  min-width: 0 !important;
+  transform: none !important;
+}
+.brand-name-line {
+  gap: 7px !important;
+}
+.brand-name-line strong,
+.brand-name-line small {
+  font-size: 19px !important;
+  letter-spacing: .045em !important;
+}
+.brand-agency-line {
+  margin-top: 8px !important;
+  gap: 7px !important;
+}
+.brand-agency-line em {
+  font-size: 7px !important;
+  letter-spacing: .22em !important;
+}
+
+.cover-footer {
+  padding-top: 68px !important;
+}
+.cover-footer-brand .cover-brand {
+  display: inline-flex !important;
+  align-items: center !important;
+  padding: 0 !important;
+}
+.cover-footer-brand .cover-brand-logo {
+  flex-basis: 76px !important;
+  width: 76px !important;
+  height: 76px !important;
+}
+.cover-footer-brand .cover-brand-logo img {
+  width: 76px !important;
+  height: 76px !important;
+  filter: drop-shadow(0 10px 22px rgba(0, 0, 0, .24)) !important;
+}
+.cover-footer-brand .brand-name-line strong,
+.cover-footer-brand .brand-name-line small {
+  font-size: 21px !important;
+}
+.cover-footer-brand > p {
+  margin-top: 20px !important;
+}
+
+@media (max-width: 1100px) {
+  .cover-nav { min-height: 82px !important; }
+  .cover-main-nav { top: 82px !important; }
+}
+@media (max-width: 720px) {
+  .cover-nav { min-height: 74px !important; }
+  .cover-brand { gap: 10px !important; }
+  .cover-brand-logo {
+    flex-basis: 48px !important;
+    width: 48px !important;
+    height: 48px !important;
+  }
+  .cover-brand-logo img {
+    width: 48px !important;
+    height: 48px !important;
+  }
+  .brand-name-line strong,
+  .brand-name-line small {
+    font-size: 15px !important;
+    letter-spacing: .035em !important;
+  }
+  .brand-agency-line { margin-top: 6px !important; }
+  .brand-agency-line em {
+    font-size: 5.8px !important;
+    letter-spacing: .17em !important;
+  }
+  .cover-main-nav { top: 74px !important; }
+  .cover-footer-brand .cover-brand-logo {
+    flex-basis: 62px !important;
+    width: 62px !important;
+    height: 62px !important;
+  }
+  .cover-footer-brand .cover-brand-logo img {
+    width: 62px !important;
+    height: 62px !important;
+  }
+  .cover-footer-brand .brand-name-line strong,
+  .cover-footer-brand .brand-name-line small {
+    font-size: 18px !important;
+  }
+}
