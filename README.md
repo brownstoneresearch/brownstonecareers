@@ -61,3 +61,8 @@ git push -u origin main
 ## Logo refinement
 
 The header and footer now use a true transparent PNG logo with responsive sizing, clean alignment, and no colored image background.
+
+
+## Cloudflare Turnstile and cookies
+
+This build includes Cloudflare Turnstile widgets on the application and contact forms using site key `0x4AAAAAAD4dZzZWJBuOSmtthMzjcj_KGDw`. For full server-side verification on Cloudflare Pages, add `TURNSTILE_SECRET_KEY` as an environment variable in your Pages project settings. The site also includes a cookie consent banner with necessary, analytics, and marketing preference storage.

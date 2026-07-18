@@ -2,6 +2,7 @@ export function health(env) {
   return json({
     ok: true,
     emailConfigured: Boolean(env.RESEND_API_KEY && env.EMAIL_FROM && env.RECRUITMENT_EMAIL),
+    turnstileConfigured: Boolean(env.TURNSTILE_SECRET_KEY),
     service: "Brownstone Careers",
     runtime: "Cloudflare Pages Functions",
   });
@@ -14,6 +15,9 @@ export async function handleApplication(request, env) {
   const form = await parseForm(request);
   if (form instanceof Response) return form;
   if (clean(form.get("website"))) return json({ success: true });
+
+  const turnstileError = await verifyTurnstile(request, env, form);
+  if (turnstileError) return turnstileError;
 
   const fields = {
     firstName: clean(form.get("firstName"), 80),
@@ -118,6 +122,9 @@ export async function handleContact(request, env) {
   if (form instanceof Response) return form;
   if (clean(form.get("website"))) return json({ success: true });
 
+  const turnstileError = await verifyTurnstile(request, env, form);
+  if (turnstileError) return turnstileError;
+
   const name = clean(form.get("name"), 120);
   const email = clean(form.get("email"), 160);
   const subject = clean(form.get("subject"), 160);
@@ -165,6 +172,43 @@ export async function handleContact(request, env) {
 
   if (!confirmation.ok) console.error("Support confirmation failed", confirmation.error);
   return json({ success: true, reference }, 201);
+}
+
+
+async function verifyTurnstile(request, env, form) {
+  const token = clean(form.get("cf-turnstile-response"), 4096);
+  if (!token) {
+    return json({ message: "Please complete the Cloudflare security check before submitting." }, 400);
+  }
+
+  const secret = clean(env.TURNSTILE_SECRET_KEY, 500);
+  if (!secret) {
+    console.warn("TURNSTILE_SECRET_KEY is not configured; frontend token presence was checked only.");
+    return null;
+  }
+
+  try {
+    const body = new URLSearchParams();
+    body.set("secret", secret);
+    body.set("response", token);
+    const remoteIp = clean(request.headers.get("CF-Connecting-IP"), 80);
+    if (remoteIp) body.set("remoteip", remoteIp);
+
+    const response = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body,
+    });
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok || !result.success) {
+      console.error("Turnstile verification failed", result["error-codes"] || response.status);
+      return json({ message: "Security verification failed. Please refresh the page and try again." }, 400);
+    }
+  } catch (error) {
+    console.error("Turnstile verification error", error);
+    return json({ message: "Security verification could not be completed. Please try again." }, 502);
+  }
+  return null;
 }
 
 async function parseForm(request) {

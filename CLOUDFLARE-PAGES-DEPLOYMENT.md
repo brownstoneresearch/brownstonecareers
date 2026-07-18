@@ -34,3 +34,14 @@ After deployment, visit `/api/health`. A correctly configured deployment returns
 If Cloudflare still restores an old dependency cache, choose **Retry deployment → Clear build cache and retry**.
 
 If the project was previously created as a Worker, create a new Pages project or change the deployment source to Pages Git integration. The configuration for this package is Pages-oriented.
+
+
+## Required Turnstile setting
+
+In Cloudflare Pages, open **Settings → Environment variables** and add:
+
+```text
+TURNSTILE_SECRET_KEY=your_turnstile_secret_key
+```
+
+The public site key is already embedded in the forms. Keep the secret key private and never publish it in frontend files.
