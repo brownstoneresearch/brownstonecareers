@@ -162,3 +162,10 @@ document.querySelectorAll('.reveal').forEach((el)=> observer ? observer.observe(
     window.setTimeout(() => openBanner(false), 900);
   }
 })();
+
+// V2 navigation intelligence
+const currentPage = (location.pathname.split('/').pop() || 'index.html').replace('.html','');
+document.querySelectorAll('[data-nav]').forEach(link => { if(link.dataset.nav === currentPage) link.classList.add('active'); });
+const siteHeader=document.querySelector('[data-header]');
+const syncHeader=()=>siteHeader?.classList.toggle('is-scrolled',window.scrollY>18);
+syncHeader(); window.addEventListener('scroll',syncHeader,{passive:true});

@@ -84,3 +84,7 @@ Current Turnstile site key in the website:
 ```
 
 Add `TURNSTILE_SECRET_KEY` in Cloudflare Pages environment variables for full server-side verification.
+
+
+## V2 Executive Brand Upgrade
+Includes uploaded Brownstone Careers logo variants, refined desktop and mobile logo placement, smart mobile navigation, upgraded cards/forms, and responsive executive styling. The logo remains the homepage control; no Home navigation item is included.
