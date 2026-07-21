@@ -31,6 +31,7 @@ function resetTurnstile(form) {
 }
 async function submitForm(form, endpoint) {
   const button = form.querySelector('button[type="submit"]');
+  if (!button) return;
   const originalText = button.textContent;
   if (!form.checkValidity()) { form.reportValidity(); return; }
   const turnstileWidget = form.querySelector('.cf-turnstile');
@@ -41,20 +42,52 @@ async function submitForm(form, endpoint) {
   }
   const resume = form.querySelector('input[name="resume"]')?.files?.[0];
   if (resume && resume.size > 5 * 1024 * 1024) { setFormState(form, 'Your resume must be no larger than 5 MB.', 'error'); return; }
-  button.disabled = true; button.textContent = 'Sending…'; setFormState(form, 'Securely submitting your information…', 'pending');
+
+  button.disabled = true;
+  button.textContent = 'Sending…';
+  form.setAttribute('aria-busy', 'true');
+  setFormState(form, 'Securely submitting your information…', 'pending');
+
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), 45000);
   try {
-    const response = await fetch(endpoint, { method: 'POST', body: new FormData(form), headers: { Accept: 'application/json' } });
-    let result = {}; try { result = await response.json(); } catch { result = {}; }
-    if (!response.ok) throw new Error(result.message || 'Your submission could not be sent.');
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      body: new FormData(form),
+      headers: { Accept: 'application/json' },
+      signal: controller.signal,
+      credentials: 'same-origin'
+    });
+    const contentType = response.headers.get('content-type') || '';
+    let result = {};
+    if (contentType.includes('application/json')) {
+      result = await response.json().catch(() => ({}));
+    } else {
+      const text = await response.text().catch(() => '');
+      result = { message: text && text.length < 300 ? text : '' };
+    }
+    if (!response.ok) {
+      const incident = result.incident ? ` Reference: ${result.incident}.` : '';
+      throw new Error((result.message || `Submission failed with status ${response.status}.`) + incident);
+    }
     form.reset();
     resetTurnstile(form);
-    const message = result.reference ? `Submission received successfully. Your reference is ${result.reference}. Please check your email for confirmation.` : 'Your message was sent successfully. Please check your email for confirmation.';
+    const message = result.reference
+      ? `Submission received successfully. Your reference is ${result.reference}. Please check your email for confirmation.`
+      : 'Your message was sent successfully. Please check your email for confirmation.';
     setFormState(form, message, 'success');
   } catch(error) {
     resetTurnstile(form);
-    setFormState(form, error.message || 'A connection error occurred. Please try again.', 'error');
+    const message = error?.name === 'AbortError'
+      ? 'The submission took too long. Please check your connection and try again.'
+      : (error?.message || 'A connection error occurred. Please try again.');
+    setFormState(form, message, 'error');
+  } finally {
+    window.clearTimeout(timeout);
+    button.disabled = false;
+    button.textContent = originalText;
+    form.removeAttribute('aria-busy');
   }
-  finally { button.disabled = false; button.textContent = originalText; }
 }
 document.getElementById('careerApplicationForm')?.addEventListener('submit', (event) => { event.preventDefault(); submitForm(event.currentTarget, '/api/applications'); });
 document.getElementById('supportForm')?.addEventListener('submit', (event) => { event.preventDefault(); submitForm(event.currentTarget, '/api/contact'); });

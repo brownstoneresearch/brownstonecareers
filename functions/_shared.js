@@ -39,7 +39,7 @@ export async function handleApplication(request, env) {
     .filter(([key]) => key !== "consent")
     .map(([, value]) => value);
 
-  if (required.some((value) => !value) || fields.consent !== "yes" || !(resume instanceof File)) {
+  if (required.some((value) => !value) || fields.consent !== "yes" || !isUploadedFile(resume)) {
     return json({
       message: "Please complete every required field, accept the consent statement, and attach your resume.",
     }, 400);
@@ -223,11 +223,24 @@ async function parseForm(request) {
   }
 }
 
+function isUploadedFile(value) {
+  return Boolean(
+    value &&
+    typeof value === "object" &&
+    typeof value.name === "string" &&
+    typeof value.size === "number" &&
+    typeof value.arrayBuffer === "function"
+  );
+}
+
 function validateResume(file) {
-  if (file.size <= 0) return "Please attach a resume.";
+  if (!isUploadedFile(file) || file.size <= 0) return "Please attach a resume.";
   if (file.size > MAX_RESUME_BYTES) return "Your resume must be no larger than 5 MB.";
-  const extension = file.name.split(".").pop()?.toLowerCase() || "";
-  if (!ALLOWED_EXTENSIONS.has(extension) || !ALLOWED_TYPES.has(file.type)) {
+  const extension = clean(file.name, 180).split(".").pop()?.toLowerCase() || "";
+  const contentType = clean(file.type, 160).toLowerCase();
+  // Some browsers and operating systems submit DOC/DOCX files with an empty or
+  // generic MIME type. The extension remains mandatory; MIME is checked when supplied.
+  if (!ALLOWED_EXTENSIONS.has(extension) || (contentType && contentType !== "application/octet-stream" && !ALLOWED_TYPES.has(contentType))) {
     return "Only PDF, DOC, and DOCX resumes are accepted.";
   }
   return null;
@@ -244,18 +257,25 @@ function validateEnvironment(env) {
 
 async function sendResendEmail(env, payload) {
   try {
+    const normalizedPayload = {
+      ...payload,
+      from: clean(payload.from, 320),
+      to: Array.isArray(payload.to) ? payload.to.map((value) => clean(value, 320)).filter(Boolean) : [],
+    };
+    if (payload.reply_to) normalizedPayload.reply_to = clean(payload.reply_to, 320);
+
     const response = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${env.RESEND_API_KEY}`,
+        Authorization: `Bearer ${clean(env.RESEND_API_KEY, 1000)}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(normalizedPayload),
     });
-    const body = await response.json().catch(() => ({}));
+    const body = await response.json().catch(async () => ({ message: await response.text().catch(() => "") }));
     return response.ok
       ? { ok: true, data: body }
-      : { ok: false, error: body?.message || `Resend returned ${response.status}` };
+      : { ok: false, status: response.status, error: body?.message || body?.error || `Resend returned ${response.status}` };
   } catch (error) {
     return { ok: false, error: error?.message || "Unable to reach Resend." };
   }
