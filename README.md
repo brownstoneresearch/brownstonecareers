@@ -88,3 +88,7 @@ Add `TURNSTILE_SECRET_KEY` in Cloudflare Pages environment variables for full se
 
 ## V2 Executive Brand Upgrade
 Includes uploaded Brownstone Careers logo variants, refined desktop and mobile logo placement, smart mobile navigation, upgraded cards/forms, and responsive executive styling. The logo remains the homepage control; no Home navigation item is included.
+
+## Submission-handler correction (v5.0.1)
+
+The application failure caused by undeclared resume-validation constants has been corrected. `npm test` now executes both the application and contact handlers with mocked Resend responses, preventing this regression from reaching production again. See `SUBMISSION-ERROR-CORRECTED.md`.
