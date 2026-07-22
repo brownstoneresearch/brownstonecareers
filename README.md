@@ -106,3 +106,16 @@ After deployment, `/api/health` must show:
 ```
 
 See `FORM-SUBMISSION-V3.md` for the production checklist.
+
+## SEO/GEO and premium form upgrade (v5.3.0)
+
+This build resolves the flagged meta-description and image-alt issues, normalizes clean canonical URLs, adds image-aware sitemaps, expands page-specific structured data, adds Twitter Cards, and introduces automated SEO regression checks. The application and contact forms were also rebuilt into polished, responsive fieldset sections without changing their API endpoints or field names.
+
+Run the complete validation suite before deployment:
+
+```bash
+npm ci
+npm test
+```
+
+See `SEO-GEO-FORM-UPGRADE.md` for the implementation summary and post-deployment indexing checklist.

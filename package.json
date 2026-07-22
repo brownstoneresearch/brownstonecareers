@@ -1,15 +1,15 @@
 {
   "name": "brownstone-careers-pages",
-  "version": "5.2.0",
+  "version": "5.3.0",
   "private": true,
-  "description": "Brownstone Careers Cloudflare Pages site with unified form submissions and signature executive logo placement.",
+  "description": "Brownstone Careers Cloudflare Pages site with unified forms, premium form UI, advanced SEO/GEO metadata, structured data, and canonical clean URLs.",
   "type": "module",
   "engines": {
     "node": ">=20 <23"
   },
   "scripts": {
     "build": "node scripts/build.mjs",
-    "check": "node scripts/check.mjs && node --check functions/_shared.js && node --check functions/api/applications.js && node --check functions/api/contact.js && node --check functions/api/health.js",
+    "check": "node scripts/check.mjs && node scripts/seo-audit.mjs && node --check functions/_shared.js && node --check functions/api/applications.js && node --check functions/api/contact.js && node --check functions/api/health.js",
     "test": "npm run check && node scripts/test-forms.mjs && npm run build",
     "pages:dev": "npx --yes wrangler@4.112.0 pages dev dist",
     "pages:deploy": "npm run build && npx --yes wrangler@latest pages deploy --project-name brownstone-careers --branch main",

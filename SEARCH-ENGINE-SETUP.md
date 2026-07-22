@@ -41,3 +41,21 @@ Add the domain to Google Search Console and submit the same sitemap. Yandex and 
 - `https://www.brownstonecareers.agency/sitemap.xml`
 - `https://www.brownstonecareers.agency/llms.txt`
 - `https://www.brownstonecareers.agency/034daaf5f852e6791e5269922b8ae775.txt`
+
+## v5.3 canonical SEO/GEO update
+
+The canonical page URLs are now:
+
+- `https://www.brownstonecareers.agency/`
+- `https://www.brownstonecareers.agency/about`
+- `https://www.brownstonecareers.agency/roles`
+- `https://www.brownstonecareers.agency/process`
+- `https://www.brownstonecareers.agency/faq`
+- `https://www.brownstonecareers.agency/apply`
+- `https://www.brownstonecareers.agency/contact`
+
+The `.html` versions redirect permanently to these clean URLs. Submit only the canonical sitemap URL:
+
+`https://www.brownstonecareers.agency/sitemap.xml`
+
+After each meaningful deployment, run `npm run indexnow`, then request indexing for the updated canonical URLs in Google Search Console.

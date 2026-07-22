@@ -1,15 +1,25 @@
 # Brownstone Careers
 
-> Brownstone Careers is a professional recruitment agency connecting capable candidates with structured remote career opportunities.
+> Brownstone Careers is a United States-focused remote recruitment agency that provides role pathways, candidate screening guidance, secure applications, and official recruitment support.
+
+## Core services
+- Remote recruitment and candidate screening
+- Candidate application guidance and role matching
+- Administrative, finance, data entry, customer service, virtual assistant, and recruiting support pathways
+- Official candidate safety and application support
 
 ## Primary pages
 - [Home](https://www.brownstonecareers.agency/)
-- [About](https://www.brownstonecareers.agency/about.html)
-- [Open Roles](https://www.brownstonecareers.agency/roles.html)
-- [Recruitment Process](https://www.brownstonecareers.agency/process.html)
-- [Candidate FAQ](https://www.brownstonecareers.agency/faq.html)
-- [Apply](https://www.brownstonecareers.agency/apply.html)
-- [Contact](https://www.brownstonecareers.agency/contact.html)
+- [About](https://www.brownstonecareers.agency/about)
+- [Remote Roles](https://www.brownstonecareers.agency/roles)
+- [Recruitment Process](https://www.brownstonecareers.agency/process)
+- [Candidate FAQ](https://www.brownstonecareers.agency/faq)
+- [Apply](https://www.brownstonecareers.agency/apply)
+- [Contact](https://www.brownstonecareers.agency/contact)
 
-## Contact
+## Candidate safety
+Brownstone Careers does not charge an upfront application fee and does not request passwords, PINs, full payment-card details, or online-banking credentials.
+
+## Official contact
 - Email: support@brownstonecareers.agency
+- Website: https://www.brownstonecareers.agency/
