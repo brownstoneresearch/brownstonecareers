@@ -67,8 +67,14 @@ async function submitForm(form, endpoint) {
       result = { message: text && text.length < 300 ? text : '' };
     }
     if (!response.ok) {
-      const incident = result.incident ? ` Reference: ${result.incident}.` : '';
-      throw new Error((result.message || `Submission failed with status ${response.status}.`) + incident);
+      let message = result.message || `Submission failed with status ${response.status}.`;
+      if (response.status === 404 || response.status === 405) {
+        message = 'The secure form service is not deployed. Please redeploy the project from the repository root so the functions directory is included.';
+      }
+      const details = [];
+      if (result.incident) details.push(`Reference: ${result.incident}`);
+      if (result.stage) details.push(`Stage: ${result.stage}`);
+      throw new Error(details.length ? `${message} ${details.join(' · ')}` : message);
     }
     form.reset();
     resetTurnstile(form);

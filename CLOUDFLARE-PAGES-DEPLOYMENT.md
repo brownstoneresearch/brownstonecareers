@@ -22,12 +22,13 @@ Add these to both Production and Preview when previews must send email:
 - `RESEND_API_KEY`: a current Resend sending key
 - `EMAIL_FROM`: a sender on a verified Resend domain
 - `RECRUITMENT_EMAIL`: the recruitment inbox
+- `TURNSTILE_SECRET_KEY`: the secret matching the Turnstile site key embedded in the forms
 
 Do not put secret values in GitHub, `package.json`, `wrangler.toml`, or this document.
 
 ## Health check
 
-After deployment, visit `/api/health`. A correctly configured deployment returns `ok: true` and `emailConfigured: true`.
+After deployment, visit `/api/health`. A correctly configured deployment returns `ok: true`, `handlerVersion: 2026-07-22.3`, `emailConfigured: true`, and `turnstileConfigured: true`.
 
 ## Troubleshooting
 

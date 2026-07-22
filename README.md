@@ -24,6 +24,7 @@ The project intentionally has no runtime or build dependencies. This keeps Cloud
    - `RESEND_API_KEY`
    - `EMAIL_FROM`
    - `RECRUITMENT_EMAIL`
+   - `TURNSTILE_SECRET_KEY`
 5. Redeploy.
 
 Pages Functions are in the root-level `functions/` directory and are deployed automatically with Git builds.
@@ -89,6 +90,19 @@ Add `TURNSTILE_SECRET_KEY` in Cloudflare Pages environment variables for full se
 ## V2 Executive Brand Upgrade
 Includes uploaded Brownstone Careers logo variants, refined desktop and mobile logo placement, smart mobile navigation, upgraded cards/forms, and responsive executive styling. The logo remains the homepage control; no Home navigation item is included.
 
-## Submission-handler correction (v5.0.1)
+## Unified form handler V3 (v5.1.0)
 
-The application failure caused by undeclared resume-validation constants has been corrected. `npm test` now executes both the application and contact handlers with mocked Resend responses, preventing this regression from reaching production again. See `SUBMISSION-ERROR-CORRECTED.md`.
+The live application and contact forms now use one Cloudflare Pages Functions backend. Stale Worker and Express handlers were removed to prevent accidental deployment of older code. The handler includes robust multi-megabyte attachment encoding, explicit `/api/*` routing, request-stage diagnostics, Resend timeouts, idempotency keys, and safe configuration checks.
+
+After deployment, `/api/health` must show:
+
+```json
+{
+  "ok": true,
+  "handlerVersion": "2026-07-22.3",
+  "emailConfigured": true,
+  "turnstileConfigured": true
+}
+```
+
+See `FORM-SUBMISSION-V3.md` for the production checklist.

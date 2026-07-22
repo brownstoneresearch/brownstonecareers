@@ -1,8 +1,8 @@
 {
   "name": "brownstone-careers-pages",
-  "version": "5.0.1",
+  "version": "5.2.0",
   "private": true,
-  "description": "Brownstone Careers static website with Cloudflare Pages Functions and Resend email delivery.",
+  "description": "Brownstone Careers Cloudflare Pages site with unified form submissions and signature executive logo placement.",
   "type": "module",
   "engines": {
     "node": ">=20 <23"
@@ -12,7 +12,7 @@
     "check": "node scripts/check.mjs && node --check functions/_shared.js && node --check functions/api/applications.js && node --check functions/api/contact.js && node --check functions/api/health.js",
     "test": "npm run check && node scripts/test-forms.mjs && npm run build",
     "pages:dev": "npx --yes wrangler@4.112.0 pages dev dist",
-    "pages:deploy": "npm run build && npx --yes wrangler@4.112.0 pages deploy dist --project-name brownstone-careers",
+    "pages:deploy": "npm run build && npx --yes wrangler@latest pages deploy --project-name brownstone-careers --branch main",
     "indexnow": "node scripts/submit-indexnow.mjs"
   }
 }
