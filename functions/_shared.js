@@ -1,3 +1,13 @@
+const MAX_RESUME_BYTES = 5 * 1024 * 1024;
+const ALLOWED_EXTENSIONS = new Set(["pdf", "doc", "docx"]);
+const ALLOWED_TYPES = new Set([
+  "application/pdf",
+  "application/x-pdf",
+  "application/msword",
+  "application/vnd.ms-word",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+]);
+
 export function health(env) {
   return json({
     ok: true,
@@ -79,6 +89,7 @@ export async function handleApplication(request, env) {
     attachments: [{
       filename: safeFilename(resume.name),
       content: resumeBase64,
+      content_type: resume.type || mimeTypeForExtension(resume.name),
     }],
   });
 
@@ -300,6 +311,14 @@ function createReference(prefix = "BC") {
   const random = crypto.randomUUID().replaceAll("-", "").slice(0, 6).toUpperCase();
   return `${prefix}-${date}-${random}`;
 }
+function mimeTypeForExtension(name) {
+  const extension = clean(name, 180).split(".").pop()?.toLowerCase();
+  if (extension === "pdf") return "application/pdf";
+  if (extension === "doc") return "application/msword";
+  if (extension === "docx") return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+  return "application/octet-stream";
+}
+
 function safeFilename(name) {
   return clean(name, 180).replace(/[^\w.\-() ]/g, "_") || "resume.pdf";
 }
