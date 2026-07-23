@@ -1,4 +1,3 @@
-
 const body = document.body;
 const toggle = document.querySelector('[data-menu-toggle]');
 const drawer = document.querySelector('[data-mobile-drawer]');
@@ -7,39 +6,57 @@ const drawerClose = document.querySelector('[data-drawer-close]');
 let menuReturnFocus = null;
 
 function drawerFocusable(){
-  return drawer ? [...drawer.querySelectorAll('a[href], button:not([disabled])')] : [];
+  return drawer ? [...drawer.querySelectorAll('a[href], button:not([disabled])')].filter((element) => !element.hasAttribute('inert')) : [];
+}
+function setDrawerState(open){
+  body.classList.toggle('menu-open', open);
+  toggle?.setAttribute('aria-expanded', String(open));
+  toggle?.setAttribute('aria-label', open ? 'Close navigation' : 'Open navigation');
+  drawer?.setAttribute('aria-hidden', String(!open));
+  backdrop?.setAttribute('aria-hidden', String(!open));
+  backdrop?.setAttribute('tabindex', open ? '0' : '-1');
+  if (drawer) drawer.inert = !open;
 }
 function closeMenu({ restoreFocus = true } = {}){
-  body.classList.remove('menu-open');
-  toggle?.setAttribute('aria-expanded','false');
-  toggle?.setAttribute('aria-label','Open navigation');
-  drawer?.setAttribute('aria-hidden','true');
-  backdrop?.setAttribute('tabindex','-1');
-  if (restoreFocus && menuReturnFocus instanceof HTMLElement) menuReturnFocus.focus();
+  if (!body.classList.contains('menu-open')) return;
+  setDrawerState(false);
+  if (restoreFocus && menuReturnFocus instanceof HTMLElement) {
+    requestAnimationFrame(() => menuReturnFocus?.focus({ preventScroll: true }));
+  }
 }
 function openMenu(){
+  if (!drawer || !toggle || body.classList.contains('menu-open')) return;
   menuReturnFocus = document.activeElement;
-  body.classList.add('menu-open');
-  toggle?.setAttribute('aria-expanded','true');
-  toggle?.setAttribute('aria-label','Close navigation');
-  drawer?.setAttribute('aria-hidden','false');
-  backdrop?.setAttribute('tabindex','0');
-  requestAnimationFrame(() => (drawerClose || drawerFocusable()[0])?.focus());
+  setDrawerState(true);
+  requestAnimationFrame(() => (drawerClose || drawerFocusable()[0])?.focus({ preventScroll: true }));
 }
-toggle?.addEventListener('click',()=> body.classList.contains('menu-open') ? closeMenu() : openMenu());
-drawerClose?.addEventListener('click',()=>closeMenu());
-backdrop?.addEventListener('click',()=>closeMenu());
-document.addEventListener('keydown',(event)=>{
-  if(event.key === 'Escape' && body.classList.contains('menu-open')) closeMenu();
-  if(event.key === 'Tab' && body.classList.contains('menu-open')){
-    const items=drawerFocusable(); if(!items.length) return;
-    const first=items[0], last=items[items.length-1];
-    if(event.shiftKey && document.activeElement===first){event.preventDefault();last.focus();}
-    else if(!event.shiftKey && document.activeElement===last){event.preventDefault();first.focus();}
+setDrawerState(false);
+toggle?.addEventListener('click', (event) => {
+  event.preventDefault();
+  body.classList.contains('menu-open') ? closeMenu() : openMenu();
+});
+drawerClose?.addEventListener('click', () => closeMenu());
+backdrop?.addEventListener('click', () => closeMenu());
+document.addEventListener('keydown', (event) => {
+  if (!body.classList.contains('menu-open')) return;
+  if (event.key === 'Escape') { event.preventDefault(); closeMenu(); return; }
+  if (event.key === 'Tab') {
+    const items = drawerFocusable();
+    if (!items.length) return;
+    const first = items[0];
+    const last = items[items.length - 1];
+    if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+    else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
   }
 });
-document.querySelectorAll('[data-mobile-drawer] a').forEach(link=>link.addEventListener('click',()=>closeMenu({restoreFocus:false})));
-window.addEventListener('resize',()=>{if(innerWidth>980 && body.classList.contains('menu-open')) closeMenu({restoreFocus:false});},{passive:true});
+drawer?.addEventListener('click', (event) => {
+  if (event.target.closest('a[href]')) closeMenu({ restoreFocus: false });
+});
+window.addEventListener('resize', () => {
+  if (window.innerWidth > 940) closeMenu({ restoreFocus: false });
+}, { passive: true });
+window.addEventListener('pagehide', () => setDrawerState(false));
+
 const year = document.getElementById('year'); if(year) year.textContent = new Date().getFullYear();
 const params = new URLSearchParams(location.search);
 const selectedRole = params.get('role');
