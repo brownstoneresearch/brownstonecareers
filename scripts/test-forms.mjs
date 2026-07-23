@@ -8,6 +8,7 @@ const env = {
   RESEND_API_KEY: "re_test_key",
   EMAIL_FROM: "Brownstone Careers <careers@brownstonecareers.agency>",
   RECRUITMENT_EMAIL: "support@brownstonecareers.agency",
+  TURNSTILE_SECRET_KEY: "turnstile_test_secret",
 };
 
 const originalFetch = globalThis.fetch;
@@ -15,6 +16,10 @@ const originalWarn = console.warn;
 let resendCalls = 0;
 
 globalThis.fetch = async (url, options = {}) => {
+  if (url === "https://challenges.cloudflare.com/turnstile/v0/siteverify") {
+    assert.equal(options.method, "POST");
+    return Response.json({ success: true });
+  }
   assert.equal(url, "https://api.resend.com/emails");
   assert.equal(options.method, "POST");
   assert.match(String(options.headers.Authorization), /^Bearer re_test_key$/);

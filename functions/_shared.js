@@ -314,8 +314,11 @@ async function verifyTurnstile(request, env, form, incident) {
 
   const secret = clean(env?.TURNSTILE_SECRET_KEY, 500);
   if (!secret) {
-    console.warn("TURNSTILE_SECRET_KEY is not configured; token presence was checked only.");
-    return null;
+    return json({
+      message: "The security verification service is not configured. Please contact support before submitting sensitive information.",
+      incident,
+      handlerVersion: HANDLER_VERSION,
+    }, 503);
   }
 
   try {
@@ -413,7 +416,7 @@ function validateIdentityFile(file, side) {
 }
 
 function validateEnvironment(env, incident) {
-  const missing = ["RESEND_API_KEY", "EMAIL_FROM", "RECRUITMENT_EMAIL"].filter(
+  const missing = ["RESEND_API_KEY", "EMAIL_FROM", "RECRUITMENT_EMAIL", "TURNSTILE_SECRET_KEY"].filter(
     (key) => !clean(env?.[key], 1000)
   );
   if (!missing.length) return null;
