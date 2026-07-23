@@ -40,8 +40,15 @@ async function submitForm(form, endpoint) {
     setFormState(form, 'Please complete the Cloudflare security check before submitting.', 'error');
     return;
   }
-  const resume = form.querySelector('input[name="resume"]')?.files?.[0];
-  if (resume && resume.size > 5 * 1024 * 1024) { setFormState(form, 'Your resume must be no larger than 5 MB.', 'error'); return; }
+  const uploadFields = [
+    ['resume', 'Your resume'], ['idFront', 'The front ID file'], ['idBack', 'The back ID file']
+  ];
+  for (const [name, label] of uploadFields) {
+    const file = form.querySelector(`input[name="${name}"]`)?.files?.[0];
+    if (file && file.size > 5 * 1024 * 1024) { setFormState(form, `${label} must be no larger than 5 MB.`, 'error'); return; }
+  }
+  const ssnLast4 = form.querySelector('input[name="ssnLast4"]')?.value || '';
+  if (ssnLast4 && !/^\d{4}$/.test(ssnLast4)) { setFormState(form, 'Enter exactly four digits for the SSN field.', 'error'); return; }
 
   button.disabled = true;
   button.textContent = 'Sending…';
@@ -208,3 +215,24 @@ document.querySelectorAll('[data-nav]').forEach(link => { if(link.dataset.nav ==
 const siteHeader=document.querySelector('[data-header]');
 const syncHeader=()=>siteHeader?.classList.toggle('is-scrolled',window.scrollY>18);
 syncHeader(); window.addEventListener('scroll',syncHeader,{passive:true});
+
+
+// Candidate identity form interactions
+for (const input of document.querySelectorAll('.premium-form-shell input[type="file"]')) {
+  input.addEventListener('change', () => {
+    const output = document.querySelector(`[data-file-name="${input.name}"]`);
+    const file = input.files?.[0];
+    if (!output) return;
+    output.textContent = file ? `${file.name} · ${(file.size / (1024 * 1024)).toFixed(2)} MB` : 'No file selected';
+    output.classList.toggle('has-file', Boolean(file));
+  });
+}
+document.querySelectorAll('[data-toggle-sensitive]').forEach((button) => {
+  button.addEventListener('click', () => {
+    const input = button.closest('.secure-input-wrap')?.querySelector('input');
+    if (!input) return;
+    const reveal = input.type === 'password';
+    input.type = reveal ? 'text' : 'password';
+    button.textContent = reveal ? 'Hide' : 'Show';
+  });
+});

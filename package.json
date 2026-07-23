@@ -1,8 +1,8 @@
 {
   "name": "brownstone-careers-pages",
-  "version": "5.3.0",
+  "version": "5.4.0",
   "private": true,
-  "description": "Brownstone Careers Cloudflare Pages site with unified forms, premium form UI, advanced SEO/GEO metadata, structured data, and canonical clean URLs.",
+  "description": "Brownstone Careers Cloudflare Pages site with dynamic candidate bio-data, secure identity uploads, premium forms, SEO/GEO metadata, and unified form handling.",
   "type": "module",
   "engines": {
     "node": ">=20 <23"
