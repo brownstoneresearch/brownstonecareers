@@ -1,117 +1,61 @@
-(() => {
-  const html = document.documentElement;
-  const body = document.body;
-  const toggle = document.querySelector('[data-menu-toggle]');
-  const drawer = document.querySelector('[data-mobile-drawer]');
-  const panel = drawer?.querySelector('[data-mobile-panel]');
-  const backdrop = document.querySelector('[data-drawer-backdrop]');
-  const closeButton = drawer?.querySelector('[data-drawer-close]');
-  const desktopQuery = window.matchMedia('(min-width: 941px)');
+const body = document.body;
+const toggle = document.querySelector('[data-menu-toggle]');
+const drawer = document.querySelector('[data-mobile-drawer]');
+const backdrop = document.querySelector('[data-drawer-backdrop]');
+const drawerClose = document.querySelector('[data-drawer-close]');
+let menuReturnFocus = null;
 
-  if (!toggle || !drawer || !panel || !backdrop || !closeButton) return;
-
-  let isOpen = false;
-  let returnFocus = toggle;
-  const focusableSelector = [
-    'a[href]:not([tabindex="-1"])',
-    'button:not([disabled]):not([tabindex="-1"])',
-    'input:not([disabled]):not([tabindex="-1"])',
-    'select:not([disabled]):not([tabindex="-1"])',
-    'textarea:not([disabled]):not([tabindex="-1"])',
-    '[tabindex]:not([tabindex="-1"])'
-  ].join(',');
-
-  const focusableItems = () => [...drawer.querySelectorAll(focusableSelector)].filter((element) => {
-    const style = window.getComputedStyle(element);
-    return !element.hidden && style.display !== 'none' && style.visibility !== 'hidden';
-  });
-
-  const applyState = (open, { restoreFocus = true } = {}) => {
-    if (isOpen === open) return;
-    isOpen = open;
-
-    toggle.setAttribute('aria-expanded', String(open));
-    toggle.setAttribute('aria-label', open ? 'Close navigation' : 'Open navigation');
-    drawer.setAttribute('aria-hidden', String(!open));
-    backdrop.setAttribute('aria-hidden', String(!open));
-    drawer.dataset.state = open ? 'open' : 'closed';
-    backdrop.dataset.state = open ? 'open' : 'closed';
-
-    if (open) {
-      returnFocus = document.activeElement instanceof HTMLElement ? document.activeElement : toggle;
-      drawer.removeAttribute('inert');
-      html.classList.add('agency-menu-open');
-      body.classList.add('agency-menu-open');
-      panel.scrollTop = 0;
-      requestAnimationFrame(() => closeButton.focus({ preventScroll: true }));
-      return;
-    }
-
-    html.classList.remove('agency-menu-open');
-    body.classList.remove('agency-menu-open');
-    drawer.setAttribute('inert', '');
-    if (restoreFocus && returnFocus instanceof HTMLElement && returnFocus.isConnected) {
-      requestAnimationFrame(() => returnFocus.focus({ preventScroll: true }));
-    }
-  };
-
-  const openMenu = () => {
-    if (!desktopQuery.matches) applyState(true);
-  };
-  const closeMenu = (options) => applyState(false, options);
-
-  drawer.dataset.state = 'closed';
-  backdrop.dataset.state = 'closed';
-  drawer.setAttribute('aria-hidden', 'true');
-  backdrop.setAttribute('aria-hidden', 'true');
-  drawer.setAttribute('inert', '');
-  toggle.setAttribute('aria-expanded', 'false');
-
-  toggle.addEventListener('click', () => isOpen ? closeMenu() : openMenu());
-  closeButton.addEventListener('click', () => closeMenu());
-  backdrop.addEventListener('click', () => closeMenu());
-
-  drawer.addEventListener('click', (event) => {
-    const link = event.target.closest('a[href]');
-    if (link) closeMenu({ restoreFocus: false });
-  });
-
-  document.addEventListener('keydown', (event) => {
-    if (!isOpen) return;
-
-    if (event.key === 'Escape') {
-      event.preventDefault();
-      closeMenu();
-      return;
-    }
-
-    if (event.key !== 'Tab') return;
-    const items = focusableItems();
-    if (!items.length) {
-      event.preventDefault();
-      drawer.focus({ preventScroll: true });
-      return;
-    }
-
+function drawerFocusable(){
+  return drawer ? [...drawer.querySelectorAll('a[href], button:not([disabled])')].filter((element) => !element.hasAttribute('inert')) : [];
+}
+function setDrawerState(open){
+  body.classList.toggle('menu-open', open);
+  toggle?.setAttribute('aria-expanded', String(open));
+  toggle?.setAttribute('aria-label', open ? 'Close navigation' : 'Open navigation');
+  drawer?.setAttribute('aria-hidden', String(!open));
+  backdrop?.setAttribute('aria-hidden', String(!open));
+  backdrop?.setAttribute('tabindex', open ? '0' : '-1');
+  if (drawer) drawer.inert = !open;
+}
+function closeMenu({ restoreFocus = true } = {}){
+  if (!body.classList.contains('menu-open')) return;
+  setDrawerState(false);
+  if (restoreFocus && menuReturnFocus instanceof HTMLElement) {
+    requestAnimationFrame(() => menuReturnFocus?.focus({ preventScroll: true }));
+  }
+}
+function openMenu(){
+  if (!drawer || !toggle || body.classList.contains('menu-open')) return;
+  menuReturnFocus = document.activeElement;
+  setDrawerState(true);
+  requestAnimationFrame(() => (drawerClose || drawerFocusable()[0])?.focus({ preventScroll: true }));
+}
+setDrawerState(false);
+toggle?.addEventListener('click', (event) => {
+  event.preventDefault();
+  body.classList.contains('menu-open') ? closeMenu() : openMenu();
+});
+drawerClose?.addEventListener('click', () => closeMenu());
+backdrop?.addEventListener('click', () => closeMenu());
+document.addEventListener('keydown', (event) => {
+  if (!body.classList.contains('menu-open')) return;
+  if (event.key === 'Escape') { event.preventDefault(); closeMenu(); return; }
+  if (event.key === 'Tab') {
+    const items = drawerFocusable();
+    if (!items.length) return;
     const first = items[0];
     const last = items[items.length - 1];
-    if (event.shiftKey && document.activeElement === first) {
-      event.preventDefault();
-      last.focus({ preventScroll: true });
-    } else if (!event.shiftKey && document.activeElement === last) {
-      event.preventDefault();
-      first.focus({ preventScroll: true });
-    }
-  });
-
-  desktopQuery.addEventListener?.('change', (event) => {
-    if (event.matches && isOpen) closeMenu({ restoreFocus: false });
-  });
-
-  window.addEventListener('pagehide', () => {
-    if (isOpen) closeMenu({ restoreFocus: false });
-  });
-})();
+    if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+    else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+  }
+});
+drawer?.addEventListener('click', (event) => {
+  if (event.target.closest('a[href]')) closeMenu({ restoreFocus: false });
+});
+window.addEventListener('resize', () => {
+  if (window.innerWidth > 940) closeMenu({ restoreFocus: false });
+}, { passive: true });
+window.addEventListener('pagehide', () => setDrawerState(false));
 
 const year = document.getElementById('year'); if(year) year.textContent = new Date().getFullYear();
 const params = new URLSearchParams(location.search);

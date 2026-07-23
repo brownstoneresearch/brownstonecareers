@@ -1,30 +1,29 @@
-# Brownstone Careers Branded Email System
+# Reusable Resend Email System
 
-The email system has been redesigned to match the Brownstone Careers agency identity and is now connected directly to the Cloudflare Pages form handler.
+The project now uses a dedicated `/emails/` directory as the single design system for transactional and recruitment emails.
 
-## Production improvements
+## Production templates
 
-- Replaced the missing `/assets/logo.png` reference with the official hosted lamp-and-wordmark logo.
-- Added a premium navy agency header with the full Brownstone Careers lockup.
-- Added research, recruitment, and career-development positioning.
-- Rebuilt all layouts with email-safe presentation tables and inline styles.
-- Added mobile layout rules for narrow inboxes.
-- Added styled reference cards, candidate-data tables, callout notices, CTA buttons, signatures, and confidentiality notices.
-- Added a structured internal application summary containing residential address and work-history fields.
-- Masked the candidate SSN last four in internal email display.
-- Added attachment summaries for resume and ID files.
-- Added candidate-safety messaging and official-domain links.
-- Connected application and contact form emails to `/emails/index.js`, removing the duplicate legacy email layout from `functions/_shared.js`.
+- Application received
+- Contact received
+- Internal application notification
+- Internal contact notification
+- Pre-screening invitation
+- Interview invitation
+- Offer letter
+- General recruitment update
 
-## Templates
+## Shared branding
 
-1. Application received
-2. Contact received
-3. Internal candidate application
-4. Internal support request
-5. Pre-screening invitation
-6. Interview invitation
-7. Offer of engagement
-8. General recruitment update
+Every template includes:
 
-The CommonJS compatibility version remains available at `emails/index.cjs`.
+- Hosted Brownstone Careers logo
+- White branded header
+- Consistent typography and spacing
+- Blue call-to-action buttons
+- Branded footer and website link
+- Security notice
+- Mobile-safe, table-based email markup
+- HTML escaping for user-submitted values
+
+Cloudflare Pages Functions import `/emails/index.js`. `/emails/index.cjs` is retained only as an optional compatibility build for external CommonJS tooling.

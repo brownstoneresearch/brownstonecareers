@@ -30,7 +30,6 @@ for (const name of htmlNames) {
   if ((source.match(/<footer\b[^>]*class=["'][^"']*\bagency-footer\b[^"']*["']/gi) || []).length !== 1) errors.push(`${name}: expected one agency footer`);
   if (!/href=["']agency-shell\.css["']/i.test(source)) errors.push(`${name}: missing agency shell stylesheet`);
   if (!/data-menu-toggle/i.test(source) || !/data-mobile-drawer/i.test(source) || !/data-drawer-backdrop/i.test(source)) errors.push(`${name}: incomplete responsive navigation controls`);
-  if (!/role=["']dialog["'][^>]*aria-modal=["']true["'][^>]*aria-labelledby=["']mobileNavigationTitle["']/i.test(source)) errors.push(`${name}: mobile navigation dialog semantics are incomplete`);
   if (/executive-header|brand-panel|premium-footer executive-footer/i.test(source)) errors.push(`${name}: legacy header/footer markup remains`);
   if (/<nav\b[^>]*class=["'][^"']*\bagency-nav\b[\s\S]*?<a\b[^>]*data-nav=["']index["'][^>]*>\s*Home\s*<\/a>/i.test(source)) errors.push(`${name}: Home link must not appear in the primary navigation`);
   if (/<nav\b[^>]*class=["'][^"']*\bagency-mobile-links\b[\s\S]*?<a\b[^>]*data-nav=["']index["'][^>]*>\s*Home\s*<\/a>/i.test(source)) errors.push(`${name}: Home link must not appear in the mobile navigation`);
@@ -76,19 +75,6 @@ for (const [name, { source }] of pages) {
     if (fragment && !target.ids.has(fragment)) errors.push(`${name}: missing fragment target ${href}`);
   }
 }
-
-try {
-  const navigationScript = await readFile(resolve(root, "script.js"), "utf8");
-  if (!/agency-menu-open/.test(navigationScript) || /classList\.(?:add|remove|toggle)\(["']menu-open["']/.test(navigationScript)) errors.push("script.js: mobile navigation uses a legacy menu state");
-  if (!/matchMedia\(["']\(min-width: 941px\)["']\)/.test(navigationScript)) errors.push("script.js: mobile navigation breakpoint guard is missing");
-  if (!/event\.key === ["']Escape["']/.test(navigationScript)) errors.push("script.js: Escape-key close behavior is missing");
-} catch (error) { errors.push(`script.js: could not verify mobile navigation (${error.message})`); }
-
-try {
-  const shellCss = await readFile(resolve(root, "agency-shell.css"), "utf8");
-  if (!/100dvh/.test(shellCss) || !/safe-area-inset-bottom/.test(shellCss)) errors.push("agency-shell.css: dynamic viewport or safe-area handling is missing");
-  if (!/agency-mobile-panel[\s\S]*overscroll-behavior:contain/.test(shellCss)) errors.push("agency-shell.css: mobile drawer scroll containment is missing");
-} catch (error) { errors.push(`agency-shell.css: could not verify mobile navigation (${error.message})`); }
 
 if (errors.length) {
   console.error("Site audit failed:\n" + errors.map((e) => `- ${e}`).join("\n"));
