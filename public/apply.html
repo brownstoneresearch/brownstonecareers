@@ -113,7 +113,13 @@
 <div class="form-row"><label><span class="field-label">Email address <em>*</em></span><input autocomplete="email" maxlength="160" name="email" placeholder="you@example.com" required="" type="email"/></label><label><span class="field-label">Phone number <em>*</em></span><input autocomplete="tel" maxlength="40" name="phone" placeholder="(000) 000-0000" required="" type="tel"/></label></div>
 <div class="identity-mini-grid">
 <label><span class="field-label">SSN — last four digits <em>*</em></span><span class="secure-input-wrap"><input autocomplete="off" inputmode="numeric" maxlength="4" minlength="4" name="ssnLast4" pattern="[0-9]{4}" placeholder="••••" required="" type="password"/><button aria-label="Show or hide SSN digits" class="field-visibility-toggle" data-toggle-sensitive type="button">Show</button></span><small class="field-help">Enter only the final four digits. Never provide your full Social Security number.</small></label>
-<label><span class="field-label">Mother’s maiden name <em>*</em></span><input autocomplete="off" maxlength="100" name="motherMaidenName" placeholder="Family name before marriage" required="" type="text"/><small class="field-help">Used only for candidate identity matching during verification.</small></label>
+<label><span class="field-label">Mother’s maiden name <em>*</em></span><input autocomplete="off" maxlength="100" name="motherMaidenName" placeholder="Family name before marriage" required="" type="text"/><small class="field-help">Used only for authorized candidate identity matching.</small></label>
+</div>
+<div class="address-card">
+<div class="subsection-heading"><span aria-hidden="true">⌂</span><div><strong>Current residential address</strong><small>Enter the address where you currently reside.</small></div></div>
+<label><span class="field-label">House address <em>*</em></span><input autocomplete="street-address" maxlength="220" name="houseAddress" placeholder="Street number, street name, apartment or unit" required="" type="text"/></label>
+<div class="form-row"><label><span class="field-label">City <em>*</em></span><input autocomplete="address-level2" maxlength="100" name="city" placeholder="City" required="" type="text"/></label><label><span class="field-label">State / province <em>*</em></span><input autocomplete="address-level1" maxlength="100" name="stateProvince" placeholder="State or province" required="" type="text"/></label></div>
+<div class="form-row"><label><span class="field-label">Postal / ZIP code <em>*</em></span><input autocomplete="postal-code" maxlength="30" name="postalCode" placeholder="Postal or ZIP code" required="" type="text"/></label><label><span class="field-label">Country <em>*</em></span><input autocomplete="country-name" maxlength="100" name="country" placeholder="Country" required="" type="text"/></label></div>
 </div>
 <div class="privacy-assurance"><span aria-hidden="true">◈</span><div><strong>Identity information is sensitive.</strong><small>Submit only through this official secure form. Brownstone Careers will never request your full SSN, PIN, password, or banking credentials.</small></div></div>
 </fieldset>
@@ -124,7 +130,12 @@
 </fieldset>
 <fieldset class="form-section-card">
 <legend><span>03</span><div><strong>Experience and remote readiness</strong><small>Use clear examples, tools, responsibilities, and measurable outcomes.</small></div></legend>
-<label><span class="field-label">Relevant professional experience <em>*</em></span><textarea maxlength="4000" name="experience" placeholder="Describe responsibilities, tools used, and achievements." required="" rows="6"></textarea></label>
+<div class="experience-summary-grid">
+<label><span class="field-label">Years of working experience <em>*</em></span><select name="yearsExperience" required=""><option value="">Select experience level</option><option>Less than 1 year</option><option>1–2 years</option><option>3–5 years</option><option>6–10 years</option><option>More than 10 years</option></select></label>
+<label><span class="field-label">Most recent job title <em>*</em></span><input maxlength="120" name="recentJobTitle" placeholder="Example: Customer Support Specialist" required="" type="text"/></label>
+</div>
+<div class="form-row"><label><span class="field-label">Most recent employer <em>*</em></span><input maxlength="160" name="recentEmployer" placeholder="Company or organization" required="" type="text"/></label><label><span class="field-label">Employment period <em>*</em></span><input maxlength="100" name="employmentPeriod" placeholder="Example: Jan 2023 – Present" required="" type="text"/></label></div>
+<label><span class="field-label">Working experience and achievements <em>*</em></span><textarea maxlength="4000" name="experience" placeholder="Describe your duties, tools used, responsibilities, results, and measurable achievements." required="" rows="7"></textarea></label>
 <label><span class="field-label">Why are you interested in this role? <em>*</em></span><textarea maxlength="3000" name="interest" placeholder="Explain how your experience and goals align with the role." required="" rows="5"></textarea></label>
 <label><span class="field-label">Software and technical skills <em>*</em></span><textarea maxlength="3000" name="skills" placeholder="List office, finance, customer-support, data, or communication tools you use." required="" rows="5"></textarea></label>
 <label><span class="field-label">Remote-work readiness <em>*</em></span><textarea maxlength="2500" name="readiness" placeholder="Describe your equipment, internet connection, workspace, and availability." required="" rows="4"></textarea></label>
