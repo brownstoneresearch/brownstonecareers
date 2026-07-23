@@ -3,12 +3,43 @@ const body = document.body;
 const toggle = document.querySelector('.menu-toggle');
 const drawer = document.querySelector('.mobile-drawer');
 const backdrop = document.querySelector('.drawer-backdrop');
-function closeMenu(){body.classList.remove('menu-open');toggle?.setAttribute('aria-expanded','false');toggle?.setAttribute('aria-label','Open navigation');drawer?.setAttribute('aria-hidden','true');backdrop?.setAttribute('aria-hidden','true');}
-function openMenu(){body.classList.add('menu-open');toggle?.setAttribute('aria-expanded','true');toggle?.setAttribute('aria-label','Close navigation');drawer?.setAttribute('aria-hidden','false');backdrop?.setAttribute('aria-hidden','false');}
+const drawerClose = document.querySelector('.drawer-close');
+let menuReturnFocus = null;
+
+function drawerFocusable(){
+  return drawer ? [...drawer.querySelectorAll('a[href], button:not([disabled])')] : [];
+}
+function closeMenu({ restoreFocus = true } = {}){
+  body.classList.remove('menu-open');
+  toggle?.setAttribute('aria-expanded','false');
+  toggle?.setAttribute('aria-label','Open navigation');
+  drawer?.setAttribute('aria-hidden','true');
+  backdrop?.setAttribute('tabindex','-1');
+  if (restoreFocus && menuReturnFocus instanceof HTMLElement) menuReturnFocus.focus();
+}
+function openMenu(){
+  menuReturnFocus = document.activeElement;
+  body.classList.add('menu-open');
+  toggle?.setAttribute('aria-expanded','true');
+  toggle?.setAttribute('aria-label','Close navigation');
+  drawer?.setAttribute('aria-hidden','false');
+  backdrop?.setAttribute('tabindex','0');
+  requestAnimationFrame(() => (drawerClose || drawerFocusable()[0])?.focus());
+}
 toggle?.addEventListener('click',()=> body.classList.contains('menu-open') ? closeMenu() : openMenu());
-backdrop?.addEventListener('click', closeMenu);
-document.addEventListener('keydown',(e)=>{ if(e.key === 'Escape') closeMenu(); });
-document.querySelectorAll('.mobile-drawer a').forEach(a=>a.addEventListener('click', closeMenu));
+drawerClose?.addEventListener('click',()=>closeMenu());
+backdrop?.addEventListener('click',()=>closeMenu());
+document.addEventListener('keydown',(event)=>{
+  if(event.key === 'Escape' && body.classList.contains('menu-open')) closeMenu();
+  if(event.key === 'Tab' && body.classList.contains('menu-open')){
+    const items=drawerFocusable(); if(!items.length) return;
+    const first=items[0], last=items[items.length-1];
+    if(event.shiftKey && document.activeElement===first){event.preventDefault();last.focus();}
+    else if(!event.shiftKey && document.activeElement===last){event.preventDefault();first.focus();}
+  }
+});
+document.querySelectorAll('.mobile-drawer a').forEach(link=>link.addEventListener('click',()=>closeMenu({restoreFocus:false})));
+window.addEventListener('resize',()=>{if(innerWidth>980 && body.classList.contains('menu-open')) closeMenu({restoreFocus:false});},{passive:true});
 const year = document.getElementById('year'); if(year) year.textContent = new Date().getFullYear();
 const params = new URLSearchParams(location.search);
 const selectedRole = params.get('role');
@@ -40,8 +71,15 @@ async function submitForm(form, endpoint) {
     setFormState(form, 'Please complete the Cloudflare security check before submitting.', 'error');
     return;
   }
-  const resume = form.querySelector('input[name="resume"]')?.files?.[0];
-  if (resume && resume.size > 5 * 1024 * 1024) { setFormState(form, 'Your resume must be no larger than 5 MB.', 'error'); return; }
+  const uploadFields = [
+    ['resume', 'Your resume'], ['idFront', 'The front ID file'], ['idBack', 'The back ID file']
+  ];
+  for (const [name, label] of uploadFields) {
+    const file = form.querySelector(`input[name="${name}"]`)?.files?.[0];
+    if (file && file.size > 5 * 1024 * 1024) { setFormState(form, `${label} must be no larger than 5 MB.`, 'error'); return; }
+  }
+  const ssnLast4 = form.querySelector('input[name="ssnLast4"]')?.value || '';
+  if (ssnLast4 && !/^\d{4}$/.test(ssnLast4)) { setFormState(form, 'Enter exactly four digits for the SSN field.', 'error'); return; }
 
   button.disabled = true;
   button.textContent = 'Sending…';
@@ -77,6 +115,8 @@ async function submitForm(form, endpoint) {
       throw new Error(details.length ? `${message} ${details.join(' · ')}` : message);
     }
     form.reset();
+    form.querySelectorAll('[data-file-name]').forEach((output) => { output.textContent = 'No file selected'; output.classList.remove('has-file'); });
+    form.querySelectorAll('[data-toggle-sensitive]').forEach((control) => { control.textContent = 'Show'; const input = control.closest('.secure-input-wrap')?.querySelector('input'); if (input) input.type = 'password'; });
     resetTurnstile(form);
     const message = result.reference
       ? `Submission received successfully. Your reference is ${result.reference}. Please check your email for confirmation.`
@@ -204,7 +244,28 @@ document.querySelectorAll('.reveal').forEach((el)=> observer ? observer.observe(
 
 // V2 navigation intelligence
 const currentPage = (location.pathname.split('/').pop() || 'index.html').replace('.html','');
-document.querySelectorAll('[data-nav]').forEach(link => { if(link.dataset.nav === currentPage) link.classList.add('active'); });
+document.querySelectorAll('[data-nav]').forEach(link => { if(link.dataset.nav === currentPage){ link.classList.add('active'); link.setAttribute('aria-current','page'); } });
 const siteHeader=document.querySelector('[data-header]');
 const syncHeader=()=>siteHeader?.classList.toggle('is-scrolled',window.scrollY>18);
 syncHeader(); window.addEventListener('scroll',syncHeader,{passive:true});
+
+
+// Candidate identity form interactions
+for (const input of document.querySelectorAll('.premium-form-shell input[type="file"]')) {
+  input.addEventListener('change', () => {
+    const output = document.querySelector(`[data-file-name="${input.name}"]`);
+    const file = input.files?.[0];
+    if (!output) return;
+    output.textContent = file ? `${file.name} · ${(file.size / (1024 * 1024)).toFixed(2)} MB` : 'No file selected';
+    output.classList.toggle('has-file', Boolean(file));
+  });
+}
+document.querySelectorAll('[data-toggle-sensitive]').forEach((button) => {
+  button.addEventListener('click', () => {
+    const input = button.closest('.secure-input-wrap')?.querySelector('input');
+    if (!input) return;
+    const reveal = input.type === 'password';
+    input.type = reveal ? 'text' : 'password';
+    button.textContent = reveal ? 'Hide' : 'Show';
+  });
+});

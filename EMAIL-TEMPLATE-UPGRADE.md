@@ -26,4 +26,4 @@ Every template includes:
 - Mobile-safe, table-based email markup
 - HTML escaping for user-submitted values
 
-Cloudflare Pages Functions and the Worker entry point import `/emails/index.js`. The legacy Express server uses `/emails/index.cjs`, a compatibility build of the same template system.
+Cloudflare Pages Functions import `/emails/index.js`. `/emails/index.cjs` is retained only as an optional compatibility build for external CommonJS tooling.

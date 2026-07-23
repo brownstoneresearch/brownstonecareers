@@ -44,7 +44,7 @@ export function brandedEmailLayout({ title, preheader = "", content, footerNote 
 <html lang="en">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${safeTitle}</title></head>
 <body style="margin:0;padding:0;background:${EMAIL_BRAND.background};font-family:Arial,Helvetica,sans-serif;color:${EMAIL_BRAND.text}">
-<div style="display:block;max-height:0;overflow:hidden;opacity:1;color:transparent">${safePreheader}</div>
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent">${safePreheader}</div>
 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:${EMAIL_BRAND.background}"><tr><td align="center" style="padding:30px 12px">
 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:680px;background:#ffffff;border-radius:16px;overflow:hidden;border:1px solid #DFE6F0">
 <tr><td align="center" style="padding:28px 28px 24px;background:#ffffff;border-bottom:1px solid #E8EDF5"><a href="${EMAIL_BRAND.website}" target="_blank" style="text-decoration:none"><img src="${EMAIL_BRAND.logo}" width="260" alt="Brownstone Careers Recruitment Agency" style="display:block;width:260px;max-width:100%;height:auto;border:0;outline:none;text-decoration:none"></a></td></tr>

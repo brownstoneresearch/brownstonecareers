@@ -66,7 +66,7 @@ The header and footer now use a true transparent PNG logo with responsive sizing
 
 ## Cloudflare Turnstile and cookies
 
-This build includes Cloudflare Turnstile widgets on the application and contact forms using site key `0x4AAAAAAD4dZ6uvgEldqskh`. For full server-side verification on Cloudflare Pages, add `TURNSTILE_SECRET_KEY` as an environment variable in your Pages project settings. The site also includes a cookie consent banner with necessary, analytics, and marketing preference storage.
+This build includes Cloudflare Turnstile widgets on the application and contact forms using site key `0x4AAAAAAD4dZ6uvgEldqskh`. `TURNSTILE_SECRET_KEY` is required in Cloudflare Pages; submissions are rejected when server-side verification is not configured. The site also includes a cookie consent banner with necessary, analytics, and marketing preference storage.
 
 Primary live domain for Turnstile: `www.brownstonecareers.agency`. This build includes a root-domain redirect file so `brownstonecareers.agency` redirects to the `www` domain.
 
@@ -84,11 +84,11 @@ Current Turnstile site key in the website:
 0x4AAAAAAD4dZ6uvgEldqskh
 ```
 
-Add `TURNSTILE_SECRET_KEY` in Cloudflare Pages environment variables for full server-side verification.
+Add `TURNSTILE_SECRET_KEY` in Cloudflare Pages environment variables before enabling production submissions.
 
 
 ## V2 Executive Brand Upgrade
-Includes uploaded Brownstone Careers logo variants, refined desktop and mobile logo placement, smart mobile navigation, upgraded cards/forms, and responsive executive styling. The logo remains the homepage control; no Home navigation item is included.
+Includes refined desktop and mobile logo placement, a dedicated Home navigation item, accessible mobile navigation, upgraded cards and forms, and responsive executive styling.
 
 ## Unified form handler V3 (v5.1.0)
 
@@ -99,7 +99,7 @@ After deployment, `/api/health` must show:
 ```json
 {
   "ok": true,
-  "handlerVersion": "2026-07-22.3",
+  "handlerVersion": "2026-07-23.5",
   "emailConfigured": true,
   "turnstileConfigured": true
 }

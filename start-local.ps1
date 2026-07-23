@@ -1,14 +1,10 @@
 $ErrorActionPreference = "Stop"
 
-if (-not (Test-Path ".env")) {
-    Write-Host "Missing .env file." -ForegroundColor Red
-    Write-Host "Run: powershell -ExecutionPolicy Bypass -File .\setup-env.ps1"
+if (-not (Test-Path ".dev.vars")) {
+    Write-Host "Missing .dev.vars file." -ForegroundColor Yellow
+    Write-Host "Copy .dev.vars.example to .dev.vars and add your Cloudflare/Resend values." -ForegroundColor Yellow
     exit 1
 }
 
-if (-not (Test-Path "node_modules")) {
-    Write-Host "Installing Node dependencies..." -ForegroundColor Cyan
-    npm install
-}
-
-npm start
+npm run build
+npm run pages:dev
