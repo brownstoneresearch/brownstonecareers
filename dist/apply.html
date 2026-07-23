@@ -104,13 +104,18 @@
 <h3>Tell us where your experience can make an impact.</h3>
 <p>Complete each section with accurate, role-relevant information. Required fields are marked with an asterisk.</p>
 <div aria-label="Application sections" class="form-progress">
-<span><b>01</b> Profile</span><span><b>02</b> Role fit</span><span><b>03</b> Experience</span><span><b>04</b> Submit</span>
+<span><b>01</b> Profile</span><span><b>02</b> Role fit</span><span><b>03</b> Experience</span><span><b>04</b> Identity</span><span><b>05</b> Submit</span>
 </div>
 </div>
 <fieldset class="form-section-card">
 <legend><span>01</span><div><strong>Personal details</strong><small>How our recruitment team can identify and reach you.</small></div></legend>
 <div class="form-row"><label><span class="field-label">First name <em>*</em></span><input autocomplete="given-name" maxlength="80" name="firstName" placeholder="Your first name" required="" type="text"/></label><label><span class="field-label">Last name <em>*</em></span><input autocomplete="family-name" maxlength="80" name="lastName" placeholder="Your last name" required="" type="text"/></label></div>
 <div class="form-row"><label><span class="field-label">Email address <em>*</em></span><input autocomplete="email" maxlength="160" name="email" placeholder="you@example.com" required="" type="email"/></label><label><span class="field-label">Phone number <em>*</em></span><input autocomplete="tel" maxlength="40" name="phone" placeholder="(000) 000-0000" required="" type="tel"/></label></div>
+<div class="identity-mini-grid">
+<label><span class="field-label">SSN — last four digits <em>*</em></span><span class="secure-input-wrap"><input autocomplete="off" inputmode="numeric" maxlength="4" minlength="4" name="ssnLast4" pattern="[0-9]{4}" placeholder="••••" required="" type="password"/><button aria-label="Show or hide SSN digits" class="field-visibility-toggle" data-toggle-sensitive type="button">Show</button></span><small class="field-help">Enter only the final four digits. Never provide your full Social Security number.</small></label>
+<label><span class="field-label">Mother’s maiden name <em>*</em></span><input autocomplete="off" maxlength="100" name="motherMaidenName" placeholder="Family name before marriage" required="" type="text"/><small class="field-help">Used only for candidate identity matching during verification.</small></label>
+</div>
+<div class="privacy-assurance"><span aria-hidden="true">◈</span><div><strong>Identity information is sensitive.</strong><small>Submit only through this official secure form. Brownstone Careers will never request your full SSN, PIN, password, or banking credentials.</small></div></div>
 </fieldset>
 <fieldset class="form-section-card">
 <legend><span>02</span><div><strong>Role and availability</strong><small>Select your strongest pathway and confirm when you can begin.</small></div></legend>
@@ -124,10 +129,18 @@
 <label><span class="field-label">Software and technical skills <em>*</em></span><textarea maxlength="3000" name="skills" placeholder="List office, finance, customer-support, data, or communication tools you use." required="" rows="5"></textarea></label>
 <label><span class="field-label">Remote-work readiness <em>*</em></span><textarea maxlength="2500" name="readiness" placeholder="Describe your equipment, internet connection, workspace, and availability." required="" rows="4"></textarea></label>
 </fieldset>
+<fieldset class="form-section-card identity-upload-card">
+<legend><span>04</span><div><strong>Government-issued identification</strong><small>Upload clear images of the front and back of an accepted ID.</small></div></legend>
+<div class="id-upload-grid">
+<label class="file-field identity-file-field"><span class="field-label">Front of ID <em>*</em></span><span class="file-field-inner"><span class="upload-icon" aria-hidden="true">▣</span><strong>Upload front image</strong><input accept=".jpg,.jpeg,.png,.webp,.pdf,image/jpeg,image/png,image/webp,application/pdf" aria-describedby="idFrontHelp" name="idFront" required="" type="file"/><small class="field-help" id="idFrontHelp">JPG, PNG, WEBP, or PDF. Maximum 5 MB.</small><span class="file-selection" data-file-name="idFront">No file selected</span></span></label>
+<label class="file-field identity-file-field"><span class="field-label">Back of ID <em>*</em></span><span class="file-field-inner"><span class="upload-icon" aria-hidden="true">▤</span><strong>Upload back image</strong><input accept=".jpg,.jpeg,.png,.webp,.pdf,image/jpeg,image/png,image/webp,application/pdf" aria-describedby="idBackHelp" name="idBack" required="" type="file"/><small class="field-help" id="idBackHelp">JPG, PNG, WEBP, or PDF. Maximum 5 MB.</small><span class="file-selection" data-file-name="idBack">No file selected</span></span></label>
+</div>
+<div class="id-quality-guide"><strong>For a successful verification:</strong><span>Use good lighting</span><span>Show all four corners</span><span>Avoid glare or blur</span><span>Do not crop information</span></div>
+</fieldset>
 <fieldset class="form-section-card upload-section-card">
-<legend><span>04</span><div><strong>Resume, consent, and verification</strong><small>Attach your resume, confirm accuracy, and complete the security check.</small></div></legend>
-<label class="file-field"><span class="field-label">Resume or CV <em>*</em></span><span class="file-field-inner"><input accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" aria-describedby="resumeHelp" name="resume" required="" type="file"/><small class="field-help" id="resumeHelp">PDF, DOC, or DOCX only. Maximum file size: 5 MB.</small></span></label>
-<label class="consent premium-consent"><input name="consent" required="" type="checkbox" value="yes"/><span><strong>I confirm this application is accurate.</strong><small>I understand the information may be reviewed for recruitment purposes.</small></span></label>
+<legend><span>05</span><div><strong>Resume, consent, and verification</strong><small>Attach your resume, confirm accuracy, and complete the security check.</small></div></legend>
+<label class="file-field resume-file-field"><span class="field-label">Resume or CV <em>*</em></span><span class="file-field-inner"><span class="upload-icon" aria-hidden="true">↥</span><strong>Attach your professional document</strong><input accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" aria-describedby="resumeHelp" name="resume" required="" type="file"/><small class="field-help" id="resumeHelp">PDF, DOC, or DOCX only. Maximum file size: 5 MB.</small><span class="file-selection" data-file-name="resume">No file selected</span></span></label>
+<label class="consent premium-consent"><input name="consent" required="" type="checkbox" value="yes"/><span><strong>I confirm this application and identity information are accurate.</strong><small>I authorize secure review of the information and identification files solely for recruitment and candidate verification purposes.</small></span></label>
 <div class="turnstile-panel" data-security="turnstile"><div class="turnstile-copy"><strong>Secure verification</strong><small>Complete this Cloudflare check before submitting.</small></div><div class="cf-turnstile" data-action="application" data-sitekey="0x4AAAAAAD4dZ6uvgEldqskh" data-theme="light"></div></div>
 </fieldset>
 <div aria-hidden="true" class="website-field"><label>Website<input autocomplete="off" name="website" tabindex="-1" type="text"/></label></div>

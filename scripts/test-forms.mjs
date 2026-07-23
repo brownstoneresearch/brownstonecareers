@@ -35,6 +35,8 @@ function applicationForm(fileSize = 32 * 1024) {
     lastName: "Candidate",
     email: "candidate@example.com",
     phone: "+1 302 555 0100",
+    ssnLast4: "1234",
+    motherMaidenName: "Example",
     role: "Customer Service Representative",
     timezone: "Eastern Time",
     startDate: "2026-08-01",
@@ -49,6 +51,8 @@ function applicationForm(fileSize = 32 * 1024) {
   const bytes = new Uint8Array(fileSize);
   bytes.set(new TextEncoder().encode("%PDF-1.4\n"));
   application.set("resume", new File([bytes], "resume.pdf", { type: "application/pdf" }));
+  application.set("idFront", new File([new Uint8Array(1024)], "id-front.jpg", { type: "image/jpeg" }));
+  application.set("idBack", new File([new Uint8Array(1024)], "id-back.jpg", { type: "image/jpeg" }));
   return application;
 }
 

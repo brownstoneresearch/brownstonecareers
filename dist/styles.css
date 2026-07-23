@@ -2689,3 +2689,27 @@ input:focus,select:focus,textarea:focus{border-color:#5277ff!important;backgroun
 @media(prefers-reduced-motion:reduce){
   .search-authority-links a,.form-submit-button span{transition:none!important}
 }
+
+
+/* V5.4 dynamic candidate bio-data and identity form */
+.application-form .form-progress{grid-template-columns:repeat(5,minmax(0,1fr))}
+.identity-mini-grid,.id-upload-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.secure-input-wrap{position:relative;display:block}
+.secure-input-wrap input{width:100%;padding-right:74px!important;letter-spacing:.28em;font-weight:900}
+.field-visibility-toggle{position:absolute;right:9px;top:9px;min-height:34px;padding:0 13px;border:1px solid rgba(49,86,150,.16);border-radius:10px;background:#fff;color:#17345e;font-size:11px;font-weight:900;cursor:pointer}
+.field-visibility-toggle:hover{background:#edf3ff;color:#3159e8}
+.privacy-assurance{display:flex;align-items:flex-start;gap:12px;margin:3px 0 14px;padding:15px 16px;border:1px solid rgba(38,100,170,.14);border-radius:17px;background:linear-gradient(145deg,#eef6ff,#f8fbff);color:#17345e}
+.privacy-assurance>span{display:grid;place-items:center;flex:0 0 auto;width:34px;height:34px;border-radius:11px;background:#0a2858;color:#fff}
+.privacy-assurance div{display:grid;gap:4px}.privacy-assurance strong{font-size:12px}.privacy-assurance small{color:#657891;line-height:1.55}
+.identity-upload-card{background:radial-gradient(circle at 100% 0,rgba(46,186,207,.08),transparent 34%),linear-gradient(180deg,#fff,#f9fdff)}
+.identity-file-field .file-field-inner,.resume-file-field .file-field-inner{position:relative;align-content:start;min-height:205px;padding:22px;border-width:1.5px;transition:border-color .22s ease,transform .22s ease,box-shadow .22s ease}
+.identity-file-field .file-field-inner:hover,.resume-file-field .file-field-inner:hover{transform:translateY(-2px);border-color:#5577ed;box-shadow:0 16px 35px rgba(35,70,135,.09)}
+.upload-icon{display:grid;place-items:center;width:45px;height:45px;border-radius:15px;background:linear-gradient(145deg,#0a2858,#3159e8);box-shadow:0 10px 25px rgba(49,89,232,.2);color:#fff;font-size:19px}
+.file-field-inner>strong{color:#102d57;font-size:14px}
+.file-selection{display:flex;align-items:center;min-height:34px;padding:7px 10px;border-radius:10px;background:#eaf1ff;color:#355276;font-size:11px;font-weight:800;overflow-wrap:anywhere}
+.file-selection.has-file{background:#e8f8f3;color:#116a52}
+.id-quality-guide{display:flex;flex-wrap:wrap;gap:8px;margin:1px 0 16px;padding:14px;border:1px solid rgba(35,67,111,.09);border-radius:16px;background:#fff}
+.id-quality-guide strong{width:100%;color:#17345e;font-size:12px}.id-quality-guide span{padding:7px 10px;border-radius:999px;background:#f0f5ff;color:#46617f;font-size:10px;font-weight:850}
+.application-form input:valid:not(:placeholder-shown),.application-form textarea:valid:not(:placeholder-shown){border-color:rgba(22,145,107,.35)!important}
+@media(max-width:780px){.application-form .form-progress{grid-template-columns:repeat(5,1fr);overflow-x:auto}.application-form .form-progress span{min-width:82px;justify-content:center}.identity-mini-grid,.id-upload-grid{grid-template-columns:1fr}.identity-file-field .file-field-inner,.resume-file-field .file-field-inner{min-height:0}.id-quality-guide{display:grid;grid-template-columns:1fr 1fr}}
+@media(max-width:430px){.application-form .form-progress span{font-size:0}.application-form .form-progress b{font-size:10px}.identity-mini-grid,.id-upload-grid{gap:5px}.id-quality-guide{grid-template-columns:1fr}.privacy-assurance{padding:13px}}
