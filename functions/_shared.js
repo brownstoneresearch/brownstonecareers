@@ -1,4 +1,4 @@
-const HANDLER_VERSION = "2026-07-23.4";
+const HANDLER_VERSION = "2026-07-23.5";
 const MAX_RESUME_BYTES = 5 * 1024 * 1024;
 const MAX_ID_BYTES = 5 * 1024 * 1024;
 const ALLOWED_ID_EXTENSIONS = new Set(["jpg", "jpeg", "png", "webp", "pdf"]);
@@ -48,9 +48,18 @@ export async function handleApplication(request, env) {
       phone: clean(form.get("phone"), 40),
       ssnLast4: clean(form.get("ssnLast4"), 4),
       motherMaidenName: clean(form.get("motherMaidenName"), 100),
+      houseAddress: clean(form.get("houseAddress"), 220),
+      city: clean(form.get("city"), 100),
+      stateProvince: clean(form.get("stateProvince"), 100),
+      postalCode: clean(form.get("postalCode"), 30),
+      country: clean(form.get("country"), 100),
       role: clean(form.get("role"), 120),
       timezone: clean(form.get("timezone"), 80),
       startDate: clean(form.get("startDate"), 30),
+      yearsExperience: clean(form.get("yearsExperience"), 80),
+      recentJobTitle: clean(form.get("recentJobTitle"), 120),
+      recentEmployer: clean(form.get("recentEmployer"), 160),
+      employmentPeriod: clean(form.get("employmentPeriod"), 100),
       experience: clean(form.get("experience"), 4000),
       interest: clean(form.get("interest"), 3000),
       skills: clean(form.get("skills"), 3000),
@@ -104,10 +113,15 @@ export async function handleApplication(request, env) {
       <p><strong>Phone:</strong> ${escapeHtml(fields.phone)}</p>
       <p><strong>SSN (last four only):</strong> ${escapeHtml(fields.ssnLast4)}</p>
       <p><strong>Mother’s maiden name:</strong> ${escapeHtml(fields.motherMaidenName)}</p>
+      <p><strong>Residential address:</strong> ${escapeHtml(fields.houseAddress)}, ${escapeHtml(fields.city)}, ${escapeHtml(fields.stateProvince)} ${escapeHtml(fields.postalCode)}, ${escapeHtml(fields.country)}</p>
       <p><strong>Role:</strong> ${escapeHtml(fields.role)}</p>
       <p><strong>Time zone:</strong> ${escapeHtml(fields.timezone)}</p>
       <p><strong>Available start:</strong> ${escapeHtml(fields.startDate)}</p>
-      ${section("Relevant experience", fields.experience)}
+      <p><strong>Years of experience:</strong> ${escapeHtml(fields.yearsExperience)}</p>
+      <p><strong>Most recent job title:</strong> ${escapeHtml(fields.recentJobTitle)}</p>
+      <p><strong>Most recent employer:</strong> ${escapeHtml(fields.recentEmployer)}</p>
+      <p><strong>Employment period:</strong> ${escapeHtml(fields.employmentPeriod)}</p>
+      ${section("Working experience and achievements", fields.experience)}
       ${section("Interest in the role", fields.interest)}
       ${section("Software and technical skills", fields.skills)}
       ${section("Remote-work readiness", fields.readiness)}`;

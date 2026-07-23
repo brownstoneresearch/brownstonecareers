@@ -2689,3 +2689,9 @@ input:focus,select:focus,textarea:focus{border-color:#5277ff!important;backgroun
 @media(prefers-reduced-motion:reduce){
   .search-authority-links a,.form-submit-button span{transition:none!important}
 }
+
+/* V5.5 candidate address and structured work-history styling */
+.address-card{margin:8px 0 18px;padding:20px;border:1px solid #dce6f5;border-radius:22px;background:linear-gradient(145deg,#fbfdff,#f4f8ff);box-shadow:0 14px 34px rgba(27,55,105,.06)}
+.subsection-heading{display:flex;align-items:center;gap:12px;margin-bottom:17px}.subsection-heading>span{display:grid;place-items:center;width:38px;height:38px;border-radius:13px;background:#e8efff;color:#2457e6;font-size:17px;font-weight:900}.subsection-heading strong{display:block;color:#102344;font-size:14px}.subsection-heading small{display:block;color:#75849a;font-size:11px;font-weight:650;margin-top:2px}
+.experience-summary-grid{display:grid;grid-template-columns:.75fr 1.25fr;gap:16px}.identity-upload-card{position:relative;overflow:hidden}.identity-upload-card:after{content:"SECURE ID REVIEW";position:absolute;right:-42px;top:34px;transform:rotate(35deg);padding:7px 52px;background:rgba(36,87,230,.08);color:#2457e6;font-size:9px;font-weight:950;letter-spacing:.14em;pointer-events:none}
+@media(max-width:780px){.experience-summary-grid{grid-template-columns:1fr}.address-card{padding:17px 15px;border-radius:19px}.identity-upload-card:after{display:none}}
