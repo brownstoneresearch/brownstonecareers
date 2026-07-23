@@ -1,9 +1,9 @@
 
 const body = document.body;
-const toggle = document.querySelector('.menu-toggle');
-const drawer = document.querySelector('.mobile-drawer');
-const backdrop = document.querySelector('.drawer-backdrop');
-const drawerClose = document.querySelector('.drawer-close');
+const toggle = document.querySelector('[data-menu-toggle]');
+const drawer = document.querySelector('[data-mobile-drawer]');
+const backdrop = document.querySelector('[data-drawer-backdrop]');
+const drawerClose = document.querySelector('[data-drawer-close]');
 let menuReturnFocus = null;
 
 function drawerFocusable(){
@@ -38,7 +38,7 @@ document.addEventListener('keydown',(event)=>{
     else if(!event.shiftKey && document.activeElement===last){event.preventDefault();first.focus();}
   }
 });
-document.querySelectorAll('.mobile-drawer a').forEach(link=>link.addEventListener('click',()=>closeMenu({restoreFocus:false})));
+document.querySelectorAll('[data-mobile-drawer] a').forEach(link=>link.addEventListener('click',()=>closeMenu({restoreFocus:false})));
 window.addEventListener('resize',()=>{if(innerWidth>980 && body.classList.contains('menu-open')) closeMenu({restoreFocus:false});},{passive:true});
 const year = document.getElementById('year'); if(year) year.textContent = new Date().getFullYear();
 const params = new URLSearchParams(location.search);
@@ -243,7 +243,8 @@ document.querySelectorAll('.reveal').forEach((el)=> observer ? observer.observe(
 })();
 
 // V2 navigation intelligence
-const currentPage = (location.pathname.split('/').pop() || 'index.html').replace('.html','');
+const routePath = location.pathname.replace(/\/+$/, '') || '/';
+const currentPage = routePath === '/' ? 'index' : (routePath.split('/').pop() || 'index').replace(/\.html$/, '');
 document.querySelectorAll('[data-nav]').forEach(link => { if(link.dataset.nav === currentPage){ link.classList.add('active'); link.setAttribute('aria-current','page'); } });
 const siteHeader=document.querySelector('[data-header]');
 const syncHeader=()=>siteHeader?.classList.toggle('is-scrolled',window.scrollY>18);

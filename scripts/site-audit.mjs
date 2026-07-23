@@ -26,6 +26,14 @@ for (const name of htmlNames) {
   if ((source.match(/<h1\b/gi) || []).length !== 1) errors.push(`${name}: expected exactly one h1`);
   if (!/<main\b[^>]*\bid=["']main-content["']/i.test(source)) errors.push(`${name}: missing main landmark`);
   if (!/<header\b/i.test(source) || !/<footer\b/i.test(source)) errors.push(`${name}: missing shared header or footer`);
+  if ((source.match(/<header\b[^>]*class=["'][^"']*\bagency-header\b[^"']*["']/gi) || []).length !== 1) errors.push(`${name}: expected one agency header`);
+  if ((source.match(/<footer\b[^>]*class=["'][^"']*\bagency-footer\b[^"']*["']/gi) || []).length !== 1) errors.push(`${name}: expected one agency footer`);
+  if (!/href=["']agency-shell\.css["']/i.test(source)) errors.push(`${name}: missing agency shell stylesheet`);
+  if (!/data-menu-toggle/i.test(source) || !/data-mobile-drawer/i.test(source) || !/data-drawer-backdrop/i.test(source)) errors.push(`${name}: incomplete responsive navigation controls`);
+  if (/executive-header|brand-panel|premium-footer executive-footer/i.test(source)) errors.push(`${name}: legacy header/footer markup remains`);
+  if (/<nav\b[^>]*class=["'][^"']*\bagency-nav\b[\s\S]*?<a\b[^>]*data-nav=["']index["'][^>]*>\s*Home\s*<\/a>/i.test(source)) errors.push(`${name}: Home link must not appear in the primary navigation`);
+  if (/<nav\b[^>]*class=["'][^"']*\bagency-mobile-links\b[\s\S]*?<a\b[^>]*data-nav=["']index["'][^>]*>\s*Home\s*<\/a>/i.test(source)) errors.push(`${name}: Home link must not appear in the mobile navigation`);
+  if (!/agency-brand-emblem[\s\S]{0,300}brand-logo-icon-white\.png/i.test(source) || !/agency-footer-emblem[\s\S]{0,300}brand-logo-icon-white\.png/i.test(source)) errors.push(`${name}: heritage lamp logo is not preserved in header and footer`);
   if (/\+1\s*\(?534\)?|228[\s-]*0244|https:\/\/wa\.me\//i.test(source)) errors.push(`${name}: WhatsApp number or direct wa.me URL is exposed in page source`);
   for (const match of source.matchAll(/<img\b[^>]*>/gi)) {
     const a = attrs(match[0]);
@@ -44,6 +52,16 @@ for (const name of htmlNames) {
     if (!/\baction=["']\/api\//i.test(formSource)) errors.push(`${name}: form does not use an approved API action`);
     if (!/class=["'][^"']*form-status/i.test(formSource)) errors.push(`${name}: form missing accessible status region`);
   }
+}
+
+try {
+  const manifest = JSON.parse(await readFile(resolve(root, "site.webmanifest"), "utf8"));
+  if (!Array.isArray(manifest.icons) || manifest.icons.length < 2) errors.push("site.webmanifest: expected 192px and 512px icons");
+  for (const icon of manifest.icons || []) {
+    if (!icon?.src || !(await exists(resolve(root, stripQuery(icon.src).replace(/^\//, ""))))) errors.push(`site.webmanifest: missing icon ${icon?.src || "(empty)"}`);
+  }
+} catch (error) {
+  errors.push(`site.webmanifest: invalid JSON (${error.message})`);
 }
 
 for (const [name, { source }] of pages) {
