@@ -1,4 +1,4 @@
-/* Brownstone Careers agency shell v6.1
+/* Brownstone Careers agency shell v6.2
    Dedicated header/footer system isolated from legacy page styling. */
 :root{
   --agency-ink:#06142f;
@@ -12,7 +12,7 @@
 
 /* Header */
 .agency-header{
-  position:sticky;top:0;z-index:1000;
+  position:sticky;top:0;z-index:1100;
   min-height:86px;
   background:linear-gradient(120deg,rgba(3,14,35,.98),rgba(7,28,67,.97) 60%,rgba(5,20,49,.98));
   border-bottom:1px solid var(--agency-line);
@@ -41,8 +41,8 @@
 .agency-apply-cta:hover,.agency-apply-cta.active{transform:translateY(-1px);box-shadow:0 18px 40px rgba(0,0,0,.28),0 0 0 2px rgba(128,153,255,.24)}
 .agency-menu-toggle{display:none;width:46px;height:46px;border:1px solid rgba(255,255,255,.15);border-radius:15px;background:rgba(255,255,255,.075);cursor:pointer;place-content:center;gap:5px;box-shadow:inset 0 1px 0 rgba(255,255,255,.12)}
 .agency-menu-toggle span{display:block;width:19px;height:2px;border-radius:99px;background:#fff;transition:.22s}
-.agency-mobile-drawer{position:fixed;top:86px;right:18px;z-index:1003;width:min(390px,calc(100vw - 36px));opacity:0;visibility:hidden;pointer-events:none;transform:translateY(-12px) scale(.985);transform-origin:top right;transition:opacity .22s,transform .22s,visibility .22s}
-.agency-mobile-panel{padding:20px;border:1px solid rgba(255,255,255,.16);border-radius:28px;background:linear-gradient(155deg,rgba(5,21,51,.985),rgba(6,31,74,.985));box-shadow:0 30px 90px rgba(0,0,0,.42),inset 0 1px 0 rgba(255,255,255,.11);backdrop-filter:blur(24px)}
+.agency-mobile-drawer{position:fixed;top:86px;right:18px;z-index:1103;width:min(390px,calc(100vw - 36px));max-height:calc(100dvh - 104px);overflow:hidden;opacity:0;visibility:hidden;pointer-events:none;transform:translateY(-12px) scale(.985);transform-origin:top right;transition:opacity .22s ease,transform .22s ease,visibility 0s linear .22s;will-change:transform,opacity}
+.agency-mobile-panel{max-height:inherit;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:20px;border:1px solid rgba(255,255,255,.16);border-radius:28px;background:linear-gradient(155deg,rgba(5,21,51,.985),rgba(6,31,74,.985));box-shadow:0 30px 90px rgba(0,0,0,.42),inset 0 1px 0 rgba(255,255,255,.11);backdrop-filter:blur(24px);scrollbar-width:thin;scrollbar-color:rgba(143,168,255,.65) transparent}
 .agency-mobile-head{display:flex;align-items:center;justify-content:space-between;gap:14px}
 .agency-mobile-brand{display:flex;align-items:center;gap:11px;color:#fff;text-decoration:none;min-width:0}
 .agency-mobile-emblem{display:grid;place-items:center;width:44px;height:50px;border:1px solid rgba(255,255,255,.15);border-radius:14px;background:rgba(255,255,255,.08)}
@@ -56,9 +56,13 @@
 .agency-mobile-apply{display:flex;align-items:center;justify-content:space-between;min-height:52px;margin-top:12px;padding:0 16px;border-radius:16px;background:#fff;color:#071a3d;font-size:12px;font-weight:950;text-transform:uppercase;letter-spacing:.06em;text-decoration:none}
 .agency-mobile-support{display:grid;gap:5px;margin-top:14px;padding:14px;border:1px solid rgba(255,255,255,.09);border-radius:17px;background:rgba(255,255,255,.04)}
 .agency-mobile-support span{color:#90a8ff;font-size:9px;font-weight:950;text-transform:uppercase;letter-spacing:.12em}.agency-mobile-support a{color:#fff;font-size:12px;font-weight:800;text-decoration:none;overflow-wrap:anywhere}.agency-mobile-support small{color:#9eacc8;font-size:10px;line-height:1.5}
-.agency-drawer-backdrop{position:fixed;inset:0;z-index:1001;display:block;border:0;background:rgba(1,8,22,.62);opacity:0;visibility:hidden;pointer-events:none;backdrop-filter:blur(4px);transition:opacity .22s,visibility .22s}
-body.menu-open{overflow:hidden}.menu-open .agency-mobile-drawer{opacity:1;visibility:visible;pointer-events:auto;transform:none}.menu-open .agency-drawer-backdrop{opacity:1;visibility:visible;pointer-events:auto}.menu-open .agency-menu-toggle span:nth-child(1){transform:translateY(7px) rotate(45deg)}.menu-open .agency-menu-toggle span:nth-child(2){opacity:0}.menu-open .agency-menu-toggle span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+.agency-drawer-backdrop{position:fixed;inset:0;z-index:1090;display:block;border:0;background:rgba(1,8,22,.62);opacity:0;visibility:hidden;pointer-events:none;backdrop-filter:blur(4px);transition:opacity .22s,visibility .22s}
+body.menu-open{overflow:hidden;touch-action:none}.menu-open .agency-mobile-drawer{opacity:1;visibility:visible;pointer-events:auto;transform:none;transition-delay:0s}.menu-open .agency-drawer-backdrop{opacity:1;visibility:visible;pointer-events:auto}.menu-open .agency-menu-toggle span:nth-child(1){transform:translateY(7px) rotate(45deg)}.menu-open .agency-menu-toggle span:nth-child(2){opacity:0}.menu-open .agency-menu-toggle span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
 .agency-header.is-scrolled{box-shadow:0 20px 52px rgba(1,8,24,.34)}
+
+.agency-mobile-panel::-webkit-scrollbar{width:6px}.agency-mobile-panel::-webkit-scrollbar-thumb{border-radius:999px;background:rgba(143,168,255,.55)}
+.agency-menu-toggle:focus-visible,.agency-drawer-close:focus-visible,.agency-mobile-links a:focus-visible,.agency-mobile-apply:focus-visible{outline:3px solid rgba(157,181,255,.9);outline-offset:3px}
+@supports not (height:100dvh){.agency-mobile-drawer{max-height:calc(100vh - 104px)}@media(max-width:940px){.agency-mobile-drawer{max-height:calc(100vh - 88px)}}@media(max-width:640px){.agency-mobile-drawer{max-height:calc(100vh - 80px)}}}
 
 /* Footer */
 .agency-footer{position:relative;overflow:hidden;padding:78px 0 28px;background:linear-gradient(180deg,#071a3c 0%,#041126 57%,#020918 100%);color:#fff;border-top:1px solid rgba(139,165,255,.19)}
@@ -83,9 +87,9 @@ body.menu-open{overflow:hidden}.menu-open .agency-mobile-drawer{opacity:1;visibi
   .agency-nav-shell{grid-template-columns:minmax(265px,310px) 1fr auto;gap:14px}.agency-brand-copy strong{font-size:19px}.agency-brand-copy span{font-size:8px}.agency-nav a{padding:0 10px}.agency-support-link{display:none}.agency-footer-directory{grid-template-columns:repeat(2,1fr)}
 }
 @media(max-width:940px){
-  .agency-header{min-height:76px}.agency-nav-shell{min-height:76px;grid-template-columns:1fr auto}.agency-nav,.agency-apply-cta{display:none}.agency-menu-toggle{display:grid}.agency-brand-emblem{width:48px;height:54px;flex-basis:48px;border-radius:15px}.agency-brand-emblem img{width:33px;height:42px}.agency-brand-copy strong{font-size:18px}.agency-mobile-drawer{top:76px}.agency-footer-lead{grid-template-columns:1fr}.agency-footer-directory{grid-template-columns:repeat(2,1fr)}
+  .agency-header{min-height:76px}.agency-nav-shell{min-height:76px;grid-template-columns:1fr auto}.agency-nav,.agency-apply-cta{display:none}.agency-menu-toggle{display:grid}.agency-brand-emblem{width:48px;height:54px;flex-basis:48px;border-radius:15px}.agency-brand-emblem img{width:33px;height:42px}.agency-brand-copy strong{font-size:18px}.agency-mobile-drawer{top:76px;max-height:calc(100dvh - 88px)}.agency-footer-lead{grid-template-columns:1fr}.agency-footer-directory{grid-template-columns:repeat(2,1fr)}
 }
 @media(max-width:640px){
-  .agency-header{min-height:70px}.agency-nav-shell{min-height:70px;gap:10px}.agency-brand{gap:9px}.agency-brand-emblem{width:42px;height:48px;flex-basis:42px;border-radius:14px}.agency-brand-emblem img{width:29px;height:37px}.agency-brand-copy strong{font-size:16.5px}.agency-brand-copy span{font-size:7px;letter-spacing:.09em}.agency-menu-toggle{width:44px;height:44px}.agency-mobile-drawer{top:70px;right:10px;width:calc(100vw - 20px)}.agency-mobile-panel{padding:17px;border-radius:23px}.agency-mobile-links{grid-template-columns:1fr}.agency-footer{padding:58px 0 25px}.agency-footer-brand,.agency-footer-callout{padding:22px;border-radius:24px}.agency-footer-lockup{align-items:center;gap:13px}.agency-footer-emblem{width:56px;height:65px;flex-basis:56px;border-radius:18px}.agency-footer-emblem img{width:38px;height:49px}.agency-footer-wordmark strong{font-size:21px}.agency-footer-wordmark em{font-size:9px;letter-spacing:.08em}.agency-footer-wordmark small{font-size:7px;line-height:1.45;letter-spacing:.09em}.agency-footer-brand>p{font-size:13.5px}.agency-footer-callout h2{font-size:27px}.agency-footer-directory{grid-template-columns:1fr;gap:24px}.agency-footer-tools{display:grid;justify-items:start;padding:17px}.agency-footer-tools>div{justify-content:flex-start}.agency-footer-bottom{display:grid;justify-items:center;text-align:center}.agency-footer-bottom>span:last-child{justify-content:center;flex-wrap:wrap}
+  .agency-header{min-height:70px}.agency-nav-shell{min-height:70px;gap:10px}.agency-brand{gap:9px}.agency-brand-emblem{width:42px;height:48px;flex-basis:42px;border-radius:14px}.agency-brand-emblem img{width:29px;height:37px}.agency-brand-copy strong{font-size:16.5px}.agency-brand-copy span{font-size:7px;letter-spacing:.09em}.agency-menu-toggle{width:44px;height:44px}.agency-mobile-drawer{top:70px;right:10px;width:calc(100vw - 20px);max-height:calc(100dvh - 80px)}.agency-mobile-panel{padding:17px;border-radius:23px}.agency-mobile-links{grid-template-columns:1fr}.agency-footer{padding:58px 0 25px}.agency-footer-brand,.agency-footer-callout{padding:22px;border-radius:24px}.agency-footer-lockup{align-items:center;gap:13px}.agency-footer-emblem{width:56px;height:65px;flex-basis:56px;border-radius:18px}.agency-footer-emblem img{width:38px;height:49px}.agency-footer-wordmark strong{font-size:21px}.agency-footer-wordmark em{font-size:9px;letter-spacing:.08em}.agency-footer-wordmark small{font-size:7px;line-height:1.45;letter-spacing:.09em}.agency-footer-brand>p{font-size:13.5px}.agency-footer-callout h2{font-size:27px}.agency-footer-directory{grid-template-columns:1fr;gap:24px}.agency-footer-tools{display:grid;justify-items:start;padding:17px}.agency-footer-tools>div{justify-content:flex-start}.agency-footer-bottom{display:grid;justify-items:center;text-align:center}.agency-footer-bottom>span:last-child{justify-content:center;flex-wrap:wrap}
 }
 @media(prefers-reduced-motion:reduce){.agency-header *,.agency-footer *,.agency-mobile-drawer,.agency-drawer-backdrop{scroll-behavior:auto!important;transition:none!important;animation:none!important}}

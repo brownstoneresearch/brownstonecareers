@@ -1,8 +1,8 @@
 {
   "name": "brownstone-careers-pages",
-  "version": "6.1.0",
+  "version": "6.2.0",
   "private": true,
-  "description": "Brownstone Careers Cloudflare Pages site with a research-driven recruitment identity, heritage lamp branding, aligned agency lockups, secure forms, privacy safeguards, and automated production audits.",
+  "description": "Brownstone Careers Cloudflare Pages site with a research-driven recruitment identity, heritage lamp branding, aligned agency lockups, corrected mobile navigation layering, secure forms, privacy safeguards, and automated production audits.",
   "type": "module",
   "engines": {
     "node": ">=20 <23"
