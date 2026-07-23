@@ -3,82 +3,95 @@
   const body = document.body;
   const toggle = document.querySelector('[data-menu-toggle]');
   const drawer = document.querySelector('[data-mobile-drawer]');
-  const panel = drawer?.querySelector('.agency-mobile-panel');
+  const panel = drawer?.querySelector('[data-mobile-panel]') || drawer?.querySelector('.agency-mobile-panel');
   const backdrop = document.querySelector('[data-drawer-backdrop]');
   const closeButton = document.querySelector('[data-drawer-close]');
   const desktopQuery = window.matchMedia('(min-width: 941px)');
+  let isOpen = false;
   let returnFocus = null;
-  let lockedScrollY = 0;
-  let open = false;
+  let scrollY = 0;
 
-  if (!toggle || !drawer || !backdrop) return;
+  if (!toggle || !drawer || !backdrop || !panel) return;
 
   const focusableSelector = [
-    'a[href]',
-    'button:not([disabled])',
-    'input:not([disabled])',
-    'select:not([disabled])',
-    'textarea:not([disabled])',
+    'a[href]:not([tabindex="-1"])',
+    'button:not([disabled]):not([tabindex="-1"])',
+    'input:not([disabled]):not([tabindex="-1"])',
+    'select:not([disabled]):not([tabindex="-1"])',
+    'textarea:not([disabled]):not([tabindex="-1"])',
     '[tabindex]:not([tabindex="-1"])'
   ].join(',');
 
-  const getFocusable = () => [...drawer.querySelectorAll(focusableSelector)].filter((element) => {
+  const focusableItems = () => [...drawer.querySelectorAll(focusableSelector)].filter((element) => {
     const style = window.getComputedStyle(element);
     return !element.hidden && style.display !== 'none' && style.visibility !== 'hidden';
   });
 
   const lockPage = () => {
-    lockedScrollY = window.scrollY;
+    scrollY = window.scrollY || window.pageYOffset;
     html.classList.add('agency-menu-open');
     body.classList.add('agency-menu-open');
+    body.style.position = 'fixed';
+    body.style.top = `-${scrollY}px`;
+    body.style.left = '0';
+    body.style.right = '0';
+    body.style.width = '100%';
   };
 
   const unlockPage = () => {
     html.classList.remove('agency-menu-open');
     body.classList.remove('agency-menu-open');
-    // Retain the exact scroll position without moving fixed or sticky agency chrome.
-    if (Math.abs(window.scrollY - lockedScrollY) > 1) window.scrollTo(0, lockedScrollY);
+    body.style.position = '';
+    body.style.top = '';
+    body.style.left = '';
+    body.style.right = '';
+    body.style.width = '';
+    window.scrollTo(0, scrollY);
   };
 
-  const applyState = (nextOpen, { restoreFocus = true } = {}) => {
-    if (open === nextOpen) return;
-    open = nextOpen;
+  const setState = (nextOpen, { restoreFocus = true } = {}) => {
+    if (isOpen === nextOpen) return;
+    isOpen = nextOpen;
 
-    toggle.setAttribute('aria-expanded', String(open));
-    toggle.setAttribute('aria-label', open ? 'Close navigation' : 'Open navigation');
-    drawer.setAttribute('aria-hidden', String(!open));
-    drawer.dataset.state = open ? 'open' : 'closed';
-    backdrop.dataset.state = open ? 'open' : 'closed';
-    drawer.inert = !open;
+    toggle.setAttribute('aria-expanded', String(isOpen));
+    toggle.setAttribute('aria-label', isOpen ? 'Close navigation' : 'Open navigation');
+    drawer.setAttribute('aria-hidden', String(!isOpen));
+    backdrop.setAttribute('aria-hidden', String(!isOpen));
+    drawer.dataset.state = isOpen ? 'open' : 'closed';
+    backdrop.dataset.state = isOpen ? 'open' : 'closed';
+    drawer.inert = !isOpen;
 
-    if (open) {
+    if (isOpen) {
       returnFocus = document.activeElement instanceof HTMLElement ? document.activeElement : toggle;
       lockPage();
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => (closeButton || getFocusable()[0] || drawer).focus({ preventScroll: true }));
-      });
-    } else {
-      unlockPage();
-      if (restoreFocus && returnFocus instanceof HTMLElement && returnFocus.isConnected) {
-        requestAnimationFrame(() => returnFocus.focus({ preventScroll: true }));
-      }
+      panel.scrollTop = 0;
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        (closeButton || focusableItems()[0] || drawer).focus({ preventScroll: true });
+      }));
+      return;
+    }
+
+    unlockPage();
+    if (restoreFocus && returnFocus instanceof HTMLElement && returnFocus.isConnected) {
+      requestAnimationFrame(() => returnFocus.focus({ preventScroll: true }));
     }
   };
 
   const openMenu = () => {
-    if (!desktopQuery.matches) applyState(true);
+    if (!desktopQuery.matches) setState(true);
   };
-  const closeMenu = (options) => applyState(false, options);
+  const closeMenu = (options) => setState(false, options);
 
-  // Establish a safe closed state before accepting interaction.
   drawer.inert = true;
   drawer.dataset.state = 'closed';
   backdrop.dataset.state = 'closed';
+  drawer.setAttribute('aria-hidden', 'true');
+  backdrop.setAttribute('aria-hidden', 'true');
   toggle.setAttribute('aria-expanded', 'false');
 
   toggle.addEventListener('click', (event) => {
     event.preventDefault();
-    open ? closeMenu() : openMenu();
+    isOpen ? closeMenu() : openMenu();
   });
   closeButton?.addEventListener('click', () => closeMenu());
   backdrop.addEventListener('click', () => closeMenu());
@@ -89,7 +102,7 @@
   });
 
   document.addEventListener('keydown', (event) => {
-    if (!open) return;
+    if (!isOpen) return;
     if (event.key === 'Escape') {
       event.preventDefault();
       closeMenu();
@@ -97,43 +110,32 @@
     }
     if (event.key !== 'Tab') return;
 
-    const items = getFocusable();
+    const items = focusableItems();
     if (!items.length) {
       event.preventDefault();
-      drawer.focus();
+      drawer.focus({ preventScroll: true });
       return;
     }
     const first = items[0];
     const last = items[items.length - 1];
     if (event.shiftKey && document.activeElement === first) {
       event.preventDefault();
-      last.focus();
+      last.focus({ preventScroll: true });
     } else if (!event.shiftKey && document.activeElement === last) {
       event.preventDefault();
-      first.focus();
+      first.focus({ preventScroll: true });
     }
   });
 
-  const closeForDesktop = () => {
-    if (desktopQuery.matches && open) closeMenu({ restoreFocus: false });
-  };
-  desktopQuery.addEventListener?.('change', closeForDesktop);
-  window.addEventListener('orientationchange', () => {
-    if (open) closeMenu({ restoreFocus: false });
-  }, { passive: true });
-  document.addEventListener('touchmove', (event) => {
-    if (open && !panel?.contains(event.target)) event.preventDefault();
-  }, { passive: false });
-
-  window.addEventListener('pageshow', () => {
-    if (open) closeMenu({ restoreFocus: false });
+  desktopQuery.addEventListener?.('change', (event) => {
+    if (event.matches && isOpen) closeMenu({ restoreFocus: false });
   });
+
+  // Prevent page gestures while keeping the drawer itself fully scrollable and interactive.
+  backdrop.addEventListener('touchmove', (event) => event.preventDefault(), { passive: false });
   window.addEventListener('pagehide', () => {
-    if (open) closeMenu({ restoreFocus: false });
+    if (isOpen) closeMenu({ restoreFocus: false });
   });
-
-  // Stop taps and wheel gestures inside the panel from reaching the backdrop/page.
-  panel?.addEventListener('click', (event) => event.stopPropagation());
 })();
 
 const year = document.getElementById('year'); if(year) year.textContent = new Date().getFullYear();
