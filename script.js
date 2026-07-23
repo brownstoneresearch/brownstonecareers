@@ -3,16 +3,15 @@
   const body = document.body;
   const toggle = document.querySelector('[data-menu-toggle]');
   const drawer = document.querySelector('[data-mobile-drawer]');
-  const panel = drawer?.querySelector('[data-mobile-panel]') || drawer?.querySelector('.agency-mobile-panel');
+  const panel = drawer?.querySelector('[data-mobile-panel]');
   const backdrop = document.querySelector('[data-drawer-backdrop]');
-  const closeButton = document.querySelector('[data-drawer-close]');
+  const closeButton = drawer?.querySelector('[data-drawer-close]');
   const desktopQuery = window.matchMedia('(min-width: 941px)');
+
+  if (!toggle || !drawer || !panel || !backdrop || !closeButton) return;
+
   let isOpen = false;
-  let returnFocus = null;
-  let scrollY = 0;
-
-  if (!toggle || !drawer || !backdrop || !panel) return;
-
+  let returnFocus = toggle;
   const focusableSelector = [
     'a[href]:not([tabindex="-1"])',
     'button:not([disabled]):not([tabindex="-1"])',
@@ -27,73 +26,49 @@
     return !element.hidden && style.display !== 'none' && style.visibility !== 'hidden';
   });
 
-  const lockPage = () => {
-    scrollY = window.scrollY || window.pageYOffset;
-    html.classList.add('agency-menu-open');
-    body.classList.add('agency-menu-open');
-    body.style.position = 'fixed';
-    body.style.top = `-${scrollY}px`;
-    body.style.left = '0';
-    body.style.right = '0';
-    body.style.width = '100%';
-  };
+  const applyState = (open, { restoreFocus = true } = {}) => {
+    if (isOpen === open) return;
+    isOpen = open;
 
-  const unlockPage = () => {
-    html.classList.remove('agency-menu-open');
-    body.classList.remove('agency-menu-open');
-    body.style.position = '';
-    body.style.top = '';
-    body.style.left = '';
-    body.style.right = '';
-    body.style.width = '';
-    window.scrollTo(0, scrollY);
-  };
+    toggle.setAttribute('aria-expanded', String(open));
+    toggle.setAttribute('aria-label', open ? 'Close navigation' : 'Open navigation');
+    drawer.setAttribute('aria-hidden', String(!open));
+    backdrop.setAttribute('aria-hidden', String(!open));
+    drawer.dataset.state = open ? 'open' : 'closed';
+    backdrop.dataset.state = open ? 'open' : 'closed';
 
-  const setState = (nextOpen, { restoreFocus = true } = {}) => {
-    if (isOpen === nextOpen) return;
-    isOpen = nextOpen;
-
-    toggle.setAttribute('aria-expanded', String(isOpen));
-    toggle.setAttribute('aria-label', isOpen ? 'Close navigation' : 'Open navigation');
-    drawer.setAttribute('aria-hidden', String(!isOpen));
-    backdrop.setAttribute('aria-hidden', String(!isOpen));
-    drawer.dataset.state = isOpen ? 'open' : 'closed';
-    backdrop.dataset.state = isOpen ? 'open' : 'closed';
-    drawer.inert = !isOpen;
-
-    if (isOpen) {
+    if (open) {
       returnFocus = document.activeElement instanceof HTMLElement ? document.activeElement : toggle;
-      lockPage();
+      drawer.removeAttribute('inert');
+      html.classList.add('agency-menu-open');
+      body.classList.add('agency-menu-open');
       panel.scrollTop = 0;
-      requestAnimationFrame(() => requestAnimationFrame(() => {
-        (closeButton || focusableItems()[0] || drawer).focus({ preventScroll: true });
-      }));
+      requestAnimationFrame(() => closeButton.focus({ preventScroll: true }));
       return;
     }
 
-    unlockPage();
+    html.classList.remove('agency-menu-open');
+    body.classList.remove('agency-menu-open');
+    drawer.setAttribute('inert', '');
     if (restoreFocus && returnFocus instanceof HTMLElement && returnFocus.isConnected) {
       requestAnimationFrame(() => returnFocus.focus({ preventScroll: true }));
     }
   };
 
   const openMenu = () => {
-    if (!desktopQuery.matches) setState(true);
+    if (!desktopQuery.matches) applyState(true);
   };
-  const closeMenu = (options) => setState(false, options);
+  const closeMenu = (options) => applyState(false, options);
 
-  drawer.inert = true;
   drawer.dataset.state = 'closed';
   backdrop.dataset.state = 'closed';
   drawer.setAttribute('aria-hidden', 'true');
   backdrop.setAttribute('aria-hidden', 'true');
+  drawer.setAttribute('inert', '');
   toggle.setAttribute('aria-expanded', 'false');
 
-  toggle.addEventListener('click', (event) => {
-    event.preventDefault();
-    isOpen ? closeMenu() : openMenu();
-  });
-  closeButton?.addEventListener('click', () => closeMenu());
+  toggle.addEventListener('click', () => isOpen ? closeMenu() : openMenu());
+  closeButton.addEventListener('click', () => closeMenu());
   backdrop.addEventListener('click', () => closeMenu());
 
   drawer.addEventListener('click', (event) => {
@@ -103,19 +78,21 @@
 
   document.addEventListener('keydown', (event) => {
     if (!isOpen) return;
+
     if (event.key === 'Escape') {
       event.preventDefault();
       closeMenu();
       return;
     }
-    if (event.key !== 'Tab') return;
 
+    if (event.key !== 'Tab') return;
     const items = focusableItems();
     if (!items.length) {
       event.preventDefault();
       drawer.focus({ preventScroll: true });
       return;
     }
+
     const first = items[0];
     const last = items[items.length - 1];
     if (event.shiftKey && document.activeElement === first) {
@@ -131,8 +108,6 @@
     if (event.matches && isOpen) closeMenu({ restoreFocus: false });
   });
 
-  // Prevent page gestures while keeping the drawer itself fully scrollable and interactive.
-  backdrop.addEventListener('touchmove', (event) => event.preventDefault(), { passive: false });
   window.addEventListener('pagehide', () => {
     if (isOpen) closeMenu({ restoreFocus: false });
   });
