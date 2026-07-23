@@ -1,16 +1,23 @@
 {
   "name": "Brownstone Careers",
   "short_name": "Brownstone Careers",
-  "description": "Professional remote recruitment and career opportunities.",
+  "description": "Research-driven recruitment, career development, workforce intelligence, and high-quality remote opportunities.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#092b66",
+  "background_color": "#06142f",
+  "theme_color": "#071a3c",
   "icons": [
     {
-      "src": "/logo.png",
+      "src": "/assets/app-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/app-icon-512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }

@@ -35,7 +35,7 @@ Pages Functions are in the root-level `functions/` directory and are deployed au
 - `POST /api/contact`
 - `POST /api/applications`
 
-Application uploads accept PDF, DOC, and DOCX resumes up to 5 MB. The resume is sent as a Resend attachment and is not stored in the repository or static site.
+Application uploads accept PDF, DOC, and DOCX resumes up to 5 MB, plus front and back government-ID files in JPG, PNG, WEBP, or PDF format up to 5 MB each. Files are sent as Resend attachments to the authorized recruitment inbox and are not stored in the repository or static site.
 
 ## Local development
 
@@ -59,9 +59,9 @@ git commit -m "Rebuild site for Cloudflare Pages"
 git push -u origin main
 ```
 
-## Logo refinement
+## Agency brand system
 
-The header and footer now use a true transparent PNG logo with responsive sizing, clean alignment, and no colored image background.
+The site now uses a dedicated Brownstone Careers recruitment-agency shell. The header combines the official emblem with a concise agency descriptor, while the footer presents the agency mission, career pathways, candidate-safety guidance, workplace tools, and official application actions. The shell is isolated in `public/agency-shell.css` to prevent older component rules from affecting the logo placement or responsive navigation.
 
 
 ## Cloudflare Turnstile and cookies
@@ -119,3 +119,18 @@ npm test
 ```
 
 See `SEO-GEO-FORM-UPGRADE.md` for the implementation summary and post-deployment indexing checklist.
+
+## Version 6.0.0 — recruitment agency shell
+
+- New professional header and footer across all public pages.
+- Responsive logo lockups optimized for desktop, tablet, and mobile.
+- Private WhatsApp support redirect with no visible phone number.
+- Updated PWA icons and manifest metadata.
+- Automated checks for the agency shell, navigation controls, assets, forms, SEO, and legacy markup.
+
+
+## Version 6.1 brand navigation refinement
+
+- Removed the Home text link from desktop and mobile navigation while keeping the lamp-logo brand lockup linked to the homepage.
+- Preserved the original Brownstone lamp emblem in the header, mobile drawer, and footer.
+- Realigned the agency name and descriptor beside the emblem for a consistent left edge and balanced vertical rhythm.
