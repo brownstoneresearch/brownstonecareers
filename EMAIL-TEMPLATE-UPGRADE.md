@@ -1,29 +1,39 @@
-# Reusable Resend Email System
+# Official Brownstone Careers Resend Email System
 
-The project now uses a dedicated `/emails/` directory as the single design system for transactional and recruitment emails.
+The `/emails/` directory is the single source of truth for candidate-facing and internal website email design.
 
-## Production templates
+## Official templates
 
 - Application received
 - Contact received
-- Internal application notification
-- Internal contact notification
+- Internal candidate application notification
+- Internal website support notification
 - Pre-screening invitation
+- Pre-screening result
 - Interview invitation
 - Offer letter
 - General recruitment update
 
-## Shared branding
+## Shared standard
 
-Every template includes:
+Every template now includes:
 
-- Hosted Brownstone Careers logo
-- White branded header
-- Consistent typography and spacing
-- Blue call-to-action buttons
-- Branded footer and website link
-- Security notice
-- Mobile-safe, table-based email markup
-- HTML escaping for user-submitted values
+- Official hosted Brownstone Careers horizontal logo
+- Navy branded header and blue corporate palette
+- Accessible preheader and logo alternative text
+- Mobile-responsive, table-based email markup
+- Consistent status badges, detail cards, CTA buttons, typography, and spacing
+- Official agency footer, website link, support address, and candidate-safety notice
+- Escaping of candidate-provided content before rendering
 
-Cloudflare Pages Functions import `/emails/index.js`. `/emails/index.cjs` is retained only as an optional compatibility build for external CommonJS tooling.
+Both Cloudflare Pages Functions and the optional Express server use this design system. Do not create separate inline email layouts in API handlers.
+
+## Production sender
+
+Use the verified Resend subdomain sender:
+
+```text
+Brownstone Careers <notifications@mail.brownstonecareers.agency>
+```
+
+Set `EMAIL_REPLY_TO` to the real monitored support inbox. See `RESEND-SUBDOMAIN-SETUP.md` for DNS and deployment instructions.

@@ -1,6 +1,6 @@
 # Brownstone Careers Email Templates
 
-All Resend HTML should be generated through `emails/index.js`.
+All Resend HTML must be generated through `emails/index.js` (ES modules) or its synchronized `emails/index.cjs` compatibility copy.
 
 Available templates:
 
@@ -9,8 +9,21 @@ Available templates:
 - `internalApplicationEmail`
 - `internalContactEmail`
 - `preScreeningEmail`
+- `preScreeningResultEmail`
 - `interviewInviteEmail`
 - `offerLetterEmail`
 - `recruitmentUpdateEmail`
 
-Every template shares the same hosted logo, typography, CTA button, security notice, and branded footer. Keep candidate-provided values as plain input; the template escapes them before rendering.
+Every template shares the same verified hosted logo, mobile-responsive layout, CTA design, official footer, support identity, and candidate-safety notice. Candidate-provided values must be passed as plain input; the templates escape them before rendering.
+
+Official logo URL:
+
+```text
+https://www.brownstonecareers.agency/assets/brownstone-logo-dark.png
+```
+
+Recommended sender:
+
+```text
+Brownstone Careers <notifications@mail.brownstonecareers.agency>
+```

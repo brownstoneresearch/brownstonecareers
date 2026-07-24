@@ -1,4 +1,12 @@
-const HANDLER_VERSION = "2026-07-23.5";
+import {
+  applicationReceivedEmail,
+  contactReceivedEmail,
+  internalApplicationEmail,
+  internalContactEmail,
+} from "../emails/index.js";
+
+const HANDLER_VERSION = "2026-07-24.1";
+const RECOMMENDED_SENDING_DOMAIN = "mail.brownstonecareers.agency";
 const MAX_RESUME_BYTES = 5 * 1024 * 1024;
 const MAX_ID_BYTES = 5 * 1024 * 1024;
 const ALLOWED_ID_EXTENSIONS = new Set(["jpg", "jpeg", "png", "webp", "pdf"]);
@@ -17,6 +25,9 @@ export function health(env) {
     ok: true,
     handlerVersion: HANDLER_VERSION,
     emailConfigured: Boolean(env?.RESEND_API_KEY && env?.EMAIL_FROM && env?.RECRUITMENT_EMAIL),
+    emailFrom: clean(env?.EMAIL_FROM, 320) || null,
+    recommendedSendingDomain: RECOMMENDED_SENDING_DOMAIN,
+    dedicatedSendingSubdomain: senderUsesRecommendedSubdomain(env?.EMAIL_FROM),
     turnstileConfigured: Boolean(env?.TURNSTILE_SECRET_KEY),
     service: "Brownstone Careers",
     runtime: "Cloudflare Pages Functions",
@@ -106,32 +117,16 @@ export async function handleApplication(request, env) {
     const idBackBase64 = arrayBufferToBase64(await idBack.arrayBuffer());
 
     stage = "sending-recruiter-email";
-    const recruiterContent = `
-      <p><strong>Application reference:</strong> ${reference}</p>
-      <p><strong>Candidate:</strong> ${escapeHtml(fullName)}</p>
-      <p><strong>Email:</strong> ${escapeHtml(fields.email)}</p>
-      <p><strong>Phone:</strong> ${escapeHtml(fields.phone)}</p>
-      <p><strong>SSN (last four only):</strong> ${escapeHtml(fields.ssnLast4)}</p>
-      <p><strong>Mother’s maiden name:</strong> ${escapeHtml(fields.motherMaidenName)}</p>
-      <p><strong>Residential address:</strong> ${escapeHtml(fields.houseAddress)}, ${escapeHtml(fields.city)}, ${escapeHtml(fields.stateProvince)} ${escapeHtml(fields.postalCode)}, ${escapeHtml(fields.country)}</p>
-      <p><strong>Role:</strong> ${escapeHtml(fields.role)}</p>
-      <p><strong>Time zone:</strong> ${escapeHtml(fields.timezone)}</p>
-      <p><strong>Available start:</strong> ${escapeHtml(fields.startDate)}</p>
-      <p><strong>Years of experience:</strong> ${escapeHtml(fields.yearsExperience)}</p>
-      <p><strong>Most recent job title:</strong> ${escapeHtml(fields.recentJobTitle)}</p>
-      <p><strong>Most recent employer:</strong> ${escapeHtml(fields.recentEmployer)}</p>
-      <p><strong>Employment period:</strong> ${escapeHtml(fields.employmentPeriod)}</p>
-      ${section("Working experience and achievements", fields.experience)}
-      ${section("Interest in the role", fields.interest)}
-      ${section("Software and technical skills", fields.skills)}
-      ${section("Remote-work readiness", fields.readiness)}`;
-
     const recruiterResult = await sendResendEmail(env, {
       from: env.EMAIL_FROM,
       to: parseRecipients(env.RECRUITMENT_EMAIL),
       reply_to: fields.email,
       subject: `New application: ${fields.role} — ${fullName} — ${reference}`,
-      html: emailLayout("New Candidate Application", recruiterContent),
+      html: internalApplicationEmail({
+        reference,
+        fullName,
+        ...fields,
+      }),
       attachments: [
         { filename: safeFilename(resume.name), content: resumeBase64 },
         { filename: `ID-front-${safeFilename(idFront.name)}`, content: idFrontBase64 },
@@ -155,22 +150,12 @@ export async function handleApplication(request, env) {
     }
 
     stage = "sending-candidate-confirmation";
-    const candidateContent = `
-      <p style="font-size:16px;line-height:1.7">Dear ${escapeHtml(fields.firstName)},</p>
-      <p style="font-size:16px;line-height:1.7">Thank you for applying for the <strong>${escapeHtml(fields.role)}</strong> opportunity with Brownstone Careers.</p>
-      <div style="margin:24px 0;padding:18px;background:#eef3fb;border-left:4px solid #153c7a;border-radius:8px">
-        <div style="font-size:12px;color:#5b6880;text-transform:uppercase;letter-spacing:.12em">Application reference</div>
-        <div style="font-size:22px;font-weight:800;color:#071a3b;margin-top:5px">${reference}</div>
-      </div>
-      <p style="font-size:16px;line-height:1.7">Our recruitment team will review your submission. Keep this reference number for future correspondence.</p>
-      <p style="font-size:16px;line-height:1.7">Regards,<br><strong>Brownstone Careers Recruitment Team</strong></p>`;
-
     const confirmation = await sendResendEmail(env, {
       from: env.EMAIL_FROM,
       to: [fields.email],
-      reply_to: firstRecipient(env.RECRUITMENT_EMAIL),
+      reply_to: replyToAddress(env),
       subject: `Application received — ${reference}`,
-      html: emailLayout("Application Received", candidateContent),
+      html: applicationReceivedEmail({ firstName: fields.firstName, role: fields.role, reference }),
     }, `${reference}-candidate`);
 
     if (!confirmation.ok) {
@@ -232,19 +217,12 @@ export async function handleContact(request, env) {
 
     stage = "sending-support-email";
     const reference = createReference("BC-S");
-    const recruiterContent = `
-      <p><strong>Support reference:</strong> ${reference}</p>
-      <p><strong>Name:</strong> ${escapeHtml(name)}</p>
-      <p><strong>Email:</strong> ${escapeHtml(email)}</p>
-      <p><strong>Subject:</strong> ${escapeHtml(subject)}</p>
-      ${section("Message", message)}`;
-
     const supportResult = await sendResendEmail(env, {
       from: env.EMAIL_FROM,
       to: parseRecipients(env.RECRUITMENT_EMAIL),
       reply_to: email,
       subject: `Website support: ${subject} — ${reference}`,
-      html: emailLayout("New Website Support Request", recruiterContent),
+      html: internalContactEmail({ reference, name, email, subject, message }),
     }, `${reference}-support`);
 
     if (!supportResult.ok) {
@@ -266,13 +244,9 @@ export async function handleContact(request, env) {
     const confirmation = await sendResendEmail(env, {
       from: env.EMAIL_FROM,
       to: [email],
-      reply_to: firstRecipient(env.RECRUITMENT_EMAIL),
+      reply_to: replyToAddress(env),
       subject: `Message received — ${reference}`,
-      html: emailLayout("Your Message Was Received", `
-        <p style="font-size:16px;line-height:1.7">Dear ${escapeHtml(name)},</p>
-        <p style="font-size:16px;line-height:1.7">Thank you for contacting Brownstone Careers. Your message has been delivered to our support team.</p>
-        <p><strong>Reference:</strong> ${reference}</p>
-        <p style="font-size:16px;line-height:1.7">Regards,<br><strong>Brownstone Careers Support</strong></p>`),
+      html: contactReceivedEmail({ name, reference }),
     }, `${reference}-confirmation`);
 
     if (!confirmation.ok) {
@@ -513,6 +487,15 @@ function firstRecipient(value) {
   return parseRecipients(value)[0] || "support@brownstonecareers.agency";
 }
 
+function replyToAddress(env) {
+  const explicit = clean(env?.EMAIL_REPLY_TO, 320);
+  return validEmail(explicit) ? explicit : firstRecipient(env?.RECRUITMENT_EMAIL);
+}
+
+function senderUsesRecommendedSubdomain(value) {
+  return clean(value, 320).toLowerCase().includes(`@${RECOMMENDED_SENDING_DOMAIN}`);
+}
+
 function clean(value, maxLength = 5000) {
   return String(value ?? "").trim().slice(0, maxLength);
 }
@@ -582,19 +565,6 @@ function arrayBufferToBase64(arrayBuffer) {
   return chunks.join("");
 }
 
-function section(title, value) {
-  return `<h2 style="font-size:17px;margin:26px 0 8px;color:#071a3b">${escapeHtml(title)}</h2><p style="white-space:pre-line;line-height:1.7">${escapeHtml(value)}</p>`;
-}
-
-function emailLayout(title, content) {
-  return `<!doctype html><html><body style="margin:0;background:#f2f5fa;font-family:Arial,Helvetica,sans-serif;color:#17233b">
-  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f2f5fa;padding:30px 12px"><tr><td align="center">
-  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:680px;background:#fff;border-radius:16px;overflow:hidden;border:1px solid #dfe6f0">
-  <tr><td style="background:#071a3b;padding:26px 32px;color:#fff"><div style="font-size:22px;font-weight:800;letter-spacing:.08em">BROWNSTONE <span style="font-weight:400">CAREERS</span></div><div style="font-size:9px;letter-spacing:.24em;margin-top:8px;color:#c9d4ea">RECRUITMENT AGENCY</div></td></tr>
-  <tr><td style="padding:32px"><h1 style="font-size:26px;line-height:1.25;margin:0 0 20px;color:#071a3b">${escapeHtml(title)}</h1>${content}</td></tr>
-  <tr><td style="padding:18px 32px;background:#f7f9fc;color:#667085;font-size:12px;line-height:1.6">This email was generated by the official Brownstone Careers website. Never share passwords, PINs, or banking credentials.</td></tr>
-  </table></td></tr></table></body></html>`;
-}
 
 function parseJson(text) {
   if (!text) return {};

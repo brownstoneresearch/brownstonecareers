@@ -102,11 +102,15 @@ function createReference(prefix = "BC") {
 }
 
 function senderAddress() {
-  return process.env.EMAIL_FROM || "Brownstone Careers <applications@brownstonecareers.agency>";
+  return process.env.EMAIL_FROM || "Brownstone Careers <notifications@mail.brownstonecareers.agency>";
 }
 
 function recruitmentAddress() {
   return process.env.RECRUITMENT_EMAIL || "support@brownstonecareers.agency";
+}
+
+function replyToAddress() {
+  return process.env.EMAIL_REPLY_TO || recruitmentAddress();
 }
 
 async function sendEmail(payload) {
@@ -122,7 +126,9 @@ async function sendEmail(payload) {
 app.get("/api/health", (_request, response) => {
   response.json({
     ok: true,
-    emailConfigured: Boolean(process.env.RESEND_API_KEY),
+    emailConfigured: Boolean(process.env.RESEND_API_KEY && process.env.EMAIL_FROM && process.env.RECRUITMENT_EMAIL),
+    sender: senderAddress(),
+    recommendedSendingDomain: "mail.brownstonecareers.agency",
     service: "Brownstone Careers"
   });
 });
@@ -212,7 +218,7 @@ app.post("/api/applications", limiter, upload.single("resume"), async (request, 
       await sendEmail({
         from: senderAddress(),
         to: [fields.email],
-        replyTo: recruitmentAddress(),
+        replyTo: replyToAddress(),
         subject: `Application received — ${reference}`,
         html: applicationReceivedEmail({ firstName: fields.firstName, role: fields.role, reference })
       });
@@ -260,7 +266,7 @@ app.post("/api/contact", limiter, upload.none(), async (request, response) => {
       await sendEmail({
         from: senderAddress(),
         to: [email],
-        replyTo: recruitmentAddress(),
+        replyTo: replyToAddress(),
         subject: `Support request received — ${reference}`,
         html: contactReceivedEmail({ name, reference })
       });

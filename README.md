@@ -24,10 +24,23 @@ The project intentionally has no runtime or build dependencies. This keeps Cloud
    - `RESEND_API_KEY`
    - `EMAIL_FROM`
    - `RECRUITMENT_EMAIL`
+   - `EMAIL_REPLY_TO` (recommended)
    - `TURNSTILE_SECRET_KEY`
 5. Redeploy.
 
 Pages Functions are in the root-level `functions/` directory and are deployed automatically with Git builds.
+
+
+## Official Resend sending identity
+
+Use the dedicated transactional subdomain `mail.brownstonecareers.agency` after it has been verified in Resend. Set:
+
+```text
+EMAIL_FROM=Brownstone Careers <notifications@mail.brownstonecareers.agency>
+EMAIL_REPLY_TO=support@brownstonecareers.agency
+```
+
+All application confirmations, support confirmations, and internal website notifications render through the official `/emails/` design system and include the hosted Brownstone Careers logo. Follow `RESEND-SUBDOMAIN-SETUP.md` for DNS and deployment steps.
 
 ## API routes
 
