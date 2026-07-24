@@ -99,3 +99,40 @@ html.menu-open,body.menu-open{overflow:hidden;overscroll-behavior:none}body.menu
   .agency-header{min-height:70px}.agency-nav-shell{min-height:70px;gap:10px}.agency-brand{gap:9px}.agency-brand-emblem{width:42px;height:48px;flex-basis:42px;border-radius:14px}.agency-brand-emblem img{width:29px;height:37px}.agency-brand-copy strong{font-size:16.5px}.agency-brand-copy span{font-size:7px;letter-spacing:.09em}.agency-menu-toggle{width:44px;height:44px}.agency-mobile-drawer{top:70px;right:max(10px,env(safe-area-inset-right));width:calc(100vw - 10px - max(10px,env(safe-area-inset-right)));max-height:calc(100dvh - 80px - env(safe-area-inset-bottom))}.agency-mobile-panel{padding:17px;border-radius:23px}.agency-mobile-links{grid-template-columns:1fr}.agency-footer{padding:58px 0 25px}.agency-footer-brand,.agency-footer-callout{padding:22px;border-radius:24px}.agency-footer-lockup{align-items:center;gap:13px}.agency-footer-emblem{width:56px;height:65px;flex-basis:56px;border-radius:18px}.agency-footer-emblem img{width:38px;height:49px}.agency-footer-wordmark strong{font-size:21px}.agency-footer-wordmark em{font-size:9px;letter-spacing:.08em}.agency-footer-wordmark small{font-size:7px;line-height:1.45;letter-spacing:.09em}.agency-footer-brand>p{font-size:13.5px}.agency-footer-callout h2{font-size:27px}.agency-footer-directory{grid-template-columns:1fr;gap:24px}.agency-footer-tools{display:grid;justify-items:start;padding:17px}.agency-footer-tools>div{justify-content:flex-start}.agency-footer-bottom{display:grid;justify-items:center;text-align:center}.agency-footer-bottom>span:last-child{justify-content:center;flex-wrap:wrap}
 }
 @media(prefers-reduced-motion:reduce){.agency-header *,.agency-footer *,.agency-mobile-drawer,.agency-drawer-backdrop{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+
+/* Mobile navigation reliability v6.5 */
+#candidate-support{scroll-margin-top:96px}
+.agency-mobile-links a,.agency-mobile-apply{
+  min-width:0;
+  min-height:50px;
+  cursor:pointer;
+  user-select:none;
+  -webkit-user-select:none;
+}
+.agency-mobile-support-link{
+  border-color:rgba(143,168,255,.24)!important;
+  background:rgba(112,139,255,.12)!important;
+}
+.agency-mobile-support-link::after{
+  content:"→";
+  margin-left:auto;
+  color:#9fb2ff;
+  font-size:15px;
+}
+.agency-mobile-apply{min-height:54px}
+@media(max-width:640px){
+  .agency-mobile-links a,.agency-mobile-apply{min-height:52px}
+}
+
+
+/* Brownstone Careers new brand identity — July 2026 */
+.agency-brand{width:min(330px,100%);height:64px;overflow:hidden;border-radius:16px}
+.agency-brand-lockup-image{display:block;width:100%;height:100%;object-fit:cover;object-position:center;border:1px solid rgba(255,255,255,.14);border-radius:16px;box-shadow:0 12px 30px rgba(0,0,0,.22)}
+.agency-footer-lockup-image{display:block;width:min(520px,100%);border-radius:20px;overflow:hidden}
+.agency-footer-lockup-image img{display:block;width:100%;height:auto;border:1px solid rgba(255,255,255,.14);border-radius:20px;box-shadow:0 18px 44px rgba(0,0,0,.24)}
+.agency-mobile-emblem{overflow:hidden;padding:0}
+.agency-mobile-emblem img{width:100%;height:100%;object-fit:cover;filter:none}
+@media(max-width:1120px){.agency-brand{width:285px;height:58px}}
+@media(max-width:940px){.agency-brand{width:278px;height:54px}}
+@media(max-width:640px){.agency-brand{width:min(245px,calc(100vw - 78px));height:48px;border-radius:13px}.agency-brand-lockup-image{border-radius:13px}.agency-footer-lockup-image{width:100%}}
+@media(max-width:390px){.agency-brand{width:min(218px,calc(100vw - 74px));height:44px}}

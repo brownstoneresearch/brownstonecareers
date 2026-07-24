@@ -59,8 +59,19 @@ drawer?.addEventListener('click', (event) => {
   // native navigation. Closing synchronously here can cancel taps in some
   // mobile browsers. Normal page links close naturally during navigation.
   const href = link.getAttribute('href') || '';
-  const keepsCurrentDocument = href.startsWith('#') || link.target === '_blank' || href.startsWith('mailto:') || href.startsWith('tel:');
-  if (keepsCurrentDocument) {
+  let destination = null;
+  try { destination = new URL(link.href, window.location.href); } catch { /* Invalid links are ignored. */ }
+
+  const isExternalContext = link.target === '_blank' || href.startsWith('mailto:') || href.startsWith('tel:');
+  const isSameDocument = Boolean(destination) &&
+    destination.origin === window.location.origin &&
+    destination.pathname.replace(/\/+$/, '') === window.location.pathname.replace(/\/+$/, '') &&
+    destination.search === window.location.search;
+
+  // Let native navigation complete first. For active-page links and hash targets,
+  // the document remains loaded, so close the drawer on the next task without
+  // cancelling the tap or making the clicked link inert too early.
+  if (isExternalContext || isSameDocument || href.startsWith('#')) {
     window.setTimeout(() => closeMenu({ restoreFocus: false }), 0);
   }
 });
