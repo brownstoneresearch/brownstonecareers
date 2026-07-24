@@ -33,7 +33,7 @@ for (const name of htmlNames) {
   if (/executive-header|brand-panel|premium-footer executive-footer/i.test(source)) errors.push(`${name}: legacy header/footer markup remains`);
   if (/<nav\b[^>]*class=["'][^"']*\bagency-nav\b[\s\S]*?<a\b[^>]*data-nav=["']index["'][^>]*>\s*Home\s*<\/a>/i.test(source)) errors.push(`${name}: Home link must not appear in the primary navigation`);
   if (/<nav\b[^>]*class=["'][^"']*\bagency-mobile-links\b[\s\S]*?<a\b[^>]*data-nav=["']index["'][^>]*>\s*Home\s*<\/a>/i.test(source)) errors.push(`${name}: Home link must not appear in the mobile navigation`);
-  if (!/agency-brand-emblem[\s\S]{0,300}brand-logo-icon-white\.png/i.test(source) || !/agency-footer-emblem[\s\S]{0,300}brand-logo-icon-white\.png/i.test(source)) errors.push(`${name}: heritage lamp logo is not preserved in header and footer`);
+  if (!/agency-brand[\s\S]{0,300}brand-logo-horizontal-new\.webp/i.test(source) || !/agency-footer-lockup[\s\S]{0,300}brand-logo-horizontal-new\.webp/i.test(source)) errors.push(`${name}: approved Brownstone Careers brand lockup is not preserved in header and footer`);
   if (/\+1\s*\(?534\)?|228[\s-]*0244|https:\/\/wa\.me\//i.test(source)) errors.push(`${name}: WhatsApp number or direct wa.me URL is exposed in page source`);
   for (const match of source.matchAll(/<img\b[^>]*>/gi)) {
     const a = attrs(match[0]);

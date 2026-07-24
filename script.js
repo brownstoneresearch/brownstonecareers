@@ -1,4 +1,5 @@
 const body = document.body;
+const rootElement = document.documentElement;
 const toggle = document.querySelector('[data-menu-toggle]');
 const drawer = document.querySelector('[data-mobile-drawer]');
 const backdrop = document.querySelector('[data-drawer-backdrop]');
@@ -10,6 +11,7 @@ function drawerFocusable(){
 }
 function setDrawerState(open){
   body.classList.toggle('menu-open', open);
+  rootElement.classList.toggle('menu-open', open);
   toggle?.setAttribute('aria-expanded', String(open));
   toggle?.setAttribute('aria-label', open ? 'Close navigation' : 'Open navigation');
   drawer?.setAttribute('aria-hidden', String(!open));
@@ -57,8 +59,19 @@ drawer?.addEventListener('click', (event) => {
   // native navigation. Closing synchronously here can cancel taps in some
   // mobile browsers. Normal page links close naturally during navigation.
   const href = link.getAttribute('href') || '';
-  const keepsCurrentDocument = href.startsWith('#') || link.target === '_blank' || href.startsWith('mailto:') || href.startsWith('tel:');
-  if (keepsCurrentDocument) {
+  let destination = null;
+  try { destination = new URL(link.href, window.location.href); } catch { /* Invalid links are ignored. */ }
+
+  const isExternalContext = link.target === '_blank' || href.startsWith('mailto:') || href.startsWith('tel:');
+  const isSameDocument = Boolean(destination) &&
+    destination.origin === window.location.origin &&
+    destination.pathname.replace(/\/+$/, '') === window.location.pathname.replace(/\/+$/, '') &&
+    destination.search === window.location.search;
+
+  // Let native navigation complete first. For active-page links and hash targets,
+  // the document remains loaded, so close the drawer on the next task without
+  // cancelling the tap or making the clicked link inert too early.
+  if (isExternalContext || isSameDocument || href.startsWith('#')) {
     window.setTimeout(() => closeMenu({ restoreFocus: false }), 0);
   }
 });
@@ -66,6 +79,13 @@ window.addEventListener('resize', () => {
   if (window.innerWidth > 940) closeMenu({ restoreFocus: false });
 }, { passive: true });
 window.addEventListener('pagehide', () => setDrawerState(false));
+window.addEventListener('beforeunload', () => setDrawerState(false));
+window.addEventListener('pageshow', (event) => {
+  // Guards against the menu getting stuck open when a page is restored
+  // from the back/forward (bfcache) cache with menu-open still set.
+  if (event.persisted) closeMenu({ restoreFocus: false });
+});
+window.addEventListener('orientationchange', () => closeMenu({ restoreFocus: false }));
 
 const year = document.getElementById('year'); if(year) year.textContent = new Date().getFullYear();
 const params = new URLSearchParams(location.search);
