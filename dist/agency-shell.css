@@ -204,3 +204,60 @@ html.menu-open,body.menu-open{overflow:hidden;overscroll-behavior:none}body.menu
 @media(max-width:390px){
   .agency-brand{width:min(238px,calc(100vw - 70px));height:46px}
 }
+
+/* === v6.9 Plain logo treatment — header and footer ===
+   The logo artwork is transparent and sits directly on each section's navy
+   surface. No separate card, border, gradient, shadow, glow or cropping. */
+.agency-brand,
+.agency-footer-lockup-image{
+  display:block!important;
+  padding:0!important;
+  background:transparent!important;
+  border:0!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+  outline:0!important;
+  overflow:visible!important;
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
+}
+
+.agency-brand::before,
+.agency-brand::after,
+.agency-footer-lockup-image::before,
+.agency-footer-lockup-image::after{
+  display:none!important;
+  content:none!important;
+}
+
+.agency-brand-lockup-image,
+.agency-footer-lockup-image img{
+  display:block!important;
+  width:100%!important;
+  height:100%!important;
+  padding:0!important;
+  margin:0!important;
+  background:transparent!important;
+  border:0!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+  filter:none!important;
+  object-fit:contain!important;
+  object-position:left center!important;
+}
+
+.agency-footer-lockup-image{
+  width:min(610px,100%)!important;
+  height:auto!important;
+}
+
+.agency-footer-lockup-image img{
+  height:auto!important;
+  max-height:none!important;
+}
+
+@media(max-width:640px){
+  .agency-footer-lockup-image{
+    width:100%!important;
+  }
+}
