@@ -12,7 +12,7 @@
   <div class="agency-header-aura" aria-hidden="true"></div>
   <div class="container agency-nav-shell">
     <a class="agency-brand" href="/" aria-label="Brownstone Careers homepage">
-      <span class="agency-brand-emblem" aria-hidden="true"><img src="assets/brand-logo-icon-white.png" alt="Brownstone Careers lamp logo" width="48" height="58"></span>
+      <span class="agency-brand-emblem" aria-hidden="true"><img src="/assets/brand-logo-icon-white.png" alt="Brownstone Careers lamp logo" width="48" height="58"></span>
       <span class="agency-brand-copy"><strong>Brownstone Careers</strong><span>Research-driven recruitment agency</span></span>
     </a>
     <nav class="agency-nav" aria-label="Primary navigation">
@@ -28,10 +28,12 @@
       <button class="agency-menu-toggle" data-menu-toggle type="button" aria-controls="mobileNavigation" aria-expanded="false" aria-label="Open navigation"><span></span><span></span><span></span></button>
     </div>
   </div>
-  <aside class="agency-mobile-drawer" data-mobile-drawer id="mobileNavigation" aria-label="Mobile navigation" aria-hidden="true" inert>
-    <div class="agency-mobile-panel">
+</header>
+<button class="agency-drawer-backdrop" data-drawer-backdrop type="button" aria-label="Close navigation" aria-hidden="true" tabindex="-1"></button>
+<aside class="agency-mobile-drawer" data-mobile-drawer id="mobileNavigation" aria-label="Mobile navigation" aria-hidden="true" inert>
+    <div class="agency-mobile-panel" role="dialog" aria-modal="true" aria-labelledby="mobileNavigationTitle">
       <div class="agency-mobile-head">
-        <a class="agency-mobile-brand" href="/" aria-label="Brownstone Careers homepage"><span class="agency-mobile-emblem" aria-hidden="true"><img src="assets/brand-logo-icon-white.png" alt="Brownstone Careers lamp logo" width="42" height="51"></span><span><strong>Brownstone Careers</strong><small>Recruitment &amp; career development</small></span></a>
+        <a class="agency-mobile-brand" href="/" aria-label="Brownstone Careers homepage"><span class="agency-mobile-emblem" aria-hidden="true"><img src="/assets/brand-logo-icon-white.png" alt="Brownstone Careers lamp logo" width="42" height="51"></span><span><strong id="mobileNavigationTitle">Brownstone Careers</strong><small>Recruitment &amp; career development</small></span></a>
         <button class="agency-drawer-close" data-drawer-close type="button" aria-label="Close navigation">×</button>
       </div>
       <p class="agency-mobile-intro">Research-led talent matching, structured candidate support, and future-focused professional growth.</p>
@@ -45,9 +47,7 @@
       <a class="agency-mobile-apply" data-nav="apply" href="/apply">Start your application <span aria-hidden="true">↗</span></a>
       <div class="agency-mobile-support"><span>Official candidate support</span><a href="mailto:support@brownstonecareers.agency">support@brownstonecareers.agency</a><small>No application fee. Never share passwords, PINs, or banking credentials.</small></div>
     </div>
-  </aside>
-</header>
-<button class="agency-drawer-backdrop" data-drawer-backdrop type="button" aria-label="Close navigation" aria-hidden="true" tabindex="-1"></button><main id="main-content">
+  </aside><main id="main-content">
 <section class="page-hero privacy-hero" style="--page-cover:url('assets/about-cover.webp')"><div aria-hidden="true" class="page-hero-art"></div><div class="page-hero-shade"></div><div class="container page-hero-inner"><div class="page-hero-copy"><span class="eyebrow light">Applicant privacy</span><h1>Your information deserves clear, responsible handling.</h1><p>This notice explains the information Brownstone Careers may collect during recruitment and how it is intended to be used and protected.</p></div></div></section>
 <section class="section privacy-section"><div class="container privacy-layout"><aside class="privacy-summary"><span>Effective date</span><strong>July 23, 2026</strong><p>Questions about this notice can be sent to our official support email.</p><a href="mailto:support@brownstonecareers.agency">support@brownstonecareers.agency</a></aside><article class="privacy-content">
 <h2>Applicant Privacy Notice</h2><p>Brownstone Careers collects information that candidates voluntarily provide when applying for opportunities, contacting support, completing screening, or participating in recruitment activities.</p>
@@ -64,7 +64,7 @@
   <div class="container agency-footer-lead">
     <section class="agency-footer-brand" aria-labelledby="footer-brand-title">
       <a class="agency-footer-lockup" href="/" aria-label="Brownstone Careers homepage">
-        <span class="agency-footer-emblem" aria-hidden="true"><img src="assets/brand-logo-icon-white.png" alt="Brownstone Careers lamp logo" width="56" height="68"></span>
+        <span class="agency-footer-emblem" aria-hidden="true"><img src="/assets/brand-logo-icon-white.png" alt="Brownstone Careers lamp logo" width="56" height="68"></span>
         <span class="agency-footer-wordmark"><strong id="footer-brand-title">Brownstone Careers</strong><em>Recruitment &amp; Career Development</em><small>Research • Workforce Intelligence • Future Skills</small></span>
       </a>
       <p>We connect exceptional professionals with high-quality remote opportunities while strengthening the skills, market awareness, and career confidence needed for long-term success.</p>
