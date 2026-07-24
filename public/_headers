@@ -15,3 +15,10 @@
 
 /*.js
   Cache-Control: public, max-age=604800
+
+/Brownstone_Careers_Unboarding_Handbook/*
+  X-Robots-Tag: noindex, nofollow, noarchive, nosnippet, noimageindex
+  Cache-Control: private, no-store, max-age=0
+  Referrer-Policy: no-referrer
+  X-Frame-Options: DENY
+

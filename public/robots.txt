@@ -17,3 +17,5 @@ User-agent: *
 Allow: /
 
 Sitemap: https://www.brownstonecareers.agency/sitemap.xml
+# Private candidate handbook (unlisted)
+Disallow: /Brownstone_Careers_Unboarding_Handbook/
