@@ -52,7 +52,17 @@ document.addEventListener('keydown', (event) => {
   }
 });
 drawer?.addEventListener('click', (event) => {
-  if (event.target.closest('a[href]')) closeMenu({ restoreFocus: false });
+  const link = event.target.closest('a[href]');
+  if (!link || !drawer.contains(link)) return;
+
+  // Do not make the clicked link inert before the browser completes its
+  // native navigation. Closing synchronously here can cancel taps in some
+  // mobile browsers. Normal page links close naturally during navigation.
+  const href = link.getAttribute('href') || '';
+  const keepsCurrentDocument = href.startsWith('#') || link.target === '_blank' || href.startsWith('mailto:') || href.startsWith('tel:');
+  if (keepsCurrentDocument) {
+    window.setTimeout(() => closeMenu({ restoreFocus: false }), 0);
+  }
 });
 window.addEventListener('resize', () => {
   if (window.innerWidth > 940) closeMenu({ restoreFocus: false });
