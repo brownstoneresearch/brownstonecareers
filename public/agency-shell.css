@@ -42,7 +42,7 @@
 .agency-menu-toggle{display:none;width:46px;height:46px;border:1px solid rgba(255,255,255,.15);border-radius:15px;background:rgba(255,255,255,.075);cursor:pointer;place-content:center;gap:5px;box-shadow:inset 0 1px 0 rgba(255,255,255,.12)}
 .agency-menu-toggle span{display:block;width:19px;height:2px;border-radius:99px;background:#fff;transition:.22s}
 .agency-mobile-drawer{position:fixed;top:86px;right:max(18px,env(safe-area-inset-right));z-index:1103;width:min(390px,calc(100vw - 18px - max(18px,env(safe-area-inset-right))));max-height:calc(100dvh - 104px - env(safe-area-inset-bottom));overflow:hidden;opacity:0;visibility:hidden;pointer-events:none;transform:translateY(-12px) scale(.985);transform-origin:top right;transition:opacity .22s ease,transform .22s ease,visibility 0s linear .22s;will-change:transform,opacity}
-.agency-mobile-panel{max-height:inherit;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:20px;border:1px solid rgba(255,255,255,.16);border-radius:28px;background:linear-gradient(155deg,rgba(5,21,51,.985),rgba(6,31,74,.985));box-shadow:0 30px 90px rgba(0,0,0,.42),inset 0 1px 0 rgba(255,255,255,.11);backdrop-filter:blur(24px);scrollbar-width:thin;scrollbar-color:rgba(143,168,255,.65) transparent}
+.agency-mobile-panel{position:relative;max-height:inherit;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:20px;border:1px solid rgba(255,255,255,.16);border-radius:28px;background:linear-gradient(155deg,rgba(5,21,51,.985),rgba(6,31,74,.985));box-shadow:0 30px 90px rgba(0,0,0,.42),inset 0 1px 0 rgba(255,255,255,.11);backdrop-filter:blur(24px);scrollbar-width:thin;scrollbar-color:rgba(143,168,255,.65) transparent}
 .agency-mobile-head{display:flex;align-items:center;justify-content:space-between;gap:14px}
 .agency-mobile-brand{display:flex;align-items:center;gap:11px;color:#fff;text-decoration:none;min-width:0}
 .agency-mobile-emblem{display:grid;place-items:center;width:44px;height:50px;border:1px solid rgba(255,255,255,.15);border-radius:14px;background:rgba(255,255,255,.08)}
@@ -57,12 +57,17 @@
 .agency-mobile-support{display:grid;gap:5px;margin-top:14px;padding:14px;border:1px solid rgba(255,255,255,.09);border-radius:17px;background:rgba(255,255,255,.04)}
 .agency-mobile-support span{color:#90a8ff;font-size:9px;font-weight:950;text-transform:uppercase;letter-spacing:.12em}.agency-mobile-support a{color:#fff;font-size:12px;font-weight:800;text-decoration:none;overflow-wrap:anywhere}.agency-mobile-support small{color:#9eacc8;font-size:10px;line-height:1.5}
 .agency-drawer-backdrop{position:fixed;inset:0;z-index:1090;display:block;border:0;background:rgba(1,8,22,.62);opacity:0;visibility:hidden;pointer-events:none;backdrop-filter:blur(4px);transition:opacity .22s,visibility .22s}
-body.menu-open{overflow:hidden;touch-action:none}.menu-open .agency-mobile-drawer{opacity:1;visibility:visible;pointer-events:auto;transform:none;transition-delay:0s}.menu-open .agency-drawer-backdrop{opacity:1;visibility:visible;pointer-events:auto}.menu-open .agency-menu-toggle span:nth-child(1){transform:translateY(7px) rotate(45deg)}.menu-open .agency-menu-toggle span:nth-child(2){opacity:0}.menu-open .agency-menu-toggle span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+html.menu-open,body.menu-open{overflow:hidden;overscroll-behavior:none}body.menu-open{touch-action:none}.menu-open .agency-mobile-drawer{opacity:1;visibility:visible;pointer-events:auto;transform:none;transition-delay:0s}.menu-open .agency-drawer-backdrop{opacity:1;visibility:visible;pointer-events:auto}.menu-open .agency-menu-toggle span:nth-child(1){transform:translateY(7px) rotate(45deg)}.menu-open .agency-menu-toggle span:nth-child(2){opacity:0}.menu-open .agency-menu-toggle span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
 .agency-header.is-scrolled{box-shadow:0 20px 52px rgba(1,8,24,.34)}
 
 .agency-mobile-panel::-webkit-scrollbar{width:6px}.agency-mobile-panel::-webkit-scrollbar-thumb{border-radius:999px;background:rgba(143,168,255,.55)}
 .agency-menu-toggle:focus-visible,.agency-drawer-close:focus-visible,.agency-mobile-links a:focus-visible,.agency-mobile-apply:focus-visible{outline:3px solid rgba(157,181,255,.9);outline-offset:3px}
 @supports not (height:100dvh){.agency-mobile-drawer{max-height:calc(100vh - 104px)}@media(max-width:940px){.agency-mobile-drawer{max-height:calc(100vh - 88px)}}@media(max-width:640px){.agency-mobile-drawer{max-height:calc(100vh - 80px)}}}
+
+
+/* Drawer stability: the drawer is mounted directly under body, outside the sticky header. */
+@media(min-width:941px){.agency-mobile-drawer,.agency-drawer-backdrop{display:none!important}}
+@media(max-width:940px){.agency-mobile-drawer{contain:layout paint}.agency-mobile-panel{max-height:calc(100dvh - 88px - env(safe-area-inset-bottom))}}
 
 /* Footer */
 .agency-footer{position:relative;overflow:hidden;padding:78px 0 28px;background:linear-gradient(180deg,#071a3c 0%,#041126 57%,#020918 100%);color:#fff;border-top:1px solid rgba(139,165,255,.19)}
