@@ -62,6 +62,7 @@ body.menu-open{overflow:hidden;touch-action:none}.menu-open .agency-mobile-drawe
 
 .agency-mobile-panel::-webkit-scrollbar{width:6px}.agency-mobile-panel::-webkit-scrollbar-thumb{border-radius:999px;background:rgba(143,168,255,.55)}
 .agency-menu-toggle:focus-visible,.agency-drawer-close:focus-visible,.agency-mobile-links a:focus-visible,.agency-mobile-apply:focus-visible{outline:3px solid rgba(157,181,255,.9);outline-offset:3px}
+.agency-mobile-drawer a,.agency-mobile-drawer button{pointer-events:auto;touch-action:manipulation;-webkit-tap-highlight-color:rgba(143,168,255,.18)}.agency-mobile-links a,.agency-mobile-apply,.agency-mobile-brand,.agency-mobile-support a,.agency-drawer-close{position:relative;z-index:2}
 @supports not (height:100dvh){.agency-mobile-drawer{max-height:calc(100vh - 104px)}@media(max-width:940px){.agency-mobile-drawer{max-height:calc(100vh - 88px)}}@media(max-width:640px){.agency-mobile-drawer{max-height:calc(100vh - 80px)}}}
 
 /* Footer */
