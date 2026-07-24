@@ -2829,3 +2829,84 @@ body.menu-open{overflow:hidden}
 @media(max-width:680px){
   html{scroll-padding-top:78px}.section{padding:72px 0}.executive-header .nav-shell{min-height:70px!important}.executive-header .executive-brand{width:min(214px,68vw)!important;height:50px!important;min-height:50px!important;padding:6px 10px!important;border-radius:15px!important}.executive-header .executive-brand img{width:184px!important;max-height:38px!important}.executive-header .menu-toggle{width:44px!important;height:44px!important}.executive-header .mobile-drawer{width:96vw!important;padding:8px!important}.executive-header .mobile-drawer-inner{padding:17px!important;border-radius:24px!important}.executive-header .drawer-brand-icon{width:176px!important}.executive-footer{padding-top:66px!important}.executive-footer .footer-brand-stage,.executive-footer .footer-cta-panel{padding:22px!important;border-radius:25px!important}.executive-footer .footer-logo-lockup{min-height:96px!important;padding:14px 18px!important;border-radius:20px!important}.executive-footer .footer-logo-lockup img{max-height:78px!important}.executive-footer .footer-directory{grid-template-columns:1fr!important;gap:26px!important}.executive-footer .workplace-tools{display:grid!important}.executive-footer .workplace-tools div{justify-content:flex-start!important}.executive-footer .footer-bottom{display:grid!important;text-align:center!important;justify-items:center!important}.privacy-content h2{font-size:34px}.privacy-content p{font-size:15px}.privacy-summary{padding:20px}
 }
+
+/* === v6.8 Seamless dark-background logo treatment ===
+   Keeps the logo flush with the same navy surface used by the header/footer.
+   The horizontal PNG has a transparent background, so no secondary panel shows. */
+:root{
+  --brand-header-navy:#030f27;
+}
+
+.site-header .brand-panel,
+.executive-header .executive-brand,
+.premium-footer .footer-logo-lockup,
+.executive-footer .footer-logo-lockup,
+.footer-logo-lockup.v2-footer-logo{
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+  outline:0!important;
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
+}
+
+.site-header .brand-panel::before,
+.site-header .brand-panel::after,
+.executive-header .executive-brand::before,
+.executive-header .executive-brand::after,
+.premium-footer .footer-logo-lockup::before,
+.premium-footer .footer-logo-lockup::after,
+.executive-footer .footer-logo-lockup::before,
+.executive-footer .footer-logo-lockup::after,
+.footer-logo-lockup.v2-footer-logo::before,
+.footer-logo-lockup.v2-footer-logo::after{
+  display:none!important;
+  content:none!important;
+}
+
+.executive-header .executive-brand,
+.site-header .brand-panel{
+  padding:0!important;
+  border-radius:0!important;
+  overflow:visible!important;
+}
+
+.executive-header .executive-brand img,
+.site-header .brand-panel img,
+.premium-footer .footer-logo-lockup img,
+.executive-footer .footer-logo-lockup img,
+.footer-logo-lockup.v2-footer-logo img{
+  display:block!important;
+  height:auto!important;
+  object-fit:contain!important;
+  object-position:left center!important;
+  background:transparent!important;
+  filter:none!important;
+  box-shadow:none!important;
+}
+
+.executive-footer .footer-logo-lockup,
+.premium-footer .footer-logo-lockup,
+.footer-logo-lockup.v2-footer-logo{
+  padding:0!important;
+  min-height:0!important;
+  border-radius:0!important;
+  place-items:start!important;
+  justify-content:flex-start!important;
+  overflow:visible!important;
+}
+
+.executive-footer .footer-logo-lockup img,
+.premium-footer .footer-logo-lockup img,
+.footer-logo-lockup.v2-footer-logo img{
+  width:min(430px,100%)!important;
+  max-height:none!important;
+}
+
+@media(max-width:680px){
+  .executive-footer .footer-logo-lockup img,
+  .premium-footer .footer-logo-lockup img,
+  .footer-logo-lockup.v2-footer-logo img{
+    width:min(330px,100%)!important;
+  }
+}
