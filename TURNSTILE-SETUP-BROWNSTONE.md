@@ -5,7 +5,7 @@ This build already includes Cloudflare Turnstile on the Apply and Contact forms.
 ## Site key already injected
 
 ```text
-0x4AAAAAAD4dZ6uvgEldqskh
+0x4AAAAAAEA0g9ELRe9IQHmp
 ```
 
 The site key is included in:
@@ -75,13 +75,13 @@ Frontend widget script:
 Apply form widget:
 
 ```html
-<div class="cf-turnstile" data-sitekey="0x4AAAAAAD4dZ6uvgEldqskh" data-theme="light" data-action="application"></div>
+<div class="cf-turnstile" data-sitekey="0x4AAAAAAEA0g9ELRe9IQHmp" data-theme="light" data-action="application"></div>
 ```
 
 Contact form widget:
 
 ```html
-<div class="cf-turnstile" data-sitekey="0x4AAAAAAD4dZ6uvgEldqskh" data-theme="light" data-action="contact"></div>
+<div class="cf-turnstile" data-sitekey="0x4AAAAAAEA0g9ELRe9IQHmp" data-theme="light" data-action="contact"></div>
 ```
 
 ## Local testing

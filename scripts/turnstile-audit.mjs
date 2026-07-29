@@ -7,7 +7,7 @@ const browser = await readFile(new URL("../public/script.js", import.meta.url), 
 const envExample = await readFile(new URL("../.dev.vars.example", import.meta.url), "utf8");
 
 assert.match(contact, /https:\/\/challenges\.cloudflare\.com\/turnstile\/v0\/api\.js/);
-assert.match(contact, /class="cf-turnstile"[^>]*data-action="turnstile-spin-v2"[^>]*data-sitekey="0x4AAAAAAD4dZ6uvgEldqskh"/);
+assert.match(contact, /class="cf-turnstile"[^>]*data-action="turnstile-spin-v2"[^>]*data-sitekey="0x4AAAAAAEA0g9ELRe9IQHmp"/);
 assert.match(shared, /TURNSTILE_SECRET/);
 assert.doesNotMatch(shared, /TURNSTILE_SECRET_KEY/);
 assert.match(shared, /https:\/\/challenges\.cloudflare\.com\/turnstile\/v0\/siteverify/);

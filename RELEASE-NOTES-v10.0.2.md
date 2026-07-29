@@ -4,7 +4,7 @@
 
 - Replaces the Python-dependent Turnstile recovery with a Node.js implementation.
 - Avoids the Windows `spawnSync npx.cmd EINVAL` failure by piping the validated secret to Wrangler from Bash.
-- Preserves existing Turnstile sitekey `0x4AAAAAAD4dZ6uvgEldqskh`.
+- Preserves existing Turnstile sitekey `0x4AAAAAAEA0g9ELRe9IQHmp`.
 - Retrieves the existing widget secret through the Cloudflare API.
 - Validates it through canonical server-side Siteverify.
 - Stores it only as the encrypted Pages secret `TURNSTILE_SECRET`.

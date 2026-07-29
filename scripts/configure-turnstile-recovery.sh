@@ -4,23 +4,29 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 
-export WRANGLER_CACHE_DIR="${WRANGLER_CACHE_DIR:-$HOME/.cache/wrangler}"
-export CLOUDFLARE_ACCOUNT_ID="${CLOUDFLARE_ACCOUNT_ID:-345cfd260888bf9884abfea35d896c82}"
-export TURNSTILE_SITEKEY="${TURNSTILE_SITEKEY:-0x4AAAAAAD4dZ6uvgEldqskh}"
-export CF_PAGES_PROJECT="${CF_PAGES_PROJECT:-brownstone-careers}"
-export EXPECTED_TURNSTILE_DOMAIN="${EXPECTED_TURNSTILE_DOMAIN:-brownstonecareers.agency}"
+SITEKEY="0x4AAAAAAEA0g9ELRe9IQHmp"
 
-mkdir -p "$WRANGLER_CACHE_DIR"
+cat <<INFO
+Brownstone Careers Turnstile binding check
 
-if [ -z "${CLOUDFLARE_API_TOKEN:-}" ]; then
-  read -r -s -p "Cloudflare API token: " CLOUDFLARE_API_TOKEN
+Existing widget site key:
+  $SITEKEY
+
+This project does not create, retrieve, rotate, or modify Turnstile widgets.
+Set the existing widget secret in the Cloudflare Pages production environment as:
+  TURNSTILE_SECRET
+
+Dashboard path:
+  Workers & Pages > brownstone-careers > Settings > Variables and Secrets > Production
+
+After saving the encrypted secret, create a new production deployment.
+INFO
+
+if [ -z "${TURNSTILE_SECRET:-}" ]; then
   echo
-  export CLOUDFLARE_API_TOKEN
+  echo "Local validation skipped: TURNSTILE_SECRET is not exported in this shell."
+  echo "This is expected when the secret is stored only in Cloudflare Pages."
+  exit 0
 fi
-
-cleanup() {
-  unset CLOUDFLARE_API_TOKEN
-}
-trap cleanup EXIT
 
 node scripts/configure-turnstile-recovery.mjs

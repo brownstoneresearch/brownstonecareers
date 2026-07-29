@@ -1,6 +1,6 @@
 # Brownstone Careers Turnstile Recovery — v10.0.1
 
-Existing widget (unchanged): `0x4AAAAAAD4dZ6uvgEldqskh`
+Existing widget (unchanged): `0x4AAAAAAEA0g9ELRe9IQHmp`
 
 This recovery update:
 

@@ -8,8 +8,8 @@ import { auditEvent, generateCandidateId, hasWorkforceDb, nowIso } from "./_work
 import { productionUrls } from "./_domains.js";
 import { completeStage, recalculateCandidatePipeline } from "./_pipeline.js";
 
-const HANDLER_VERSION = "2026-07-29.10.0.4";
-const TURNSTILE_SITEKEY = "0x4AAAAAAD4dZ6uvgEldqskh";
+const HANDLER_VERSION = "2026-07-29.10.0.5";
+const TURNSTILE_SITEKEY = "0x4AAAAAAEA0g9ELRe9IQHmp";
 const TURNSTILE_ACTION = "turnstile-spin-v2";
 const TURNSTILE_SITEVERIFY_URL = "https://challenges.cloudflare.com/turnstile/v0/siteverify";
 const RECOMMENDED_SENDING_DOMAIN = "mail.brownstonecareers.agency";

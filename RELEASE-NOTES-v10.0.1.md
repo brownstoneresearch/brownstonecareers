@@ -3,7 +3,7 @@
 ## Cloudflare Turnstile recovery
 
 - Standardized the production secret binding on `TURNSTILE_SECRET`.
-- Preserved widget sitekey `0x4AAAAAAD4dZ6uvgEldqskh`.
+- Preserved widget sitekey `0x4AAAAAAEA0g9ELRe9IQHmp`.
 - Added canonical backend Siteverify validation.
 - Added action and same-origin hostname enforcement.
 - Added secure existing-widget secret retrieval and validation script.
