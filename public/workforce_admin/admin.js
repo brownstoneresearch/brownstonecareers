@@ -369,7 +369,7 @@
     if (!select) return [];
     select.disabled = true;
     select.innerHTML = '<option value="">Loading eligible applications…</option>';
-    preview.innerHTML = '<span>Checking the application queue…</span>';
+    if (preview) preview.innerHTML = '<span>Checking the application queue…</span>';
     try {
       const data = await api("/api/admin/candidates?inviteEligible=1&limit=100");
       const applications = data.candidates || [];
@@ -386,7 +386,7 @@
       return applications;
     } catch (error) {
       select.innerHTML = '<option value="">Application queue unavailable</option>';
-      preview.innerHTML = `<span class="error-text">${escapeHtml(error.message)}</span>`;
+      if (preview) preview.innerHTML = `<span class="error-text">${escapeHtml(error.message)}</span>`;
       return [];
     }
   }
@@ -443,7 +443,12 @@
 
   async function openInviteModal(preselectCandidateId = "") {
     const modal = $("#inviteModal");
-    $("[data-invite-result]").innerHTML = "";
+    const resultBox = $("[data-invite-result]");
+    if (!modal || !resultBox) {
+      toast("The invitation interface is unavailable. Hard-refresh after deployment.");
+      return;
+    }
+    resultBox.innerHTML = "";
     const mode = preselectCandidateId ? "application" : ($('[name="invitationMode"]:checked')?.value || "application");
     const radio = $(`[name="invitationMode"][value="${mode}"]`);
     if (radio) radio.checked = true;
@@ -454,6 +459,11 @@
 
   function setupInviteModal() {
     const modal = $("#inviteModal");
+    const inviteForm = $("[data-invite-form]");
+    if (!modal || !inviteForm) {
+      console.warn("Invite modal markup is unavailable; invitation controls were not initialized.");
+      return;
+    }
     $$('[data-open-invite]').forEach((button) => button.addEventListener("click", () => openInviteModal()));
     $$('[data-close-modal]').forEach((button) => button.addEventListener("click", () => modal.close()));
     $("[data-application-select]")?.addEventListener("change", renderApplicationPreview);
@@ -464,12 +474,12 @@
       setInviteMode(radio.value);
       if (radio.value === "application") await loadEligibleApplications();
     }));
-    $("[data-invite-form]").addEventListener("submit", async (event) => {
+    inviteForm.addEventListener("submit", async (event) => {
       event.preventDefault();
       const form = event.currentTarget;
       const resultBox = $("[data-invite-result]");
-      const submit = form.querySelector('[type="submit"]');
-      submit.disabled = true;
+      const submit = form.querySelector('button[type="submit"], input[type="submit"]');
+      if (submit) submit.disabled = true;
       const payload = Object.fromEntries(new FormData(form));
       payload.expirationHours = Number(payload.expirationHours);
       payload.adminOverrideConfirmed = payload.adminOverrideConfirmed === "yes";
@@ -488,7 +498,7 @@
       } catch (error) {
         resultBox.textContent = error.message;
       } finally {
-        submit.disabled = false;
+        if (submit) submit.disabled = false;
       }
     });
   }
@@ -507,9 +517,11 @@
   }
 
   function closeDrawer() {
-    $("[data-candidate-drawer]").classList.remove("open");
-    $("[data-candidate-drawer]").setAttribute("aria-hidden", "true");
-    $("[data-drawer-overlay]").classList.remove("open");
+    const drawer = $("[data-candidate-drawer]");
+    const overlay = $("[data-drawer-overlay]");
+    drawer?.classList.remove("open");
+    drawer?.setAttribute("aria-hidden", "true");
+    overlay?.classList.remove("open");
   }
 
   window.BrownstoneAdmin = { api, openCandidate, setView, loadCandidates, loadSummary, toast, can, escapeHtml, formatDate, statusLabel };
@@ -527,13 +539,23 @@
   }
 
   window.addEventListener("error", (event) => {
-    showRuntimeError("A dashboard script failed to load. Refresh the page after the latest deployment completes.");
+    const target = event.target;
+    const assetLoadFailed = target instanceof HTMLScriptElement || target instanceof HTMLLinkElement;
+    if (assetLoadFailed) {
+      showRuntimeError("A dashboard asset failed to load. Hard-refresh after the latest deployment completes.");
+    } else {
+      toast(event.error?.message || event.message || "A dashboard control encountered an error.");
+    }
     console.error("Workforce dashboard runtime error", event.error || event.message);
-  });
+  }, true);
 
   window.addEventListener("unhandledrejection", (event) => {
     const reason = event.reason;
-    showRuntimeError(reason?.message || "A workforce request could not be completed.", reason?.incident || "");
+    if (reason?.incident) {
+      showRuntimeError(reason.message || "A workforce service could not be reached.", reason.incident);
+    } else {
+      toast(reason?.message || "A dashboard action could not be completed.");
+    }
     console.error("Workforce dashboard promise rejection", reason);
   });
 

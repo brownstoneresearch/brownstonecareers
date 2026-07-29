@@ -161,8 +161,15 @@
     selectedAssignmentId = id;
     const modal = $("#prescreenReviewModal");
     const detailBox = $("[data-prescreen-review-detail]");
+    const resultBox = $("[data-prescreen-review-result]");
+    const form = $("[data-prescreen-review-form]");
+    const aiButton = $("[data-generate-ai-grade]");
+    if (!modal || !detailBox || !resultBox || !form) {
+      admin()?.toast?.("The pre-screening review interface is unavailable. Hard-refresh after deployment.");
+      return;
+    }
     detailBox.innerHTML = '<div class="empty-state">Loading answers and rubric…</div>';
-    $("[data-prescreen-review-result]").textContent = "";
+    resultBox.textContent = "";
     if (!modal.open) modal.showModal();
     try {
       const data = await api(`/api/admin/prescreen?mode=detail&id=${encodeURIComponent(id)}`);
@@ -170,16 +177,16 @@
       $("[data-prescreen-review-title]").textContent = `${assignment.first_name} ${assignment.last_name}`;
       detailBox.innerHTML = `<div class="review-candidate"><strong>${escapeHtml(`${assignment.first_name} ${assignment.last_name}`)}</strong><span>${escapeHtml(assignment.email)} · ${escapeHtml(assignment.role)}</span><small>${escapeHtml(assignment.question_set_title)} · ${escapeHtml(statusLabel(assignment.status))}</small></div>${answerReviewRows(data.questions)}`;
       renderAiAdvisory(assignment, data.questions);
-      const form = $("[data-prescreen-review-form]");
       form.elements.finalScore.value = assignment.final_score ?? "";
       form.elements.finalScore.placeholder = assignment.ai_score == null ? "Administrator score" : `Enter your score independently (AI draft: ${Number(assignment.ai_score).toFixed(1)})`;
       form.elements.resultStatus.value = assignment.result_status && assignment.result_status !== "pending" ? assignment.result_status : "passed";
       form.elements.adminFeedback.value = assignment.admin_feedback || "";
       form.elements.humanReviewConfirmed.checked = false;
       const finalized = assignment.status === "reviewed";
-      form.querySelector('[type="submit"]').disabled = finalized;
-      $("[data-generate-ai-grade]").disabled = finalized;
-      if (finalized) $("[data-prescreen-review-result]").textContent = `Result finalized ${formatDate(assignment.reviewed_at)}.`;
+      const submitButton = form.querySelector('[type="submit"]');
+      if (submitButton) submitButton.disabled = finalized;
+      if (aiButton) aiButton.disabled = finalized;
+      if (finalized) resultBox.textContent = `Result finalized ${formatDate(assignment.reviewed_at)}.`;
     } catch (error) { detailBox.innerHTML = `<div class="empty-state">${escapeHtml(error.message)}</div>`; }
   }
 
@@ -187,6 +194,10 @@
     if (!selectedAssignmentId) return;
     const button = $("[data-generate-ai-grade]");
     const result = $("[data-prescreen-review-result]");
+    if (!button || !result) {
+      admin()?.toast?.("The AI grading controls are unavailable. Hard-refresh after deployment.");
+      return;
+    }
     button.disabled = true;
     result.textContent = "Generating an advisory rubric-based draft…";
     try {
@@ -202,6 +213,7 @@
     const form = event.currentTarget;
     const values = Object.fromEntries(new FormData(form));
     const result = $("[data-prescreen-review-result]");
+    if (!result) return;
     result.textContent = "Finalizing the human-reviewed result and sending candidate notifications…";
     try {
       const data = await api("/api/admin/prescreen", { method: "POST", body: JSON.stringify({ action: "finalize", assignmentId: selectedAssignmentId, finalScore: Number(values.finalScore), resultStatus: values.resultStatus, adminFeedback: values.adminFeedback, humanReviewConfirmed: values.humanReviewConfirmed === "yes" }) });
@@ -213,15 +225,24 @@
 
   async function openAssignment() {
     const modal = $("#prescreenAssignmentModal");
-    $("[data-prescreen-assignment-result]").textContent = "";
+    const resultBox = $("[data-prescreen-assignment-result]");
+    if (!modal || !resultBox) {
+      admin()?.toast?.("The pre-screening assignment interface is unavailable. Hard-refresh after deployment.");
+      return;
+    }
+    resultBox.textContent = "";
     modal.showModal();
     try {
       const [candidateData, setData] = await Promise.all([api("/api/admin/candidates?status=all&limit=250"), api("/api/admin/prescreen?mode=sets")]);
-      $("[data-prescreen-candidate-select]").innerHTML = '<option value="">Select candidate</option>' + (candidateData.candidates || []).map((candidate) => `<option value="${escapeHtml(candidate.id)}">${escapeHtml(`${candidate.first_name} ${candidate.last_name}`)} — ${escapeHtml(candidate.role || candidate.email)}</option>`).join("");
+      const candidateSelect = $("[data-prescreen-candidate-select]");
+      const setSelect = $("[data-prescreen-set-select]");
+      const assignmentForm = $("[data-prescreen-assignment-form]");
+      if (!candidateSelect || !setSelect || !assignmentForm) throw new Error("Pre-screening assignment controls are unavailable.");
+      candidateSelect.innerHTML = '<option value="">Select candidate</option>' + (candidateData.candidates || []).map((candidate) => `<option value="${escapeHtml(candidate.id)}">${escapeHtml(`${candidate.first_name} ${candidate.last_name}`)} — ${escapeHtml(candidate.role || candidate.email)}</option>`).join("");
       const published = (setData.sets || []).filter((set) => set.status === "published");
-      $("[data-prescreen-set-select]").innerHTML = '<option value="">Select published question set</option>' + published.map((set) => `<option value="${escapeHtml(set.id)}">${escapeHtml(set.title)} — ${Number(set.question_count || 0)} questions</option>`).join("");
-      $("[data-prescreen-assignment-form]").elements.dueAt.value = new Date(Date.now() + 3 * 86400000).toISOString().slice(0, 10);
-    } catch (error) { $("[data-prescreen-assignment-result]").textContent = error.message; }
+      setSelect.innerHTML = '<option value="">Select published question set</option>' + published.map((set) => `<option value="${escapeHtml(set.id)}">${escapeHtml(set.title)} — ${Number(set.question_count || 0)} questions</option>`).join("");
+      assignmentForm.elements.dueAt.value = new Date(Date.now() + 3 * 86400000).toISOString().slice(0, 10);
+    } catch (error) { resultBox.textContent = error.message; }
   }
 
   async function assignPrescreen(event) {
@@ -243,6 +264,7 @@
 
   async function loadQuestionSets(selectId = "") {
     const list = $("[data-prescreen-set-list]");
+    if (!list) return;
     list.innerHTML = '<div class="empty-state">Loading question sets…</div>';
     const data = await api("/api/admin/prescreen?mode=sets");
     questionSets = data.sets || [];
@@ -265,6 +287,7 @@
 
   async function loadQuestions(setId) {
     const panel = $("[data-prescreen-question-manager]");
+    if (!panel) return;
     panel.innerHTML = '<div class="empty-state">Loading questions…</div>';
     const data = await api(`/api/admin/prescreen?mode=questions&setId=${encodeURIComponent(setId)}`);
     const set = data.set;
@@ -287,8 +310,14 @@
   }
 
   async function openManager() {
-    $("#prescreenManagerModal").showModal();
-    try { await loadQuestionSets(); } catch (error) { $("[data-prescreen-question-manager]").innerHTML = `<div class="empty-state">${escapeHtml(error.message)}</div>`; }
+    const modal = $("#prescreenManagerModal");
+    const panel = $("[data-prescreen-question-manager]");
+    if (!modal || !panel) {
+      admin()?.toast?.("The question manager is unavailable. Hard-refresh after deployment.");
+      return;
+    }
+    modal.showModal();
+    try { await loadQuestionSets(); } catch (error) { panel.innerHTML = `<div class="empty-state">${escapeHtml(error.message)}</div>`; }
   }
 
   function setup() {
@@ -310,8 +339,8 @@
     $("[data-prescreen-assignment-form]")?.addEventListener("submit", assignPrescreen);
     $("[data-prescreen-review-form]")?.addEventListener("submit", finalizePrescreen);
     $("[data-generate-ai-grade]")?.addEventListener("click", generateAiGrade);
-    $("[data-admin-notification-toggle]")?.addEventListener("click", () => { const panel = $("[data-admin-notification-panel]"); panel.classList.add("open"); panel.setAttribute("aria-hidden", "false"); loadNotifications(false); });
-    $("[data-admin-notification-close]")?.addEventListener("click", () => { const panel = $("[data-admin-notification-panel]"); panel.classList.remove("open"); panel.setAttribute("aria-hidden", "true"); });
+    $("[data-admin-notification-toggle]")?.addEventListener("click", () => { const panel = $("[data-admin-notification-panel]"); if (!panel) return; panel.classList.add("open"); panel.setAttribute("aria-hidden", "false"); loadNotifications(false); });
+    $("[data-admin-notification-close]")?.addEventListener("click", () => { const panel = $("[data-admin-notification-panel]"); if (!panel) return; panel.classList.remove("open"); panel.setAttribute("aria-hidden", "true"); });
     $("[data-admin-notification-read-all]")?.addEventListener("click", async () => { await api("/api/admin/notifications", { method: "POST", body: JSON.stringify({ action: "mark-all-read" }) }); await loadNotifications(false); });
     loadNotifications(false);
     setInterval(() => loadNotifications(true), 30000);

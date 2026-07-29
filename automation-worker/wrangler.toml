@@ -1,0 +1,11 @@
+name = "brownstone-careers-autopilot"
+main = "src/index.js"
+compatibility_date = "2026-07-01"
+
+[triggers]
+crons = ["*/15 * * * *"]
+
+[[d1_databases]]
+binding = "WORKFORCE_DB"
+database_name = "brownstone-workforce"
+database_id = "f1be0fc5-207b-4459-86f4-c4c57505528f"

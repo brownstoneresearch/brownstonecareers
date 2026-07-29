@@ -1,4 +1,4 @@
-# Brownstone Careers Workforce Platform v10.0.3
+# Brownstone Careers Workforce Platform v10.0.4
 
 Brownstone Careers operates as one connected workforce system with four service identities:
 
@@ -87,9 +87,9 @@ The production build is written to `dist/`.
 
 ## Deployment order
 
-1. Read `DEPLOY-v10.0.3.md` and `WORKFORCE-PORTAL-SETUP.md`.
+1. Read `DEPLOY-v10.0.4.md` and `WORKFORCE-PORTAL-SETUP.md`.
 2. Preserve the existing `WORKFORCE_DB` and `PRIVATE_DOCUMENTS` bindings.
-3. Apply every D1 migration through `0009_autonomous_operations.sql` **before** deploying the v10.0.3 Functions.
+3. Apply every D1 migration through `0009_autonomous_operations.sql` **before** deploying the v10.0.4 Functions.
 4. Keep the existing `PII_ENCRYPTION_KEY`; never replace it after encrypted records exist.
 5. Keep only the shared encrypted `RESEND_API_KEY` for email delivery.
 6. Add `OPENAI_API_KEY` when generative Brownstone Guide and AI-assisted pre-screening drafts are required.
