@@ -61,15 +61,27 @@ const brokenDb = {
     throw new Error("no such table: admins");
   },
 };
-const resilientAdmin = await protectAdminRequest({
-  request: new Request("https://workforce.brownstonecareers.agency/workforce_admin/", {
-    headers: { "Cf-Access-Authenticated-User-Email": "admin@brownstonecareers.agency" },
-  }),
-  env: { WORKFORCE_DB: brokenDb, ADMIN_EMAILS: "admin@brownstonecareers.agency" },
-  next: async () => new Response("dashboard shell"),
-});
+const expectedAdminDiagnostics = [];
+const originalConsoleError = console.error;
+let resilientAdmin;
+try {
+  console.error = (...args) => expectedAdminDiagnostics.push(args);
+  resilientAdmin = await protectAdminRequest({
+    request: new Request("https://workforce.brownstonecareers.agency/workforce_admin/", {
+      headers: { "Cf-Access-Authenticated-User-Email": "admin@brownstonecareers.agency" },
+    }),
+    env: { WORKFORCE_DB: brokenDb, ADMIN_EMAILS: "admin@brownstonecareers.agency" },
+    next: async () => new Response("dashboard shell"),
+  });
+} finally {
+  console.error = originalConsoleError;
+}
 assert.equal(resilientAdmin.status, 200);
 assert.equal(await resilientAdmin.text(), "dashboard shell");
+assert.ok(
+  expectedAdminDiagnostics.some(([message]) => message === "Workforce administrator lookup failed"),
+  "The degraded-admin resilience test should record the expected D1 diagnostic without polluting test output",
+);
 
 const adminWrongHost = await requireAdmin({
   request: new Request("https://brownstonecareers.agency/api/admin/session"),

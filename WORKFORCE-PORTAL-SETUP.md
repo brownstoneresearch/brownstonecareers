@@ -283,15 +283,15 @@ The standard public journey remains application-first. Authorized administrators
 
 The migration also creates stage progress, administrator notifications, candidate ranking, question sets, pre-screening assignments, and answer records. Candidate rankings reflect verified stage completion. AI grading is an advisory draft only and cannot be released until an administrator independently records the final score, written feedback, and human-review confirmation.
 
-## v9.4 invitation status, stage, and template migration
+## v10 invitation and autonomous-operations migrations
 
-Before deploying v9.4 Functions, apply:
+Before deploying v10.0.3 Functions, apply:
 
 ```bash
 npx --yes wrangler@latest d1 migrations apply brownstone-workforce --remote
 ```
 
-Confirm `0008_invitation_status_stage_templates.sql` is recorded. It adds persistent status/stage/template metadata and extends D1 controls to all access-enabled candidate statuses.
+Confirm both `0008_invitation_status_stage_templates.sql` and `0009_autonomous_operations.sql` are recorded. Migration `0008` adds persistent status/stage/template metadata and controlled access-enabled statuses; migration `0009` adds automation rules, run history, journey events, and operations-health snapshots.
 
 The Admin Invite form now selects:
 
@@ -304,3 +304,15 @@ The Admin Invite form now selects:
 Every generated or regenerated invitation keeps the candidate ID and creates a new personal access code. The selected status, stage, template key, email subject, invitation ID, and administrator are recorded in D1 and the audit trail.
 
 Suspended and rejected statuses intentionally remain outside the Invite form because they revoke or block portal access. Administrators apply them from the candidate record.
+
+
+## Clean pre-deployment validation
+
+Run:
+
+```bash
+npm ci
+npm test
+```
+
+The v10.0.3 test harness captures expected negative-path diagnostics instead of printing them as apparent deployment errors. A successful run ends with `Built static site into dist/.` and no stderr output. Runtime logging remains enabled in production for real D1, Resend, Turnstile, and binding failures.

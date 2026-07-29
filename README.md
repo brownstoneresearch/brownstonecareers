@@ -1,4 +1,4 @@
-# Brownstone Careers Workforce Platform v9.4
+# Brownstone Careers Workforce Platform v10.0.3
 
 Brownstone Careers operates as one connected workforce system with four service identities:
 
@@ -72,6 +72,10 @@ Brownstone Guide remains operational in safe guided mode without an external AI 
 
 Never place candidate SSNs, government ID numbers, banking information, passwords, or API keys into AI prompts.
 
+## Autonomous operations
+
+Migration `0009_autonomous_operations.sql` adds governed automation rules, run history, candidate journey events, and operations-health snapshots. The separate `brownstone-careers-autopilot` Worker uses the same D1 database and runs every 15 minutes. Deploy it with `scripts/configure-autopilot.sh`, which now always passes the dedicated Worker configuration explicitly and cannot be mistaken for a Pages command.
+
 ## Local validation
 
 ```bash
@@ -83,12 +87,12 @@ The production build is written to `dist/`.
 
 ## Deployment order
 
-1. Read `DEPLOY-v9.4.md` and `WORKFORCE-PORTAL-SETUP.md`.
+1. Read `DEPLOY-v10.0.3.md` and `WORKFORCE-PORTAL-SETUP.md`.
 2. Preserve the existing `WORKFORCE_DB` and `PRIVATE_DOCUMENTS` bindings.
-3. Apply every D1 migration through `0008_invitation_status_stage_templates.sql` **before** deploying the v9.4 Functions.
+3. Apply every D1 migration through `0009_autonomous_operations.sql` **before** deploying the v10.0.3 Functions.
 4. Keep the existing `PII_ENCRYPTION_KEY`; never replace it after encrypted records exist.
 5. Keep only the shared encrypted `RESEND_API_KEY` for email delivery.
 6. Add `OPENAI_API_KEY` when generative Brownstone Guide and AI-assisted pre-screening drafts are required.
-7. Run `npm test`, commit, push, and allow Cloudflare Pages to redeploy.
+7. Run `npm test`; it must finish with an empty stderr stream. Then commit, push, and allow Cloudflare Pages to redeploy.
 
 The source package contains no live API keys.

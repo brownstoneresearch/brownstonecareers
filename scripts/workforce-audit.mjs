@@ -6,7 +6,7 @@ import { generateInviteCode, hashInvitationCode } from "../functions/_workforce-
 import { adminPermissions, hasAdminPermission } from "../functions/_admin-auth.js";
 
 const read = (path) => readFile(resolve(path), "utf8");
-const [applicationHtml, contactHtml, publicScript, portalHtml, portalScript, portalAutomation, adminHtml, adminScript, adminWorkflow, routes, sitemap, migration1, migration2, migration3, migration4, migration5, migration6, migration7, migration8, wranglerConfig, sharedRuntime, assistantApi, workflowApi, adminCandidatesApi, adminInvitationsApi, adminWorkflowApi, adminSupportApi, pipelineApi, adminPrescreenApi, portalPrescreenApi, adminNotificationsApi, adminRankingsApi, adminScale, emailTemplates] = await Promise.all([
+const [applicationHtml, contactHtml, publicScript, portalHtml, portalScript, portalAutomation, adminHtml, adminScript, adminWorkflow, routes, sitemap, migration1, migration2, migration3, migration4, migration5, migration6, migration7, migration8, migration9, wranglerConfig, sharedRuntime, assistantApi, workflowApi, adminCandidatesApi, adminInvitationsApi, adminWorkflowApi, adminSupportApi, pipelineApi, adminPrescreenApi, portalPrescreenApi, adminNotificationsApi, adminRankingsApi, adminScale, adminAutopilot, autopilotApi, autopilotRuntime, configureAutopilot, emailTemplates] = await Promise.all([
   read("public/apply.html"),
   read("public/contact.html"),
   read("public/script.js"),
@@ -26,6 +26,7 @@ const [applicationHtml, contactHtml, publicScript, portalHtml, portalScript, por
   read("migrations/0006_application_first_invites.sql"),
   read("migrations/0007_scaled_recruitment_pipeline.sql"),
   read("migrations/0008_invitation_status_stage_templates.sql"),
+  read("migrations/0009_autonomous_operations.sql"),
   read("wrangler.jsonc"),
   read("functions/_shared.js"),
   read("functions/api/portal/assistant.js"),
@@ -40,6 +41,10 @@ const [applicationHtml, contactHtml, publicScript, portalHtml, portalScript, por
   read("functions/api/admin/notifications.js"),
   read("functions/api/admin/rankings.js"),
   read("public/workforce_admin/admin-scale.js"),
+  read("public/workforce_admin/admin-autopilot.js"),
+  read("functions/api/admin/autopilot.js"),
+  read("functions/_autopilot.js"),
+  read("scripts/configure-autopilot.sh"),
   read("emails/index.js"),
 ]);
 
@@ -103,6 +108,15 @@ assert.match(migration8, /invitation_stage_key/);
 assert.match(migration8, /template_key/);
 assert.match(migration8, /candidate access requires a submitted application or an authenticated administrator override/i);
 assert.match(migration8, /trg_candidates_access_requires_controlled_origin_insert/);
+assert.match(migration9, /CREATE TABLE IF NOT EXISTS automation_rules/);
+assert.match(migration9, /CREATE TABLE IF NOT EXISTS automation_runs/);
+assert.match(migration9, /CREATE TABLE IF NOT EXISTS candidate_journey_events/);
+assert.match(migration9, /CREATE TABLE IF NOT EXISTS operations_health_snapshots/);
+assert.match(sharedRuntime, /workflowMigrationRequired:\s*"0009_autonomous_operations\.sql"/);
+assert.match(adminAutopilot, /\/api\/admin\/autopilot/);
+assert.match(autopilotApi, /runAutopilot/);
+assert.match(autopilotRuntime, /automation_runs/);
+assert.match(configureAutopilot, /--config\s+automation-worker\/wrangler\.toml/);
 assert.match(wranglerConfig, /"binding": "PRIVATE_DOCUMENTS"/);
 assert.match(wranglerConfig, /brownstone-private-documents/);
 assert.match(sharedRuntime, /recruitment: \["RESEND_API_KEY"\]/);

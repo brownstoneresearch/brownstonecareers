@@ -1,8 +1,8 @@
 {
   "name": "brownstone-careers-pages",
-  "version": "10.0.2",
+  "version": "10.0.3",
   "private": true,
-  "description": "Brownstone Careers autonomous recruitment operating system with Windows-compatible canonical Cloudflare Turnstile recovery, governed workflow automation, ranked stage intelligence, administrator-managed AI evaluation, private onboarding, unified communications, scheduled operations health, and human-controlled hiring decisions.",
+  "description": "Brownstone Careers autonomous recruitment operating system with clean pre-deployment validation, canonical Cloudflare Turnstile recovery, governed workflow automation, ranked stage intelligence, administrator-managed AI evaluation, private onboarding, unified communications, scheduled operations health, and human-controlled hiring decisions.",
   "type": "module",
   "engines": {
     "node": ">=20 <23"

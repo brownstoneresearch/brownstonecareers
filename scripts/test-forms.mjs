@@ -15,6 +15,18 @@ const originalFetch = globalThis.fetch;
 const originalWarn = console.warn;
 let resendCalls = 0;
 
+async function captureExpectedConsoleErrors(action) {
+  const originalError = console.error;
+  const entries = [];
+  try {
+    console.error = (...args) => entries.push(args);
+    const value = await action();
+    return { value, entries };
+  } finally {
+    console.error = originalError;
+  }
+}
+
 function createWorkforceDbMock() {
   const writes = [];
   return {
@@ -196,28 +208,38 @@ try {
     message: "Please begin my application journey.",
     "cf-turnstile-response": "test-token",
   })) applicationWithoutEmailDelivery.set(key, value);
-  const noEmailResponse = await submitContact({
+  const noEmailAttempt = await captureExpectedConsoleErrors(() => submitContact({
     request: new Request("https://brownstonecareers.agency/api/contact", {
       method: "POST",
       body: applicationWithoutEmailDelivery,
     }),
     env: { TURNSTILE_SECRET: env.TURNSTILE_SECRET, WORKFORCE_DB: noEmailDb },
-  });
+  }));
+  const noEmailResponse = noEmailAttempt.value;
   const noEmailBody = await noEmailResponse.json();
+  assert.ok(
+    noEmailAttempt.entries.some(([message]) => message === "Support email failed"),
+    "The application-recording fallback should log its expected email-delivery diagnostic",
+  );
   assert.equal(noEmailResponse.status, 201);
   assert.equal(noEmailBody.success, true);
   assert.equal(noEmailBody.applicationRecorded, true);
   assert.equal(noEmailBody.emailSent, false);
   assert.match(noEmailBody.reference, /^BC-A-\d{8}-[A-Z0-9]{6}$/);
 
-  const missingConfigResponse = await submitApplication({
+  const missingConfigAttempt = await captureExpectedConsoleErrors(() => submitApplication({
     request: new Request("https://brownstonecareers.agency/api/applications", {
       method: "POST",
       body: applicationForm(),
     }),
     env: {},
-  });
+  }));
+  const missingConfigResponse = missingConfigAttempt.value;
   const missingConfigBody = await missingConfigResponse.json();
+  assert.ok(
+    missingConfigAttempt.entries.some(([message]) => message === "Missing Pages Function bindings"),
+    "The missing-binding test should retain its runtime diagnostic without polluting test output",
+  );
   assert.equal(missingConfigResponse.status, 503);
   assert.match(missingConfigBody.message, /not configured/i);
   assert.ok(missingConfigBody.missing.some((name) => name.includes("RESEND_API_KEY")));

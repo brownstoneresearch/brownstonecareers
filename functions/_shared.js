@@ -8,7 +8,7 @@ import { auditEvent, generateCandidateId, hasWorkforceDb, nowIso } from "./_work
 import { productionUrls } from "./_domains.js";
 import { completeStage, recalculateCandidatePipeline } from "./_pipeline.js";
 
-const HANDLER_VERSION = "2026-07-28.10.0.1";
+const HANDLER_VERSION = "2026-07-29.10.0.3";
 const TURNSTILE_SITEKEY = "0x4AAAAAAD4dZ6uvgEldqskh";
 const TURNSTILE_ACTION = "turnstile-spin-v2";
 const TURNSTILE_SITEVERIFY_URL = "https://challenges.cloudflare.com/turnstile/v0/siteverify";
@@ -76,7 +76,7 @@ export function health(env) {
     aiGenerativeConfigured: Boolean(env?.OPENAI_API_KEY),
     aiAssistantModel: clean(env?.OPENAI_MODEL || "gpt-5.6", 80),
     supabaseConfigured: Boolean(env?.SUPABASE_URL && (env?.SUPABASE_SECRET_KEY || env?.SUPABASE_SERVICE_ROLE_KEY)),
-    workflowMigrationRequired: "0008_invitation_status_stage_templates.sql",
+    workflowMigrationRequired: "0009_autonomous_operations.sql",
     applicationFirstInvites: true,
     adminControlledManualInvites: true,
     rankedPipeline: true,
