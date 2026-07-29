@@ -1,0 +1,26 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "brownstone-careers",
+  "pages_build_output_dir": "./dist",
+  "compatibility_date": "2026-07-25",
+  "upload_source_maps": true,
+  "d1_databases": [
+    {
+      "binding": "WORKFORCE_DB",
+      "database_name": "brownstone-workforce",
+      "database_id": "REPLACE_WITH_D1_DATABASE_ID"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "PRIVATE_DOCUMENTS",
+      "bucket_name": "brownstone-private-documents"
+    }
+  ],
+  "vars": {
+    "PUBLIC_SITE_URL": "https://brownstonecareers.agency",
+    "ONBOARDING_PORTAL_URL": "https://onboarding.brownstonecareers.agency",
+    "WORKFORCE_ADMIN_URL": "https://workforce.brownstonecareers.agency",
+    "MAIL_SENDING_HOST": "mail.brownstonecareers.agency"
+  }
+}

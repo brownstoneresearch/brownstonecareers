@@ -1,0 +1,29 @@
+# Copy to .dev.vars for local development only. Never commit .dev.vars.
+PUBLIC_SITE_URL=https://brownstonecareers.agency
+ONBOARDING_PORTAL_URL=https://onboarding.brownstonecareers.agency
+WORKFORCE_ADMIN_URL=https://workforce.brownstonecareers.agency
+MAIL_SENDING_HOST=mail.brownstonecareers.agency
+
+EMAIL_FROM=Brownstone Careers <support@mail.brownstonecareers.agency>
+EMAIL_REPLY_TO=support@brownstonecareers.agency
+RECRUITMENT_EMAIL=support@brownstonecareers.agency
+
+RESEND_API_KEY=replace_locally
+
+TURNSTILE_SECRET=replace_locally
+ONBOARDING_PORTAL_SESSION_SECRET=replace_locally
+ADMIN_SESSION_SECRET=replace_locally
+INVITATION_PEPPER=replace_locally
+PII_ENCRYPTION_KEY=replace_locally
+ADMIN_EMAILS=admin@brownstonecareers.agency
+ADMIN_BOOTSTRAP_CODE=replace_locally
+
+# Optional AI-powered Brownstone Guide. Without these, the safe deterministic support fallback remains active.
+OPENAI_API_KEY=replace_locally
+OPENAI_MODEL=
+OPENAI_GRADING_MODEL=gpt-5.6
+
+# Optional Supabase migration target. Keep the secret key server-side only.
+SUPABASE_URL=https://your-project-ref.supabase.co
+SUPABASE_SECRET_KEY=replace_locally
+SUPABASE_PRIVATE_BUCKET=workforce-private-documents

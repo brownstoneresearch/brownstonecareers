@@ -91,7 +91,33 @@ const year = document.getElementById('year'); if(year) year.textContent = new Da
 const params = new URLSearchParams(location.search);
 const selectedRole = params.get('role');
 const roleSelect = document.getElementById('roleSelect');
-if(selectedRole && roleSelect) roleSelect.value = selectedRole;
+if(selectedRole && roleSelect) {
+  roleSelect.value = selectedRole;
+  const inquiryTypeSelect = document.getElementById('inquiryTypeSelect');
+  if(inquiryTypeSelect) inquiryTypeSelect.value = 'application-interest';
+  const supportSubject = document.querySelector('#supportForm [name="subject"]');
+  if(supportSubject && !supportSubject.value) supportSubject.value = `Application interest — ${selectedRole}`;
+}
+function syncApplicationJourneyForm(){
+  const form = document.getElementById('supportForm');
+  const inquiry = document.getElementById('inquiryTypeSelect');
+  const role = document.getElementById('roleSelect');
+  const subject = form?.querySelector('[name="subject"]');
+  const button = form?.querySelector('[data-support-submit]');
+  const startsApplication = inquiry?.value === 'application-interest';
+  if (role) role.required = startsApplication;
+  if (button) button.firstChild.textContent = startsApplication ? 'Begin application journey ' : 'Submit request ';
+  if (startsApplication && subject && !subject.value.trim()) subject.value = role?.value ? `Application interest — ${role.value}` : 'Start Brownstone Careers application';
+}
+document.getElementById('inquiryTypeSelect')?.addEventListener('change', syncApplicationJourneyForm);
+document.getElementById('roleSelect')?.addEventListener('change', () => {
+  const inquiry = document.getElementById('inquiryTypeSelect');
+  const subject = document.querySelector('#supportForm [name="subject"]');
+  if (inquiry?.value === 'application-interest' && subject && (!subject.value.trim() || subject.value.startsWith('Application interest —'))) {
+    subject.value = roleSelect?.value ? `Application interest — ${roleSelect.value}` : 'Start Brownstone Careers application';
+  }
+});
+syncApplicationJourneyForm();
 const filterButtons = document.querySelectorAll('[data-filter]');
 const roleCards = document.querySelectorAll('[data-role-card]');
 filterButtons.forEach(btn=>btn.addEventListener('click',()=>{
@@ -119,15 +145,12 @@ async function submitForm(form, endpoint) {
     return;
   }
   const uploadFields = [
-    ['resume', 'Your resume'], ['idFront', 'The front ID file'], ['idBack', 'The back ID file']
+    ['resume', 'Your resume']
   ];
   for (const [name, label] of uploadFields) {
     const file = form.querySelector(`input[name="${name}"]`)?.files?.[0];
     if (file && file.size > 5 * 1024 * 1024) { setFormState(form, `${label} must be no larger than 5 MB.`, 'error'); return; }
   }
-  const ssnLast4 = form.querySelector('input[name="ssnLast4"]')?.value || '';
-  if (ssnLast4 && !/^\d{4}$/.test(ssnLast4)) { setFormState(form, 'Enter exactly four digits for the SSN field.', 'error'); return; }
-
   button.disabled = true;
   button.textContent = 'Sending…';
   form.setAttribute('aria-busy', 'true');
@@ -162,12 +185,18 @@ async function submitForm(form, endpoint) {
       throw new Error(details.length ? `${message} ${details.join(' · ')}` : message);
     }
     form.reset();
+    syncApplicationJourneyForm();
     form.querySelectorAll('[data-file-name]').forEach((output) => { output.textContent = 'No file selected'; output.classList.remove('has-file'); });
     form.querySelectorAll('[data-toggle-sensitive]').forEach((control) => { control.textContent = 'Show'; const input = control.closest('.secure-input-wrap')?.querySelector('input'); if (input) input.type = 'password'; });
     resetTurnstile(form);
-    const message = result.reference
-      ? `Submission received successfully. Your reference is ${result.reference}. Please check your email for confirmation.`
-      : 'Your message was sent successfully. Please check your email for confirmation.';
+    const applicationEmailNotice = result.emailSent === false
+      ? ' Your application is safely recorded, but the confirmation email was not delivered. Keep this reference for support.'
+      : ' Please check your email for confirmation.';
+    const message = result.journey === 'application_received'
+      ? `Application journey started successfully. Your application reference is ${result.reference}. Our recruitment team will review it before issuing any personalized portal invitation.${applicationEmailNotice}`
+      : result.reference
+        ? `Submission received successfully. Your reference is ${result.reference}. Please check your email for confirmation.`
+        : 'Your message was sent successfully. Please check your email for confirmation.';
     setFormState(form, message, 'success');
   } catch(error) {
     resetTurnstile(form);
@@ -182,7 +211,6 @@ async function submitForm(form, endpoint) {
     form.removeAttribute('aria-busy');
   }
 }
-document.getElementById('careerApplicationForm')?.addEventListener('submit', (event) => { event.preventDefault(); submitForm(event.currentTarget, '/api/applications'); });
 document.getElementById('supportForm')?.addEventListener('submit', (event) => { event.preventDefault(); submitForm(event.currentTarget, '/api/contact'); });
 const observer = 'IntersectionObserver' in window ? new IntersectionObserver((entries)=> entries.forEach((entry)=>{ if(entry.isIntersecting){ entry.target.classList.add('visible'); observer.unobserve(entry.target); }}), {threshold:.12}) : null;
 document.querySelectorAll('.reveal').forEach((el)=> observer ? observer.observe(el) : el.classList.add('visible'));

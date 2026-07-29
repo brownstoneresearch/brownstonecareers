@@ -1,0 +1,14 @@
+Brownstone Careers Workforce Platform v10.0 validation
+
+PASS: 55 JavaScript modules syntax checked.
+PASS: 8-page site audit.
+PASS: 8-page SEO audit.
+PASS: 20 official email templates.
+PASS: Mobile navigation audit.
+PASS: Workforce security and migration audit.
+PASS: Supabase RLS/private-storage/server-secret audit.
+PASS: Production domain routing and unified Resend audit.
+PASS: Application/contact/configuration/health/large-file tests.
+PASS: Production static build generated in dist/.
+
+Expected local diagnostics: production-only Resend, Turnstile, D1, and administrator bindings are not present in the isolated test environment. These diagnostics do not represent production failures after Cloudflare secrets and migrations are configured.

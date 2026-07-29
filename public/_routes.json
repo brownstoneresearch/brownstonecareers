@@ -1,5 +1,15 @@
 {
   "version": 1,
-  "include": ["/api/*"],
+  "include": [
+    "/robots.txt",
+    "/",
+    "/api/*",
+    "/onboarding_portal",
+    "/onboarding_portal/*",
+    "/Brownstone_Careers_Unboarding_Handbook",
+    "/Brownstone_Careers_Unboarding_Handbook/*",
+    "/workforce_admin",
+    "/workforce_admin/*"
+  ],
   "exclude": []
 }

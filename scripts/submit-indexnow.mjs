@@ -7,7 +7,7 @@ const urls = [
   "https://brownstonecareers.agency/process.html",
   "https://brownstonecareers.agency/faq.html",
   "https://brownstonecareers.agency/contact.html",
-  "https://brownstonecareers.agency/apply.html"
+  "https://brownstonecareers.agency/contact"
 ];
 
 const response = await fetch("https://api.indexnow.org/indexnow", {

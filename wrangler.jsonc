@@ -3,5 +3,25 @@
   "name": "brownstone-careers",
   "pages_build_output_dir": "./dist",
   "compatibility_date": "2026-07-22",
-  "upload_source_maps": true
+  "upload_source_maps": true,
+  "vars": {
+    "PUBLIC_SITE_URL": "https://brownstonecareers.agency",
+    "ONBOARDING_PORTAL_URL": "https://onboarding.brownstonecareers.agency",
+    "WORKFORCE_ADMIN_URL": "https://workforce.brownstonecareers.agency",
+    "MAIL_SENDING_HOST": "mail.brownstonecareers.agency"
+  },
+  "r2_buckets": [
+    {
+      "binding": "PRIVATE_DOCUMENTS",
+      "bucket_name": "brownstone-private-documents"
+    }
+  ],
+  "d1_databases": [
+    {
+      "binding": "WORKFORCE_DB",
+      "database_name": "brownstone-workforce",
+      "database_id": "f1be0fc5-207b-4459-86f4-c4c57505528f",
+      "migrations_dir": "migrations"
+    }
+  ]
 }

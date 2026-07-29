@@ -1,77 +1,77 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
-    <loc>https://www.brownstonecareers.agency/</loc>
+    <loc>https://brownstonecareers.agency/</loc>
     <lastmod>2026-07-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
     <image:image>
-      <image:loc>https://www.brownstonecareers.agency/assets/home-cover.webp</image:loc>
+      <image:loc>https://brownstonecareers.agency/assets/home-cover.webp</image:loc>
       <image:caption>Brownstone Careers remote recruitment agency</image:caption>
     </image:image>
   </url>
   <url>
-    <loc>https://www.brownstonecareers.agency/about</loc>
+    <loc>https://brownstonecareers.agency/about</loc>
     <lastmod>2026-07-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
     <image:image>
-      <image:loc>https://www.brownstonecareers.agency/assets/about-cover.webp</image:loc>
+      <image:loc>https://brownstonecareers.agency/assets/about-cover.webp</image:loc>
       <image:caption>About Brownstone Careers remote recruitment</image:caption>
     </image:image>
   </url>
   <url>
-    <loc>https://www.brownstonecareers.agency/roles</loc>
+    <loc>https://brownstonecareers.agency/roles</loc>
     <lastmod>2026-07-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
     <image:image>
-      <image:loc>https://www.brownstonecareers.agency/assets/roles-cover.webp</image:loc>
+      <image:loc>https://brownstonecareers.agency/assets/roles-cover.webp</image:loc>
       <image:caption>Brownstone Careers remote career opportunities</image:caption>
     </image:image>
   </url>
   <url>
-    <loc>https://www.brownstonecareers.agency/process</loc>
+    <loc>https://brownstonecareers.agency/process</loc>
     <lastmod>2026-07-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
     <image:image>
-      <image:loc>https://www.brownstonecareers.agency/assets/process-cover.webp</image:loc>
+      <image:loc>https://brownstonecareers.agency/assets/process-cover.webp</image:loc>
       <image:caption>Brownstone Careers recruitment process</image:caption>
     </image:image>
   </url>
   <url>
-    <loc>https://www.brownstonecareers.agency/faq</loc>
+    <loc>https://brownstonecareers.agency/faq</loc>
     <lastmod>2026-07-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
     <image:image>
-      <image:loc>https://www.brownstonecareers.agency/assets/faq-cover.webp</image:loc>
+      <image:loc>https://brownstonecareers.agency/assets/faq-cover.webp</image:loc>
       <image:caption>Brownstone Careers candidate FAQ</image:caption>
     </image:image>
   </url>
   <url>
-    <loc>https://www.brownstonecareers.agency/apply</loc>
+    <loc>https://brownstonecareers.agency/apply</loc>
     <lastmod>2026-07-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
     <image:image>
-      <image:loc>https://www.brownstonecareers.agency/assets/apply-cover.webp</image:loc>
+      <image:loc>https://brownstonecareers.agency/assets/apply-cover.webp</image:loc>
       <image:caption>Apply for Brownstone Careers remote roles</image:caption>
     </image:image>
   </url>
   <url>
-    <loc>https://www.brownstonecareers.agency/contact</loc>
+    <loc>https://brownstonecareers.agency/contact</loc>
     <lastmod>2026-07-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
     <image:image>
-      <image:loc>https://www.brownstonecareers.agency/assets/contact-cover.webp</image:loc>
+      <image:loc>https://brownstonecareers.agency/assets/contact-cover.webp</image:loc>
       <image:caption>Contact Brownstone Careers recruitment support</image:caption>
     </image:image>
   </url>
   <url>
-    <loc>https://www.brownstonecareers.agency/privacy</loc>
+    <loc>https://brownstonecareers.agency/privacy</loc>
     <lastmod>2026-07-23</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.4</priority>

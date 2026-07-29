@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="robots" content="noindex,nofollow,noarchive,nosnippet,noimageindex">
+  <meta name="referrer" content="no-referrer">
+  <meta name="theme-color" content="#061735">
+  <title>Workforce Administration | Brownstone Careers</title>
+  <link rel="icon" href="/assets/brand-logo-icon-new.webp" type="image/webp">
+  <link rel="stylesheet" href="/workforce_admin/admin.css">
+</head>
+<body>
+  <div class="admin-shell">
+    <aside class="admin-sidebar" id="adminSidebar">
+      <a class="admin-brand" href="/workforce_admin/" aria-label="Brownstone Careers workforce administration">
+        <img src="/assets/brand-logo-horizontal-new.webp" alt="Brownstone Careers" width="1368" height="235">
+        <span>Workforce Administration</span>
+      </a>
+      <nav>
+        <button class="admin-nav active" data-admin-view="overview"><span>⌂</span>Overview</button>
+        <button class="admin-nav" data-admin-view="candidates"><span>◉</span>Candidates</button>
+        <button class="admin-nav" data-admin-view="rankings"><span>↗</span>Rankings</button>
+        <button class="admin-nav" data-admin-view="prescreen"><span>◫</span>Pre-screening</button>
+        <button class="admin-nav" data-admin-view="submissions"><span>☑</span>Submissions</button>
+        <button class="admin-nav" data-admin-view="support"><span>✦</span>AI &amp; support</button>
+        <button class="admin-nav" data-admin-view="autopilot"><span>⚡</span>Autopilot</button>
+        <button class="admin-nav" data-admin-view="activity"><span>↻</span>Activity log</button>
+        <button class="admin-nav" data-admin-view="settings"><span>⚙</span>System status</button>
+      </nav>
+      <div class="admin-security"><i></i><div><strong>Restricted workspace</strong><small>Authorized Brownstone personnel only</small></div></div>
+      <form method="post" action="/workforce_admin/logout"><button class="admin-signout" type="submit">Sign out securely</button></form>
+    </aside>
+
+    <main class="admin-workspace">
+      <header class="admin-topbar">
+        <button class="admin-menu" type="button" data-admin-menu aria-controls="adminSidebar" aria-expanded="false">☰</button>
+        <div><span>Brownstone Careers</span><strong data-page-title>Workforce overview</strong></div>
+        <div class="admin-top-actions">
+          <button class="admin-notification-button" type="button" data-admin-notification-toggle aria-label="Open administrator notifications"><span data-admin-notification-count>0</span>♢</button>
+          <div class="admin-user"><span data-admin-initials>BC</span><div><strong data-admin-name>Administrator</strong><small data-admin-role>Authorized user</small></div></div>
+        </div>
+      </header>
+
+      <div class="admin-runtime-alert" data-admin-runtime-alert hidden role="alert">
+        <div><strong>Workforce dashboard connection needs attention.</strong><p data-admin-runtime-message>The interface loaded, but a server-side service did not respond.</p><small data-admin-runtime-incident></small></div>
+        <button type="button" class="secondary-button" data-admin-retry>Retry</button>
+      </div>
+      <noscript><div class="admin-runtime-alert noscript-alert"><div><strong>JavaScript is required.</strong><p>Enable JavaScript to use the Brownstone Workforce Administration dashboard.</p></div></div></noscript>
+
+      <section class="admin-view active" data-view="overview">
+        <div class="admin-hero">
+          <div><span>WORKFORCE CONTROL CENTER</span><h1>Every candidate. Every milestone. One accountable system.</h1><p>Review submitted applications, invite eligible applicants, regulate onboarding progress and sensitive submissions, and maintain a complete audit trail from application to active-worker status.</p></div>
+          <button class="primary-button" type="button" data-open-invite>Invite candidate <b>＋</b></button>
+        </div>
+
+        <div class="metric-grid" data-metrics>
+          <article><span>Total candidates</span><strong data-metric="total">—</strong><small>Across every recruitment stage</small></article>
+          <article><span>Onboarding</span><strong data-metric="onboarding">—</strong><small>Currently completing portal tasks</small></article>
+          <article><span>Awaiting review</span><strong data-metric="awaitingApproval">—</strong><small>Completed but not activated</small></article>
+          <article><span>Pending documents</span><strong data-metric="pendingDocuments">—</strong><small>Secure submissions requiring review</small></article>
+          <article><span>Task submissions</span><strong data-metric="pendingSubmissions">—</strong><small>Awaiting administrator review</small></article>
+          <article><span>Open support</span><strong data-metric="openSupport">—</strong><small>AI escalations and human follow-up</small></article>
+        </div>
+
+        <div class="overview-grid">
+          <article class="admin-card recent-card">
+            <div class="card-head"><div><span>RECENT CANDIDATES</span><h2>Latest workforce movement</h2></div><button type="button" data-jump-candidates>View all</button></div>
+            <div class="candidate-list" data-recent-candidates></div>
+          </article>
+          <article class="admin-card activity-card">
+            <div class="card-head"><div><span>LIVE AUDIT STREAM</span><h2>Recent activity</h2></div></div>
+            <div class="activity-list" data-recent-activity></div>
+          </article>
+        </div>
+      </section>
+
+      <section class="admin-view" data-view="candidates">
+        <div class="section-heading"><div><span>CANDIDATE MANAGEMENT</span><h1>Regulate the complete onboarding lifecycle.</h1><p>Search applications and candidates, create application-linked or controlled manual invitations, regulate stage completion, review identity status, and approve advancement.</p></div><button class="primary-button" type="button" data-open-invite>Invite candidate <b>＋</b></button></div>
+        <div class="candidate-toolbar">
+          <label><span class="sr-only">Search candidates</span><input type="search" placeholder="Search name, email, candidate ID, or role…" data-candidate-search></label>
+          <select data-status-filter><option value="all">All statuses</option><option value="applicant">Applicant</option><option value="invited">Invited</option><option value="onboarding">Onboarding</option><option value="correction_required">Correction required</option><option value="completed">Completed</option><option value="active">Active worker</option><option value="suspended">Suspended</option><option value="rejected">Rejected</option></select>
+          <button type="button" class="secondary-button" data-refresh-candidates>Refresh</button>
+        </div>
+        <div class="table-wrap admin-card">
+          <table>
+            <thead><tr><th>Candidate</th><th>Role</th><th>Stage</th><th>Progress</th><th>Last activity</th><th></th></tr></thead>
+            <tbody data-candidate-table></tbody>
+          </table>
+        </div>
+      </section>
+
+
+      <section class="admin-view" data-view="autopilot">
+        <div class="section-heading"><div><span>AUTONOMOUS OPERATIONS</span><h1>Recruitment autopilot with human authority.</h1><p>Continuously discovers stalled journeys, due reviews, candidate reminders, stage alerts, and ranking changes. High-impact hiring decisions remain administrator controlled.</p></div><button class="primary-button" type="button" data-run-autopilot>Run autopilot now <b>⚡</b></button></div>
+        <div class="workflow-admin-metrics"><article class="admin-card"><span>ACTIVE RULES</span><strong data-auto-metric="enabled">0</strong></article><article class="admin-card"><span>QUEUED ACTIONS</span><strong data-auto-metric="queued">0</strong></article><article class="admin-card"><span>FAILED ACTIONS</span><strong data-auto-metric="failed">0</strong></article><article class="admin-card"><span>STALLED JOURNEYS</span><strong data-auto-metric="stalled">0</strong></article></div>
+        <div class="autopilot-grid"><article class="admin-card"><div class="card-head"><div><span>POLICY ENGINE</span><h2>Automation rules</h2></div></div><div data-autopilot-rules><div class="empty-state">Loading rules…</div></div></article><article class="admin-card"><div class="card-head"><div><span>OPERATIONS SIGNAL</span><h2>Live health</h2></div></div><div class="operations-pulse"><strong>Brownstone Operations Engine</strong><p data-autopilot-status>Connecting to autonomous workflow services…</p><small>The scheduled worker runs every 15 minutes after deployment. This dashboard also refreshes health every minute.</small></div></article></div>
+        <div class="table-wrap admin-card"><table><thead><tr><th>Automation</th><th>Candidate</th><th>Status</th><th>Created</th></tr></thead><tbody data-autopilot-runs><tr><td colspan="4"><div class="empty-state">Loading automation history…</div></td></tr></tbody></table></div>
+      </section>
+
+      <section class="admin-view" data-view="rankings">
+        <div class="section-heading"><div><span>RECRUITMENT PIPELINE RANKINGS</span><h1>Rank candidates by verified stage completion.</h1><p>Pipeline position is based on completed recruitment stages, administrator-reviewed pre-screening results, and approved onboarding progress—not protected personal characteristics.</p></div><button class="secondary-button" type="button" data-refresh-rankings>Refresh rankings</button></div>
+        <div class="candidate-toolbar"><select data-ranking-stage><option value="all">All stages</option><option value="application_received">Application</option><option value="pre_screening">Pre-screening</option><option value="assessment">Assessment</option><option value="interview">Interview</option><option value="offer">Offer</option><option value="verification">Verification</option><option value="onboarding">Onboarding</option><option value="orientation">Orientation</option><option value="active_worker">Active worker</option></select><select data-ranking-role><option value="all">All roles</option></select></div>
+        <div class="table-wrap admin-card ranking-table-wrap"><table><thead><tr><th>Rank</th><th>Candidate</th><th>Role</th><th>Current stage</th><th>Pipeline score</th><th>Stage completion</th><th></th></tr></thead><tbody data-ranking-table><tr><td colspan="7"><div class="empty-state">Loading candidate rankings…</div></td></tr></tbody></table></div>
+      </section>
+
+      <section class="admin-view" data-view="prescreen">
+        <div class="section-heading"><div><span>ADMIN-MANAGED PRE-SCREENING</span><h1>Create questions, assign candidates, and release human-reviewed results.</h1><p>AI produces an advisory rubric-based draft only. A qualified administrator must inspect the candidate’s job-related evidence, finalize the score, write feedback, and release the result.</p></div><div class="heading-actions"><button class="secondary-button" type="button" data-manage-prescreen>Manage questions</button><button class="primary-button" type="button" data-assign-prescreen>Assign pre-screening <b>＋</b></button></div></div>
+        <div class="workflow-admin-metrics"><article class="admin-card"><span>AWAITING ANSWERS</span><strong data-prescreen-count="assigned">0</strong></article><article class="admin-card"><span>READY TO GRADE</span><strong data-prescreen-count="submitted">0</strong></article><article class="admin-card"><span>AI DRAFT READY</span><strong data-prescreen-count="ai_scored">0</strong></article><article class="admin-card"><span>REVIEWED</span><strong data-prescreen-count="reviewed">0</strong></article></div>
+        <div class="candidate-toolbar"><select data-prescreen-filter><option value="all">All pre-screening statuses</option><option value="assigned">Assigned</option><option value="in_progress">In progress</option><option value="submitted">Ready to grade</option><option value="ai_scored">AI draft ready</option><option value="reviewed">Reviewed</option></select><button class="secondary-button" type="button" data-refresh-prescreen>Refresh</button></div>
+        <div class="admin-card prescreen-queue" data-prescreen-queue><div class="empty-state">Loading pre-screening queue…</div></div>
+      </section>
+
+      <section class="admin-view" data-view="submissions">
+        <div class="section-heading"><div><span>SUBMISSION REVIEW CENTER</span><h1>Approve, return, and regulate every onboarding task.</h1><p>Review candidate answers, signatures, timestamps, progress, and administrator feedback from one accountable queue.</p></div><button class="primary-button" type="button" data-open-task-assignment>Assign task <b>＋</b></button></div>
+        <div class="workflow-admin-metrics">
+          <article class="admin-card"><span>AWAITING REVIEW</span><strong data-workflow-admin-count="pending">0</strong></article>
+          <article class="admin-card"><span>CORRECTIONS</span><strong data-workflow-admin-count="corrections">0</strong></article>
+          <article class="admin-card"><span>OVERDUE TASKS</span><strong data-workflow-admin-count="overdue">0</strong></article>
+        </div>
+        <div class="candidate-toolbar"><select data-submission-filter><option value="all">All submission statuses</option><option value="submitted">Awaiting review</option><option value="correction_required">Correction required</option><option value="approved">Approved</option><option value="rejected">Rejected</option></select><button type="button" class="secondary-button" data-refresh-submissions>Refresh</button></div>
+        <div class="admin-card submission-review-list" data-submission-list><div class="empty-state">Loading submission queue…</div></div>
+      </section>
+
+      <section class="admin-view" data-view="support">
+        <div class="section-heading"><div><span>BROWNSTONE GUIDE &amp; HUMAN SUPPORT</span><h1>Monitor AI assistance and intervene when people need a representative.</h1><p>The assistant handles routine onboarding guidance, blocks sensitive chat input, and escalates material issues for accountable human follow-up.</p></div></div>
+        <div class="support-layout">
+          <div class="admin-card support-queue" data-support-list><div class="empty-state">Loading support conversations…</div></div>
+          <div class="admin-card support-transcript" data-support-transcript><div class="empty-state">Select a conversation to review the transcript.</div></div>
+        </div>
+      </section>
+
+      <section class="admin-view" data-view="activity">
+        <div class="section-heading"><div><span>AUDIT &amp; ACCOUNTABILITY</span><h1>Material activity, preserved for review.</h1><p>The log tracks sign-ins, submissions, document access, status changes, invitation actions, and administrative decisions without recording passwords, complete SSNs, or document contents.</p></div></div>
+        <div class="admin-card"><div class="activity-list full" data-full-activity></div></div>
+      </section>
+
+      <section class="admin-view" data-view="settings">
+        <div class="section-heading"><div><span>SYSTEM READINESS</span><h1>Production controls and service health.</h1><p>Review the backend capabilities available to this deployment. Candidate administration requires D1; sensitive uploads require D1, R2, and the PII encryption secret.</p></div></div>
+        <div class="system-grid" data-system-grid></div>
+        <div class="admin-card setup-note"><h2>Recommended production protections</h2><ul><li>Protect <code>workforce.brownstonecareers.agency</code> with Cloudflare Access and MFA.</li><li>Restrict administrators by approved email and least-privilege roles.</li><li>Rotate session, invitation, and PII encryption secrets.</li><li>Keep the R2 bucket private and review document retention schedules.</li><li>Use the D1 audit trail for every material administrator action.</li><li>Keep each Resend workflow key in encrypted Cloudflare secrets; never store keys in the website source.</li></ul></div>
+      </section>
+    </main>
+  </div>
+
+  <dialog class="admin-modal wide-modal" id="inviteModal">
+    <form data-invite-form>
+      <div class="modal-head"><div><span>ADMINISTRATOR-CONTROLLED CANDIDATE ACCESS</span><h2>Create a first-time invitation</h2></div><button type="button" data-close-modal aria-label="Close">×</button></div>
+      <p>Invite from a submitted application whenever available. Authorized administrators may also create a manual first-time invitation for an arbitrary name and email when a documented business reason is recorded.</p>
+      <div class="invite-mode-switch" role="radiogroup" aria-label="Invitation origin"><label><input type="radio" name="invitationMode" value="application" checked><span>From application</span></label><label><input type="radio" name="invitationMode" value="manual"><span>Manual administrator invitation</span></label></div>
+      <div data-invite-application-fields>
+        <div class="form-grid"><label class="full">Submitted application<select name="candidateId" required data-application-select><option value="">Loading eligible applications…</option></select></label><div class="full application-preview" data-application-preview><span>Select an application to review its reference, role, and submission date.</span></div></div>
+      </div>
+      <div data-invite-manual-fields hidden>
+        <div class="manual-override-alert"><strong>Controlled override</strong><p>The D1 database will reject a manual invitation unless the authenticated administrator, timestamp, and reason are recorded.</p></div>
+        <div class="form-grid"><label>First name<input name="firstName" maxlength="100"></label><label>Last name<input name="lastName" maxlength="100"></label><label class="full">Email<input name="email" type="email" autocomplete="off" maxlength="320"></label><label>Phone (optional)<input name="phone" maxlength="40"></label><label>Role<select name="role"><option value="">Select role</option><option>Finance Administrator</option><option>Data Entry Specialist</option><option>Customer Service Representative</option><option>Administrative Assistant</option><option>Virtual Assistant</option><option>Recruitment Coordinator</option><option>Other</option></select></label><label class="full">Administrator reason<textarea name="manualInviteReason" rows="4" maxlength="1000" placeholder="Explain why this person is being invited before a public application record exists."></textarea></label><label class="full override-confirm"><input type="checkbox" name="adminOverrideConfirmed" value="yes"><span>I confirm this manual invitation is authorized, job-related, and will be preserved in the audit trail.</span></label></div>
+      </div>
+      <div class="invite-placement-panel">
+        <div class="placement-heading"><div><span>STATUS, STAGE &amp; EXCLUSIVE EMAIL</span><h3>Choose where this candidate begins.</h3></div><small>Every selection is preserved in the audit trail.</small></div>
+        <div class="form-grid">
+          <label>Initial status<select name="initialStatus" required data-invite-status>
+            <option value="invited" selected>Invited</option>
+            <option value="approved">Approved</option>
+            <option value="onboarding">Onboarding</option>
+            <option value="correction_required">Correction required</option>
+            <option value="completed">Completed</option>
+            <option value="active">Active worker</option>
+          </select></label>
+          <label>Starting stage<select name="initialStage" required data-invite-stage>
+            <option value="application_received" selected>Application</option>
+            <option value="pre_screening">Pre-screening</option>
+            <option value="assessment">Skills assessment</option>
+            <option value="interview">Interview</option>
+            <option value="offer">Offer</option>
+            <option value="verification">Verification</option>
+            <option value="onboarding">Onboarding</option>
+            <option value="orientation">Orientation</option>
+            <option value="active_worker">Active worker</option>
+          </select></label>
+          <label>Invitation life<select name="expirationHours"><option value="24">24 hours</option><option value="72" selected>72 hours</option><option value="168">7 days</option></select></label>
+          <div class="full invitation-template-preview" data-invite-template-preview>
+            <span>SECURE APPLICATION ACCESS</span>
+            <strong>Continue Your Brownstone Application</strong>
+            <p>The email includes the candidate ID, personal access code, selected status, selected stage, expiry, and a secure portal button.</p>
+          </div>
+        </div>
+        <p class="placement-safety">The candidate ID never changes. Regenerated access codes preserve the selected status, stage, and exclusive email template. Suspended and rejected statuses remain available from the candidate record because they intentionally block portal access.</p>
+      </div>
+      <div class="modal-actions"><button class="secondary-button" type="button" data-close-modal>Cancel</button><button class="primary-button" type="submit">Create and email invitation</button></div>
+      <div class="form-result" data-invite-result></div>
+    </form>
+  </dialog>
+
+
+  <dialog class="admin-modal" id="taskAssignmentModal">
+    <form data-task-assignment-form>
+      <div class="modal-head"><div><span>ADMIN-MANAGED WORKFLOW</span><h2>Assign onboarding task</h2></div><button type="button" data-close-task-modal aria-label="Close">×</button></div>
+      <p>Assign a standard Brownstone task to a specific candidate and choose the due date.</p>
+      <div class="form-grid"><label class="full">Candidate<select name="candidateId" required data-task-candidate-select><option value="">Select candidate</option></select></label><label class="full">Task<select name="taskId" required data-task-catalog-select><option value="">Select task</option></select></label><label>Due date<input name="dueAt" type="date" required></label></div>
+      <div class="modal-actions"><button class="secondary-button" type="button" data-close-task-modal>Cancel</button><button class="primary-button" type="submit">Assign and notify</button></div>
+      <div class="form-result" data-task-assignment-result></div>
+    </form>
+  </dialog>
+
+  <dialog class="admin-modal review-modal" id="submissionReviewModal">
+    <form data-submission-review-form>
+      <div class="modal-head"><div><span>SUBMISSION REVIEW</span><h2 data-review-title>Candidate submission</h2></div><button type="button" data-close-review-modal aria-label="Close">×</button></div>
+      <div class="review-submission-detail" data-review-detail></div>
+      <label>Administrator feedback<textarea name="feedback" rows="5" placeholder="Required when requesting a correction."></textarea></label>
+      <div class="modal-actions review-actions"><button class="secondary-button" type="button" data-review-decision="correction_required">Request correction</button><button class="danger-button" type="button" data-review-decision="rejected">Reject</button><button class="primary-button" type="button" data-review-decision="approved">Approve</button></div>
+      <div class="form-result" data-review-result></div>
+    </form>
+  </dialog>
+
+  <dialog class="admin-modal" id="prescreenAssignmentModal">
+    <form data-prescreen-assignment-form>
+      <div class="modal-head"><div><span>PRE-SCREENING ASSIGNMENT</span><h2>Assign questions to a candidate</h2></div><button type="button" data-close-prescreen-assignment aria-label="Close">×</button></div>
+      <div class="form-grid"><label class="full">Candidate<select name="candidateId" required data-prescreen-candidate-select></select></label><label class="full">Published question set<select name="setId" required data-prescreen-set-select></select></label><label>Due date<input name="dueAt" type="date" required></label></div>
+      <div class="modal-actions"><button class="secondary-button" type="button" data-close-prescreen-assignment>Cancel</button><button class="primary-button" type="submit">Assign and notify</button></div><div class="form-result" data-prescreen-assignment-result></div>
+    </form>
+  </dialog>
+
+  <dialog class="admin-modal wide-modal" id="prescreenManagerModal">
+    <div class="modal-head"><div><span>QUESTION SET MANAGEMENT</span><h2>Manage pre-screening questions and rubrics</h2></div><button type="button" data-close-prescreen-manager aria-label="Close">×</button></div>
+    <div class="prescreen-manager-layout"><div class="prescreen-set-list" data-prescreen-set-list></div><div class="prescreen-question-manager" data-prescreen-question-manager><div class="empty-state">Select a question set.</div></div></div>
+  </dialog>
+
+  <dialog class="admin-modal wide-modal" id="prescreenReviewModal">
+    <form data-prescreen-review-form>
+      <div class="modal-head"><div><span>HUMAN-REVIEWED AI ASSISTANCE</span><h2 data-prescreen-review-title>Pre-screening review</h2></div><button type="button" data-close-prescreen-review aria-label="Close">×</button></div>
+      <div data-prescreen-review-detail></div>
+      <div class="ai-advisory-panel" data-ai-advisory><strong>AI advisory draft not generated</strong><p>Generate a rubric-based draft after checking the candidate’s answers. The administrator remains responsible for the final result.</p></div>
+      <div class="modal-actions"><button class="secondary-button" type="button" data-generate-ai-grade>Generate AI grading draft</button></div>
+      <div class="form-grid"><label>Final score (0–100)<input name="finalScore" type="number" min="0" max="100" step="0.1" required></label><label>Final result<select name="resultStatus" required><option value="passed">Pass and advance</option><option value="conditional">Conditional review</option><option value="not_selected">Not selected</option></select></label><label class="full">Administrator feedback<textarea name="adminFeedback" rows="6" maxlength="5000" required placeholder="Explain the job-related evidence, strengths, development areas, and next step."></textarea></label><label class="full override-confirm"><input type="checkbox" name="humanReviewConfirmed" value="yes" required><span>I reviewed the candidate’s answers and any AI advisory output. This is my human decision, based only on job-related criteria.</span></label></div>
+      <div class="modal-actions"><button class="secondary-button" type="button" data-close-prescreen-review>Cancel</button><button class="primary-button" type="submit">Finalize and email result</button></div><div class="form-result" data-prescreen-review-result></div>
+    </form>
+  </dialog>
+
+  <aside class="admin-notification-panel" data-admin-notification-panel aria-hidden="true"><div class="notification-panel-head"><div><span>STAGE ALERTS</span><h2>Administrator notifications</h2></div><button type="button" data-admin-notification-close aria-label="Close notifications">×</button></div><div class="notification-panel-actions"><button type="button" data-admin-notification-read-all>Mark all read</button><label><input type="checkbox" data-admin-tone-enabled checked> Stage tones</label></div><div data-admin-notification-list><div class="empty-state">No unread notifications.</div></div></aside>
+
+  <aside class="candidate-drawer" data-candidate-drawer aria-hidden="true">
+    <div class="drawer-head"><div><span>CANDIDATE RECORD</span><h2 data-drawer-name>Candidate</h2><small data-drawer-id></small></div><button type="button" data-close-drawer aria-label="Close">×</button></div>
+    <div class="drawer-body" data-drawer-body></div>
+  </aside>
+  <div class="drawer-overlay" data-drawer-overlay></div>
+  <div class="admin-toast" data-admin-toast role="status" aria-live="polite"></div>
+  <script src="/workforce_admin/admin.js" defer></script>
+  <script src="/workforce_admin/admin-workflow.js" defer></script>
+  <script src="/workforce_admin/admin-scale.js" defer></script>
+  <script src="/workforce_admin/admin-autopilot.js" defer></script>
+</body>
+</html>

@@ -7,10 +7,10 @@
 const EMAIL_BRAND = Object.freeze({
   name: "Brownstone Careers",
   legalName: "Brownstone Careers Recruitment Agency",
-  website: "https://www.brownstonecareers.agency",
-  logo: "https://www.brownstonecareers.agency/assets/brownstone-logo-dark.png",
+  website: "https://brownstonecareers.agency",
+  logo: "https://brownstonecareers.agency/assets/brownstone-logo-dark.png",
   supportEmail: "support@brownstonecareers.agency",
-  recommendedSender: "Brownstone Careers <notifications@mail.brownstonecareers.agency>",
+  recommendedSender: "Brownstone Careers <support@mail.brownstonecareers.agency>",
   primary: "#071A3B",
   secondary: "#0B3B91",
   action: "#0B5FFF",
@@ -149,19 +149,19 @@ function contactReceivedEmail({ name, reference }) {
 function internalApplicationEmail(data = {}) {
   const rows = [
     ["Application reference", data.reference], ["Candidate", data.fullName], ["Email", data.email], ["Phone", data.phone],
-    ["SSN — last four only", data.ssnLast4], ["Mother’s maiden name", data.motherMaidenName],
-    ["Residential address", [data.houseAddress, data.city, data.stateProvince, data.postalCode, data.country].filter(Boolean).join(", ")],
+    ["General location", [data.city, data.stateProvince, data.country].filter(Boolean).join(", ")],
+    ["Work authorization", data.workAuthorization], ["Sponsorship required", data.sponsorshipRequired],
     ["Role", data.role], ["Time zone", data.timezone], ["Available start", data.startDate],
     ["Years of experience", data.yearsExperience], ["Most recent job title", data.recentJobTitle],
     ["Most recent employer", data.recentEmployer], ["Employment period", data.employmentPeriod],
   ].map(([label, value]) => infoRow(label, value)).join("");
 
-  const content = `${statusBadge("New application", "info")}<p style="font-size:15px;line-height:25px;margin:0 0 18px">A new candidate application was received through the official website.</p><table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="border:1px solid ${EMAIL_BRAND.border};border-radius:9px;border-collapse:separate;overflow:hidden">${rows}</table>${contentSection("Working experience and achievements", data.experience)}${contentSection("Interest in the role", data.interest)}${contentSection("Software and technical skills", data.skills)}${contentSection("Remote-work readiness", data.readiness)}`;
+  const content = `${statusBadge("New application", "info")}<p style="font-size:15px;line-height:25px;margin:0 0 18px">A new candidate application was received through the official website. Sensitive identity, tax, and payment information is intentionally collected only after an approved candidate enters the private onboarding portal.</p><table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="border:1px solid ${EMAIL_BRAND.border};border-radius:9px;border-collapse:separate;overflow:hidden">${rows}</table>${contentSection("Working experience and achievements", data.experience)}${contentSection("Interest in the role", data.interest)}${contentSection("Software and technical skills", data.skills)}${contentSection("Remote-work readiness", data.readiness)}`;
   return brandedEmailLayout({ title: "New Candidate Application", preheader: `${data.fullName || "A candidate"} applied for ${data.role || "a role"}.`, eyebrow: "Internal recruitment notification", content });
 }
 
-function internalContactEmail({ reference, name, email, subject, message } = {}) {
-  const rows = [["Support reference", reference], ["Name", name], ["Email", email], ["Subject", subject]].map(([label, value]) => infoRow(label, value)).join("");
+function internalContactEmail({ reference, name, email, phone, inquiryType, role, subject, message } = {}) {
+  const rows = [["Support reference", reference], ["Name", name], ["Email", email], ["Phone", phone], ["Inquiry type", inquiryType], ["Role of interest", role], ["Subject", subject]].map(([label, value]) => infoRow(label, value)).join("");
   return brandedEmailLayout({
     title: "New Website Support Request",
     preheader: `${name || "A visitor"} submitted a new website message.`,
@@ -179,14 +179,14 @@ function preScreeningEmail({ firstName, role, actionUrl, deadline = "30 minutes"
   });
 }
 
-function preScreeningResultEmail({ firstName, score, grade, status = "Passed", summary = "", actionUrl, actionLabel = "Continue to the Next Stage" }) {
+function preScreeningResultEmail({ firstName, candidateId = "", score, grade, status = "Passed", summary = "", actionUrl, actionLabel = "Continue to the Next Stage" }) {
   const resultTone = String(status).toLowerCase() === "passed" ? "success" : "warning";
   const scoreRow = `<table class="bc-score" role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin:22px 0;border:1px solid ${EMAIL_BRAND.border};border-radius:10px;overflow:hidden"><tr>${scoreBox(String(score || "—"), "Overall score")}${scoreBox(String(grade || "—"), "Grade")}${scoreBox(String(status || "Reviewed"), "Status", resultTone === "success" ? EMAIL_BRAND.success : EMAIL_BRAND.warning).replace('border-right:1px solid '+EMAIL_BRAND.border, 'border-right:0')}</tr></table>`;
   return brandedEmailLayout({
     title: "Pre-Screening Result",
     preheader: `Your Brownstone Careers pre-screening result is ${status}.`,
     eyebrow: "Official assessment result",
-    content: `${statusBadge(status, resultTone)}<p style="font-size:16px;line-height:27px;margin:0 0 18px">Dear ${safeValue(firstName, "Candidate")},</p><p style="font-size:16px;line-height:27px;margin:0">Your pre-screening responses have been reviewed by the Brownstone Careers recruitment team.</p>${scoreRow}${summary ? `<p style="font-size:16px;line-height:27px;margin:0">${safeValue(summary)}</p>` : ""}${emailButton(actionLabel, actionUrl)}<p style="font-size:16px;line-height:27px;margin:0">Kind regards,<br><strong>Brownstone Careers Recruitment Team</strong></p>`,
+    content: `${statusBadge(status, resultTone)}<p style="font-size:16px;line-height:27px;margin:0 0 18px">Dear ${safeValue(firstName, "Candidate")},</p><p style="font-size:16px;line-height:27px;margin:0">Your pre-screening responses have been reviewed by the Brownstone Careers recruitment team.</p>${candidateId ? detailCard("Candidate ID", candidateId) : ""}${scoreRow}${summary ? `<p style="font-size:16px;line-height:27px;margin:0">${safeValue(summary)}</p>` : ""}${emailButton(actionLabel, actionUrl)}<p style="font-size:16px;line-height:27px;margin:0">Kind regards,<br><strong>Brownstone Careers Recruitment Team</strong></p>`,
   });
 }
 
@@ -218,4 +218,220 @@ function recruitmentUpdateEmail({ firstName, title, message, actionLabel, action
 }
 
 
-module.exports = { EMAIL_BRAND, escapeEmailHtml, emailButton, statusBadge, detailCard, contentSection, brandedEmailLayout, applicationReceivedEmail, contactReceivedEmail, internalApplicationEmail, internalContactEmail, preScreeningEmail, preScreeningResultEmail, interviewInviteEmail, offerLetterEmail, recruitmentUpdateEmail };
+const INVITATION_STATUS_OPTIONS = Object.freeze([
+  { key: "invited", label: "Invited", tone: "success", description: "Candidate has received secure portal access and must complete the selected next step." },
+  { key: "approved", label: "Approved", tone: "success", description: "Candidate has been approved to continue at the selected recruitment stage." },
+  { key: "onboarding", label: "Onboarding", tone: "info", description: "Candidate is actively completing onboarding or orientation requirements." },
+  { key: "correction_required", label: "Correction required", tone: "warning", description: "Candidate has portal access but must correct or complete a required item." },
+  { key: "completed", label: "Completed", tone: "success", description: "The selected stage has been completed and the candidate can review the recorded outcome." },
+  { key: "active", label: "Active worker", tone: "success", description: "Candidate has been activated as a worker and receives workforce portal access." },
+]);
+
+const INVITATION_STAGE_OPTIONS = Object.freeze([
+  {
+    key: "application_received",
+    label: "Application",
+    templateKey: "secure-application",
+    title: "Continue Your Brownstone Application",
+    eyebrow: "Secure application access",
+    badge: "Application portal invitation",
+    intro: "You have been given secure access to continue your Brownstone Careers application.",
+    nextStep: "Complete and electronically sign the confidential candidate application, then upload your resume. Other stages remain subject to administrator review.",
+    actionLabel: "Continue Secure Application",
+  },
+  {
+    key: "pre_screening",
+    label: "Pre-Screening",
+    templateKey: "prescreen-access",
+    title: "Pre-Screening Portal Access",
+    eyebrow: "Pre-screening stage access",
+    badge: "Pre-screening invitation",
+    intro: "You have been placed in the administrator-managed pre-screening stage for your selected role.",
+    nextStep: "Open the candidate portal, review the assigned question set, and submit complete responses before the stated deadline.",
+    actionLabel: "Open Pre-Screening Portal",
+  },
+  {
+    key: "assessment",
+    label: "Skills Assessment",
+    templateKey: "assessment-access",
+    title: "Skills Assessment Portal Access",
+    eyebrow: "Assessment stage access",
+    badge: "Assessment invitation",
+    intro: "You have been placed in the skills-assessment stage of the Brownstone Careers recruitment process.",
+    nextStep: "Open the portal to review the assigned assessment instructions, deadlines, and administrator feedback.",
+    actionLabel: "Open Assessment Portal",
+  },
+  {
+    key: "interview",
+    label: "Interview",
+    templateKey: "interview-access",
+    title: "Interview Stage Portal Access",
+    eyebrow: "Interview stage access",
+    badge: "Interview-stage invitation",
+    intro: "You have been placed in the interview stage for your selected Brownstone Careers role.",
+    nextStep: "Open the portal to review interview instructions, confirmations, and any administrator-provided meeting details.",
+    actionLabel: "Open Interview Portal",
+  },
+  {
+    key: "offer",
+    label: "Offer",
+    templateKey: "offer-access",
+    title: "Offer Review Portal Access",
+    eyebrow: "Offer stage access",
+    badge: "Offer-stage invitation",
+    intro: "You have been placed in the offer-review stage of the Brownstone Careers process.",
+    nextStep: "Open the secure portal to review assigned offer materials and complete any required acknowledgements. An access email is not itself an employment contract.",
+    actionLabel: "Open Offer Portal",
+  },
+  {
+    key: "verification",
+    label: "Verification",
+    templateKey: "verification-access",
+    title: "Verification Portal Access",
+    eyebrow: "Verification stage access",
+    badge: "Verification invitation",
+    intro: "You have been placed in the controlled verification stage for your selected role.",
+    nextStep: "Use only the secure portal areas identified by Brownstone Careers. Never send SSNs, government IDs, banking details, passwords, or PINs by email.",
+    actionLabel: "Open Verification Portal",
+  },
+  {
+    key: "onboarding",
+    label: "Onboarding",
+    templateKey: "onboarding-access",
+    title: "Onboarding Portal Access",
+    eyebrow: "Onboarding stage access",
+    badge: "Onboarding invitation",
+    intro: "Your Brownstone Careers onboarding workspace is ready.",
+    nextStep: "Open the portal to complete assigned documents, acknowledgements, learning modules, and administrator-reviewed submissions.",
+    actionLabel: "Open Onboarding Portal",
+  },
+  {
+    key: "orientation",
+    label: "Orientation",
+    templateKey: "orientation-access",
+    title: "Orientation Portal Access",
+    eyebrow: "Orientation stage access",
+    badge: "Orientation invitation",
+    intro: "You have been placed in the Brownstone Careers orientation stage.",
+    nextStep: "Open the portal to review orientation requirements, attendance information, and any remaining administrator instructions.",
+    actionLabel: "Open Orientation Portal",
+  },
+  {
+    key: "active_worker",
+    label: "Active Worker",
+    templateKey: "worker-access",
+    title: "Brownstone Workforce Access",
+    eyebrow: "Workforce activation",
+    badge: "Workforce access",
+    intro: "Your Brownstone Careers workforce access has been prepared.",
+    nextStep: "Open the secure portal to review your active-worker dashboard, assigned tasks, notifications, and continuing requirements.",
+    actionLabel: "Open Workforce Portal",
+  },
+]);
+
+const INVITATION_STATUS_MAP = new Map(INVITATION_STATUS_OPTIONS.map((item) => [item.key, item]));
+const INVITATION_STAGE_MAP = new Map(INVITATION_STAGE_OPTIONS.map((item) => [item.key, item]));
+const INVITATION_STAGE_RULES = Object.freeze({
+  invited: INVITATION_STAGE_OPTIONS.map((item) => item.key),
+  approved: INVITATION_STAGE_OPTIONS.filter((item) => item.key !== "active_worker").map((item) => item.key),
+  onboarding: ["onboarding", "orientation"],
+  correction_required: INVITATION_STAGE_OPTIONS.map((item) => item.key),
+  completed: ["onboarding", "orientation", "active_worker"],
+  active: ["active_worker"],
+});
+
+function normalizeInvitationStatus(value = "invited") {
+  const key = String(value || "").trim().toLowerCase();
+  return INVITATION_STATUS_MAP.has(key) ? key : "invited";
+}
+
+function normalizeInvitationStage(value = "application_received") {
+  const key = String(value || "").trim().toLowerCase();
+  return INVITATION_STAGE_MAP.has(key) ? key : "application_received";
+}
+
+function validateInvitationSelection(statusValue, stageValue) {
+  const status = normalizeInvitationStatus(statusValue);
+  const stage = normalizeInvitationStage(stageValue);
+  const allowedStages = INVITATION_STAGE_RULES[status] || INVITATION_STAGE_RULES.invited;
+  if (!allowedStages.includes(stage)) {
+    const statusLabel = INVITATION_STATUS_MAP.get(status)?.label || status;
+    const stageLabel = INVITATION_STAGE_MAP.get(stage)?.label || stage;
+    return {
+      ok: false,
+      status,
+      stage,
+      message: `${statusLabel} cannot be used with the ${stageLabel} stage. Select a compatible status and stage.`,
+    };
+  }
+  return {
+    ok: true,
+    status,
+    stage,
+    statusConfig: INVITATION_STATUS_MAP.get(status),
+    stageConfig: INVITATION_STAGE_MAP.get(stage),
+    templateKey: `${INVITATION_STAGE_MAP.get(stage).templateKey}.${status}`,
+  };
+}
+
+function candidateStageInvitationEmail({
+  firstName,
+  role,
+  candidateId,
+  accessCode,
+  expiresAt,
+  portalUrl,
+  status = "invited",
+  stage = "application_received",
+  invitationOrigin = "application",
+}) {
+  const selection = validateInvitationSelection(status, stage);
+  const statusConfig = selection.statusConfig || INVITATION_STATUS_MAP.get("invited");
+  const stageConfig = selection.stageConfig || INVITATION_STAGE_MAP.get("application_received");
+  const originMessage = invitationOrigin === "admin_manual"
+    ? "This access was created through an authorized administrator invitation and is recorded in the Brownstone Careers audit trail."
+    : "This access is linked to your Brownstone Careers application record.";
+  const statusMessage = statusConfig.key === "correction_required"
+    ? "An administrator has identified an item that requires your attention. Review the portal notification carefully and submit the requested correction."
+    : statusConfig.description;
+  const title = statusConfig.key === "invited"
+    ? stageConfig.title
+    : `${stageConfig.title} — ${statusConfig.label}`;
+  const preheader = `${statusConfig.label}: ${stageConfig.label} access for candidate ${candidateId}.`;
+
+  return brandedEmailLayout({
+    title,
+    preheader,
+    eyebrow: stageConfig.eyebrow,
+    footerNote: "This invitation is personal to the named candidate. Do not forward or share the access code. Brownstone Careers will never ask you to send your SSN, government ID, banking information, password, or PIN by email or social media.",
+    content: `${statusBadge(`${stageConfig.badge} · ${statusConfig.label}`, statusConfig.tone)}<p style="font-size:16px;line-height:27px;margin:0 0 18px">Dear ${safeValue(firstName, "Candidate")},</p><p style="font-size:16px;line-height:27px;margin:0 0 18px">${safeValue(stageConfig.intro)}</p><p style="font-size:15px;line-height:25px;margin:0 0 18px">${safeValue(statusMessage)}</p>${detailCard("Candidate ID", candidateId)}${detailCard("Personal access code", accessCode)}${detailCard("Current stage", stageConfig.label)}${detailCard("Current status", statusConfig.label)}<p style="font-size:15px;line-height:25px;margin:0 0 16px"><strong>Invitation expiry:</strong> ${safeValue(expiresAt)}</p><p style="font-size:15px;line-height:25px;margin:0 0 16px"><strong>Next step:</strong> ${safeValue(stageConfig.nextStep)}</p><p style="font-size:14px;line-height:23px;margin:0;color:${EMAIL_BRAND.muted}">${safeValue(originMessage)}</p>${emailButton(stageConfig.actionLabel, portalUrl)}<p style="font-size:16px;line-height:27px;margin:0">Kind regards,<br><strong>Brownstone Careers Workforce Team</strong></p>`,
+  });
+}
+
+
+function onboardingInvitationEmail({ firstName, role, candidateId, accessCode, expiresAt, portalUrl }) {
+  return candidateStageInvitationEmail({
+    firstName,
+    role,
+    candidateId,
+    accessCode,
+    expiresAt,
+    portalUrl,
+    status: "invited",
+    stage: "application_received",
+    invitationOrigin: "application",
+  });
+}
+
+
+function onboardingCorrectionEmail({ firstName, role, message, portalUrl }) {
+  return brandedEmailLayout({
+    title: "Onboarding Update Required",
+    preheader: "A Brownstone Careers reviewer has requested an update to your onboarding submission.",
+    eyebrow: "Candidate action required",
+    content: `${statusBadge("Correction requested", "warning")}<p style="font-size:16px;line-height:27px;margin:0 0 18px">Dear ${safeValue(firstName, "Candidate")},</p><p style="font-size:16px;line-height:27px;margin:0 0 18px">A reviewer has requested an update to your onboarding submission for the <strong>${safeValue(role, "selected")}</strong> role.</p>${contentSection("Reviewer message", message)}${emailButton("Open Secure Portal", portalUrl)}<p style="font-size:16px;line-height:27px;margin:0">Kind regards,<br><strong>Brownstone Careers Workforce Team</strong></p>`,
+  });
+}
+
+
+module.exports = { EMAIL_BRAND, escapeEmailHtml, emailButton, statusBadge, detailCard, contentSection, brandedEmailLayout, applicationReceivedEmail, contactReceivedEmail, internalApplicationEmail, internalContactEmail, preScreeningEmail, preScreeningResultEmail, interviewInviteEmail, offerLetterEmail, recruitmentUpdateEmail, INVITATION_STATUS_OPTIONS, INVITATION_STAGE_OPTIONS, normalizeInvitationStatus, normalizeInvitationStage, validateInvitationSelection, candidateStageInvitationEmail, onboardingInvitationEmail, onboardingCorrectionEmail };

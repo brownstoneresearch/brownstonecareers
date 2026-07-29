@@ -1,149 +1,94 @@
-# Brownstone Careers — Cloudflare Pages
+# Brownstone Careers Workforce Platform v9.4
 
-Production-ready static recruitment website with Cloudflare Pages Functions for form handling and Resend email delivery.
+Brownstone Careers operates as one connected workforce system with four service identities:
 
-## Verified install and build
+- **`brownstonecareers.agency`** — public recruitment and application-interest website.
+- **`onboarding.brownstonecareers.agency`** — individualized confidential application, pre-screening, and onboarding portal.
+- **`workforce.brownstonecareers.agency`** — restricted administration, invitation control, ranking, review, support, and audit oversight.
+- **`mail.brownstonecareers.agency`** — Resend transactional email authentication only.
 
-```bash
-npm ci --ignore-scripts --no-audit --no-fund
-npm test
-```
+## Scaled candidate journey
 
-The project intentionally has no runtime or build dependencies. This keeps Cloudflare's dependency-install phase small and avoids the previous Wrangler/workerd/sharp installation failure.
+The standard public path remains application-first:
 
-## Cloudflare Pages Git deployment
+1. A candidate selects **Apply** and submits application interest through the main-site contact form.
+2. An administrator reviews the application queue and creates a personalized invitation.
+3. The candidate enters the authenticated portal and submits the confidential application as the first required stage.
+4. An administrator assigns and reviews pre-screening, then advances the candidate through the remaining recruitment and onboarding stages.
 
-1. Push this project to `https://github.com/brownstoneresearch/brownstonecareers.git`.
-2. In Cloudflare, open **Workers & Pages → Create → Pages → Connect to Git**.
-3. Select the GitHub repository and use:
-   - Production branch: `main`
-   - Build command: `npm run build`
-   - Build output directory: `dist`
-   - Root directory: `/`
-4. Add encrypted variables under **Settings → Variables and Secrets**:
-   - `RESEND_API_KEY`
-   - `EMAIL_FROM`
-   - `RECRUITMENT_EMAIL`
-   - `EMAIL_REPLY_TO` (recommended)
-   - `TURNSTILE_SECRET_KEY`
-5. Redeploy.
+Authorized administrators can also create a first-time **Manual invitation** for an arbitrary name and email. Manual invitations require an explicit confirmation, a meaningful business reason, the authenticated administrator ID, and a timestamp. The invite form includes controlled **Initial status** and **Starting stage** selections. D1 prevents every access-enabled application-less status unless all override controls are present and the approving administrator is active. Each valid status/stage selection has an exclusive branded email variant that always contains the unchanged candidate ID and a personal access code. The confidential portal application remains available as the privacy-controlled record, and pre-screening assignments remain administrator managed.
 
-Pages Functions are in the root-level `functions/` directory and are deployed automatically with Git builds.
+## Ranked recruitment pipeline
 
+Candidates are ranked by verified stage completion across:
 
-## Official Resend sending identity
+Application → Pre-screening → Skills assessment → Interview → Offer → Verification → Onboarding → Orientation → Active worker
 
-Use the dedicated transactional subdomain `mail.brownstonecareers.agency` after it has been verified in Resend. Set:
+The ranking is a workflow-progress tool. It does not use protected characteristics and does not make an automated hiring decision. Pre-screening scores are displayed separately from completion rank.
 
-```text
-EMAIL_FROM=Brownstone Careers <notifications@mail.brownstonecareers.agency>
-EMAIL_REPLY_TO=support@brownstonecareers.agency
-```
+Every completed stage creates an administrator notification with a distinct optional browser tone and a direct link to the candidate record.
 
-All application confirmations, support confirmations, and internal website notifications render through the official `/emails/` design system and include the hosted Brownstone Careers logo. Follow `RESEND-SUBDOMAIN-SETUP.md` for DNS and deployment steps.
+## Administrator-managed pre-screening
 
-## API routes
+Administrators can:
 
-- `GET /api/health`
-- `POST /api/contact`
-- `POST /api/applications`
+- create, publish, archive, and revise question sets;
+- define required questions, points, rubrics, and AI guidance;
+- assign a published set to a candidate with a due date;
+- review submitted answers and rubric evidence;
+- request an optional AI advisory scoring draft;
+- independently enter the final score, decision, and candidate-facing feedback;
+- email the finalized result and publish it to the candidate dashboard.
 
-Application uploads accept PDF, DOC, and DOCX resumes up to 5 MB, plus front and back government-ID files in JPG, PNG, WEBP, or PDF format up to 5 MB each. Files are sent as Resend attachments to the authorized recruitment inbox and are not stored in the repository or static site.
+AI output is advisory only. The system never releases an AI draft automatically and requires an administrator to confirm a human review before finalization.
 
-## Local development
+## Privacy and sensitive-data separation
 
-Copy `.dev.vars.example` to `.dev.vars`, fill in a newly generated Resend key, then run:
+The public application-interest form excludes resumes, signatures, SSNs, government IDs, banking data, tax records, and other confidential records. Those materials are collected only inside the authenticated portal.
 
-```bash
-npm ci
-npm run build
-npm run pages:dev
-```
+The active Cloudflare backend uses:
 
-Never commit `.dev.vars`, `.env`, or API keys.
+- D1 for applications, candidates, invitations, stages, ranks, pre-screening, tasks, decisions, support, notifications, and audit events.
+- Private R2 for resumes, identity documents, and verification files.
+- Server-side encryption for structured sensitive identity values.
+- One encrypted `RESEND_API_KEY` for all transactional email.
 
-## GitHub update
+The `supabase/` directory contains a controlled PostgreSQL/Auth/RLS/private-Storage migration target. D1/R2 remains the active runtime until a reconciled cutover is completed.
 
-```bash
-git remote set-url origin https://github.com/brownstoneresearch/brownstonecareers.git
-git branch -M main
-git add -A
-git commit -m "Rebuild site for Cloudflare Pages"
-git push -u origin main
-```
+## Main routes
 
-## Agency brand system
+| Experience | Internal path | Production identity |
+|---|---|---|
+| Public application start | `/contact?type=application-interest` | `https://brownstonecareers.agency` |
+| Candidate portal | `/onboarding_portal/` | `https://onboarding.brownstonecareers.agency` |
+| Interactive handbook | `/Brownstone_Careers_Unboarding_Handbook/` | Candidate-authenticated onboarding host |
+| Workforce dashboard | `/workforce_admin/` | `https://workforce.brownstonecareers.agency` |
 
-The site now uses a dedicated Brownstone Careers recruitment-agency shell. The header combines the official emblem with a concise agency descriptor, while the footer presents the agency mission, career pathways, candidate-safety guidance, workplace tools, and official application actions. The shell is isolated in `public/agency-shell.css` to prevent older component rules from affecting the logo placement or responsive navigation.
+Private experiences are omitted from public navigation and the sitemap.
 
+## Brownstone Guide and AI grading
 
-## Cloudflare Turnstile and cookies
+Brownstone Guide remains operational in safe guided mode without an external AI key. Add `OPENAI_API_KEY` to enable generative support and administrator-requested pre-screening rubric drafts. `OPENAI_GRADING_MODEL` can override the general `OPENAI_MODEL` for grading requests.
 
-This build includes Cloudflare Turnstile widgets on the application and contact forms using site key `0x4AAAAAAD4dZ6uvgEldqskh`. `TURNSTILE_SECRET_KEY` is required in Cloudflare Pages; submissions are rejected when server-side verification is not configured. The site also includes a cookie consent banner with necessary, analytics, and marketing preference storage.
+Never place candidate SSNs, government ID numbers, banking information, passwords, or API keys into AI prompts.
 
-Primary live domain for Turnstile: `www.brownstonecareers.agency`. This build includes a root-domain redirect file so `brownstonecareers.agency` redirects to the `www` domain.
-
-## Cloudflare Turnstile setup
-
-This package includes a dedicated setup guide for Brownstone Careers Turnstile configuration:
-
-```text
-TURNSTILE-SETUP-BROWNSTONE.md
-```
-
-Current Turnstile site key in the website:
-
-```text
-0x4AAAAAAD4dZ6uvgEldqskh
-```
-
-Add `TURNSTILE_SECRET_KEY` in Cloudflare Pages environment variables before enabling production submissions.
-
-
-## V2 Executive Brand Upgrade
-Includes refined desktop and mobile logo placement, a dedicated Home navigation item, accessible mobile navigation, upgraded cards and forms, and responsive executive styling.
-
-## Unified form handler V3 (v5.1.0)
-
-The live application and contact forms now use one Cloudflare Pages Functions backend. Stale Worker and Express handlers were removed to prevent accidental deployment of older code. The handler includes robust multi-megabyte attachment encoding, explicit `/api/*` routing, request-stage diagnostics, Resend timeouts, idempotency keys, and safe configuration checks.
-
-After deployment, `/api/health` must show:
-
-```json
-{
-  "ok": true,
-  "handlerVersion": "2026-07-23.5",
-  "emailConfigured": true,
-  "turnstileConfigured": true
-}
-```
-
-See `FORM-SUBMISSION-V3.md` for the production checklist.
-
-## SEO/GEO and premium form upgrade (v5.3.0)
-
-This build resolves the flagged meta-description and image-alt issues, normalizes clean canonical URLs, adds image-aware sitemaps, expands page-specific structured data, adds Twitter Cards, and introduces automated SEO regression checks. The application and contact forms were also rebuilt into polished, responsive fieldset sections without changing their API endpoints or field names.
-
-Run the complete validation suite before deployment:
+## Local validation
 
 ```bash
 npm ci
 npm test
 ```
 
-See `SEO-GEO-FORM-UPGRADE.md` for the implementation summary and post-deployment indexing checklist.
+The production build is written to `dist/`.
 
-## Version 6.0.0 — recruitment agency shell
+## Deployment order
 
-- New professional header and footer across all public pages.
-- Responsive logo lockups optimized for desktop, tablet, and mobile.
-- Private WhatsApp support redirect with no visible phone number.
-- Updated PWA icons and manifest metadata.
-- Automated checks for the agency shell, navigation controls, assets, forms, SEO, and legacy markup.
+1. Read `DEPLOY-v9.4.md` and `WORKFORCE-PORTAL-SETUP.md`.
+2. Preserve the existing `WORKFORCE_DB` and `PRIVATE_DOCUMENTS` bindings.
+3. Apply every D1 migration through `0008_invitation_status_stage_templates.sql` **before** deploying the v9.4 Functions.
+4. Keep the existing `PII_ENCRYPTION_KEY`; never replace it after encrypted records exist.
+5. Keep only the shared encrypted `RESEND_API_KEY` for email delivery.
+6. Add `OPENAI_API_KEY` when generative Brownstone Guide and AI-assisted pre-screening drafts are required.
+7. Run `npm test`, commit, push, and allow Cloudflare Pages to redeploy.
 
-
-## Version 6.1 brand navigation refinement
-
-- Removed the Home text link from desktop and mobile navigation while keeping the lamp-logo brand lockup linked to the homepage.
-- Preserved the original Brownstone lamp emblem in the header, mobile drawer, and footer.
-- Realigned the agency name and descriptor beside the emblem for a consistent left edge and balanced vertical rhythm.
+The source package contains no live API keys.

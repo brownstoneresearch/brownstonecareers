@@ -1,6 +1,3 @@
-# Canonical host
-https://brownstonecareers.agency/* https://www.brownstonecareers.agency/:splat 301
-
 # Canonical clean URLs
 /index.html / 301
 /about.html /about 301
@@ -9,6 +6,13 @@ https://brownstonecareers.agency/* https://www.brownstonecareers.agency/:splat 3
 /faq.html /faq 301
 /apply.html /apply 301
 /contact.html /contact 301
-
 /privacy.html /privacy 301
+
+# Candidate and workforce service aliases
+/onboarding https://onboarding.brownstonecareers.agency/ 302
+/portal https://onboarding.brownstonecareers.agency/ 302
+/workforce https://workforce.brownstonecareers.agency/ 302
+/admin https://workforce.brownstonecareers.agency/ 302
+
+# External community shortcut
 /whatsapp https://wa.me/15342280244 302

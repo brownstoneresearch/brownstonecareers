@@ -25,14 +25,13 @@ The site key is included in:
 ```text
 Widget name: Brownstone Careers Forms
 Widget mode: Managed
-Primary production hostname:
-- www.brownstonecareers.agency
-Optional secondary hostname:
+Production hostname:
 - brownstonecareers.agency
-- your Cloudflare Pages preview domain, if testing preview deployments
+Optional test hostname:
+- your Cloudflare Pages preview domain, only while testing preview deployments
 ```
 
-This package also includes Cloudflare Pages redirect rules in `public/_redirects` and `dist/_redirects` so `brownstonecareers.agency/*` redirects to `https://www.brownstonecareers.agency/*`. This keeps the Turnstile widget running on the `www` production domain.
+Turnstile is used on the public Apply and Contact forms. The onboarding and workforce subdomains do not need this public-form widget unless a separate protected form is later added there.
 
 ## Required environment variable
 
@@ -43,7 +42,7 @@ In Cloudflare Pages, go to:
 Add this variable in both **Production** and **Preview**:
 
 ```text
-TURNSTILE_SECRET_KEY=your_secret_key_from_cloudflare
+TURNSTILE_SECRET=your_secret_key_from_cloudflare
 ```
 
 Keep the secret key private. Do not place it inside HTML, client-side JavaScript, GitHub public files, or screenshots.
@@ -90,10 +89,10 @@ Contact form widget:
 Copy `.dev.vars.example` to `.dev.vars`, then add your real values:
 
 ```text
-RESEND_API_KEY=your_resend_api_key
-EMAIL_FROM=Brownstone Careers <noreply@brownstonecareers.agency>
+RESEND_API_KEY_RECRUITMENT=your_resend_api_key
+EMAIL_FROM=Brownstone Careers <notifications@mail.brownstonecareers.agency>
 RECRUITMENT_EMAIL=your_recruitment_email
-TURNSTILE_SECRET_KEY=your_turnstile_secret_key
+TURNSTILE_SECRET=your_turnstile_secret_key
 ```
 
 Run locally:
@@ -113,9 +112,9 @@ git push origin main
 
 After deployment, test:
 
-- `https://www.brownstonecareers.agency/apply`
-- `https://www.brownstonecareers.agency/contact`
-- `https://www.brownstonecareers.agency/api/health`
+- `https://brownstonecareers.agency/apply`
+- `https://brownstonecareers.agency/contact`
+- `https://brownstonecareers.agency/api/health`
 
 The health route should report Turnstile as configured after the secret key is set in Cloudflare Pages.
 

@@ -19,7 +19,7 @@ Every template shares the same verified hosted logo, mobile-responsive layout, C
 Official logo URL:
 
 ```text
-https://www.brownstonecareers.agency/assets/brownstone-logo-dark.png
+https://brownstonecareers.agency/assets/brownstone-logo-dark.png
 ```
 
 Recommended sender:
@@ -27,3 +27,7 @@ Recommended sender:
 ```text
 Brownstone Careers <notifications@mail.brownstonecareers.agency>
 ```
+
+## Invitation template router
+
+`candidateStageInvitationEmail()` renders the exclusive branded invitation for each administrator-selected status and starting stage. Every variant includes the candidate ID and personal access code. `onboardingInvitationEmail()` remains as a backwards-compatible application-stage wrapper.

@@ -1,5 +1,5 @@
 /*
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://www.brownstonecareers.agency; connect-src 'self' https://challenges.cloudflare.com; frame-src https://challenges.cloudflare.com; form-action 'self'; base-uri 'self'; frame-ancestors 'self'; object-src 'none'; upgrade-insecure-requests
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://brownstonecareers.agency; connect-src 'self' https://challenges.cloudflare.com; frame-src https://challenges.cloudflare.com; form-action 'self'; base-uri 'self'; frame-ancestors 'self'; object-src 'none'; upgrade-insecure-requests
   Referrer-Policy: strict-origin-when-cross-origin
   X-Content-Type-Options: nosniff
   X-Frame-Options: SAMEORIGIN
@@ -15,10 +15,49 @@
 
 /*.js
   Cache-Control: public, max-age=604800
-
-/Brownstone_Careers_Unboarding_Handbook/*
-  X-Robots-Tag: noindex, nofollow, noarchive, nosnippet, noimageindex
+/onboarding_portal/*
   Cache-Control: private, no-store, max-age=0
+  Pragma: no-cache
+  X-Robots-Tag: noindex, nofollow, noarchive, nosnippet, noimageindex
   Referrer-Policy: no-referrer
   X-Frame-Options: DENY
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; frame-src 'self'; form-action 'self'; base-uri 'self'; frame-ancestors 'none'; object-src 'none'; upgrade-insecure-requests
+
+/Brownstone_Careers_Unboarding_Handbook/*
+  Cache-Control: private, no-store, max-age=0
+  Pragma: no-cache
+  X-Robots-Tag: noindex, nofollow, noarchive, nosnippet, noimageindex
+  Referrer-Policy: no-referrer
+  X-Frame-Options: DENY
+
+
+/workforce_admin/*
+  Cache-Control: private, no-store, max-age=0
+  X-Robots-Tag: noindex, nofollow, noarchive, nosnippet, noimageindex
+  Referrer-Policy: no-referrer
+  X-Frame-Options: DENY
+
+/api/admin/*
+  Cache-Control: private, no-store, max-age=0
+  X-Robots-Tag: noindex, nofollow, noarchive
+  Referrer-Policy: no-referrer
+/onboarding_portal
+  Cache-Control: private, no-store, max-age=0
+  Pragma: no-cache
+  X-Robots-Tag: noindex, nofollow, noarchive, nosnippet, noimageindex
+  Referrer-Policy: no-referrer
+  X-Frame-Options: DENY
+
+/workforce_admin
+  Cache-Control: private, no-store, max-age=0
+  Pragma: no-cache
+  X-Robots-Tag: noindex, nofollow, noarchive, nosnippet, noimageindex
+  Referrer-Policy: no-referrer
+  X-Frame-Options: DENY
+
+/api/portal/*
+  Cache-Control: private, no-store, max-age=0
+  Pragma: no-cache
+  X-Robots-Tag: noindex, nofollow, noarchive
+  Referrer-Policy: no-referrer
 

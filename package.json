@@ -1,18 +1,20 @@
 {
   "name": "brownstone-careers-pages",
-  "version": "6.5.0",
+  "version": "10.0.2",
   "private": true,
-  "description": "Brownstone Careers Cloudflare Pages site with responsive, touch-safe mobile navigation across all candidate routes, secure recruitment forms, and a unified official Resend email design system.",
+  "description": "Brownstone Careers autonomous recruitment operating system with Windows-compatible canonical Cloudflare Turnstile recovery, governed workflow automation, ranked stage intelligence, administrator-managed AI evaluation, private onboarding, unified communications, scheduled operations health, and human-controlled hiring decisions.",
   "type": "module",
   "engines": {
     "node": ">=20 <23"
   },
   "scripts": {
     "build": "node scripts/build.mjs",
-    "check": "node scripts/check.mjs && node scripts/site-audit.mjs && node scripts/seo-audit.mjs && node scripts/test-emails.mjs && node scripts/test-mobile-menu.mjs && node --check public/script.js && node --check emails/index.js && node --check emails/index.cjs && node --check functions/_shared.js && node --check functions/api/applications.js && node --check functions/api/contact.js && node --check functions/api/health.js",
+    "check": "node scripts/check.mjs && node scripts/site-audit.mjs && node scripts/seo-audit.mjs && node scripts/test-emails.mjs && node scripts/test-mobile-menu.mjs && node scripts/workforce-audit.mjs && node scripts/supabase-audit.mjs && node scripts/domain-routing-audit.mjs && node scripts/turnstile-audit.mjs",
     "test": "npm run check && node scripts/test-forms.mjs && npm run build",
-    "pages:dev": "npx --yes wrangler@4.112.0 pages dev dist",
+    "pages:dev": "npm run build && npx --yes wrangler@latest pages dev dist",
     "pages:deploy": "npm run build && npx --yes wrangler@latest pages deploy --project-name brownstone-careers --branch main",
-    "indexnow": "node scripts/submit-indexnow.mjs"
+    "indexnow": "node scripts/submit-indexnow.mjs",
+    "db:migrate": "npx --yes wrangler@latest d1 migrations apply brownstone-workforce --remote",
+    "supabase:check": "node scripts/supabase-audit.mjs"
   }
 }

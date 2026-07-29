@@ -10,7 +10,7 @@ const expected = [
   ['FAQ', '/faq'],
   ['Contact', '/contact'],
   ['Candidate support', '/contact#candidate-support'],
-  ['Apply now', '/apply']
+  ['Apply now', '/contact#candidate-support']
 ];
 
 const failures = [];
