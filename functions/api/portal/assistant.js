@@ -1,4 +1,5 @@
 import { readSession } from "../../_portal-auth.js";
+import { getCandidateJourney } from "../../_journey.js";
 import { internalContactEmail } from "../../../emails/index.js";
 import { sendResendEmail } from "../../_shared.js";
 import {
@@ -63,13 +64,15 @@ async function taskContext(env, candidateId) {
   }
 }
 
-function fallbackReply({ message, intent, sentiment, tasks, progress, firstName }) {
+function fallbackReply({ message, intent, sentiment, tasks, progress, firstName, directive }) {
   const opener = sentiment === "concerned"
     ? `I’m sorry this part of the process has been frustrating, ${firstName}. Let’s take it one step at a time.`
     : `Absolutely, ${firstName}. I’m here to help you move forward clearly.`;
   const pending = tasks.filter((task) => !["approved", "completed", "waived"].includes(task.status));
   const next = pending[0];
-  const nextLine = next ? ` Your next recorded task is “${next.title}”${next.due_at ? `, due ${new Date(next.due_at).toLocaleDateString("en-US")}` : ""}.` : " Your assigned onboarding tasks are currently up to date.";
+  const nextLine = directive?.title
+    ? ` Your official next directive is: “${directive.title}” — ${directive.message}`
+    : next ? ` Your next recorded task is “${next.title}”${next.due_at ? `, due ${new Date(next.due_at).toLocaleDateString("en-US")}` : ""}.` : " Your assigned onboarding tasks are currently up to date.";
   const answers = {
     identity: "Use only the Secure Identity Center for SSN or government-ID information, and only after an authorized Brownstone representative instructs you to proceed. Never place sensitive details in this chat, email, Teams, or the public application.",
     task: "Open Task Submissions, select the assigned item, complete every required field, tick the attestation, and type your full legal name when a signature is required. After submission, the status changes to Awaiting review and an administrator can approve it or request a correction.",
@@ -98,6 +101,7 @@ async function aiReply(env, context) {
   if (!env?.OPENAI_API_KEY) return "";
   const model = clean(env.OPENAI_MODEL || "gpt-5.6", 80);
   const taskSummary = context.tasks.slice(0, 12).map((task) => `- ${task.title}: ${task.status}${task.admin_feedback ? ` (feedback: ${task.admin_feedback})` : ""}`).join("\n") || "No assigned tasks are currently available.";
+  const directiveSummary = context.directive ? `Official next directive: ${context.directive.title}. ${context.directive.message}. Directive type: ${context.directive.type}.` : "No journey directive is available.";
   const instructions = `You are the Brownstone Guide, an AI onboarding customer-support assistant for Brownstone Careers. Be warm, perceptive, calm, concise, and solution-oriented. Clearly identify yourself as an AI when relevant; never pretend to be a human employee. Use customer-service skills: acknowledge emotion, clarify the goal, give precise next steps, confirm what happens next, and offer human escalation when needed. Never ask for or repeat SSNs, passwords, PINs, banking credentials, full ID numbers, medical details, or other sensitive identity data. Direct sensitive records only to the authenticated Secure Identity Center. Do not make employment promises, legal conclusions, or approval decisions. When information is uncertain, say so and route the candidate to an authorized recruiter. The candidate is ${context.firstName}, role ${context.role}, tracked progress ${context.progress}%. Assigned task context:\n${taskSummary}`;
   const response = await fetch("https://api.openai.com/v1/responses", {
     method: "POST",
@@ -193,6 +197,7 @@ export async function onRequestPost(context) {
   const classification = classify(redaction.redacted);
   const candidate = await getCandidateById(context.env, session.id) || { first_name: session.name?.split(" ")[0] || "Candidate", role: session.role || "Candidate" };
   const workflow = await taskContext(context.env, session.id);
+  const journey = await getCandidateJourney(context.env, session.id).catch(() => null);
   const conversationId = await ensureConversation(context.env, session.id, clean(payload.conversationId, 100), classification);
   await storeMessage(context.env, conversationId, "candidate", session.id, redaction.redacted, classification, { view: clean(payload.view, 80) });
 
@@ -204,6 +209,7 @@ export async function onRequestPost(context) {
       role: candidate.role || session.role || "Candidate",
       progress: workflow.progress,
       tasks: workflow.tasks,
+      directive: journey?.directive || null,
     });
   } catch (error) {
     console.error("Brownstone Guide AI generation failed", error?.message || error);
@@ -215,6 +221,7 @@ export async function onRequestPost(context) {
     tasks: workflow.tasks,
     progress: workflow.progress,
     firstName: candidate.first_name || "Candidate",
+    directive: journey?.directive || null,
   });
   await storeMessage(context.env, conversationId, "assistant", "brownstone-guide", reply, classification, { aiConfigured: Boolean(context.env.OPENAI_API_KEY) });
 

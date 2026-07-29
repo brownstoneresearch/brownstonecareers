@@ -1,5 +1,6 @@
 import { requireAdmin } from "../../_admin-auth.js";
 import { hasWorkforceDb, json } from "../../_workforce-db.js";
+import { getCandidateJourney } from "../../_journey.js";
 
 export async function onRequestGet(context) {
   const auth = await requireAdmin(context, "candidate.read");
@@ -9,7 +10,7 @@ export async function onRequestGet(context) {
   if (!id) return json({ message: "Candidate ID is required." }, 400);
 
   const db = context.env.WORKFORCE_DB;
-  const [candidate, identity, documents, states, activity, notes, emails, invitations, stageProgress, prescreens] = await Promise.all([
+  const [candidate, identity, documents, states, activity, notes, emails, invitations, stageProgress, prescreens, journey] = await Promise.all([
     db.prepare("SELECT * FROM candidates WHERE id = ? LIMIT 1").bind(id).first(),
     db.prepare("SELECT legal_name, ssn_last4, work_authorization_status, verification_status, submitted_at, reviewed_at FROM sensitive_identity WHERE candidate_id = ? LIMIT 1").bind(id).first(),
     db.prepare("SELECT id, category, filename, mime_type, size_bytes, status, submitted_at, reviewed_at FROM documents WHERE candidate_id = ? ORDER BY submitted_at DESC").bind(id).all(),
@@ -20,6 +21,7 @@ export async function onRequestGet(context) {
     db.prepare("SELECT id, code_hint, status, expires_at, created_at, sent_at, activated_at, last_used_at, revoked_at, template_key, initial_status, initial_stage, email_subject FROM invitations WHERE candidate_id = ? ORDER BY created_at DESC").bind(id).all(),
     db.prepare("SELECT stage_key, status, completion_percent, score, source, notes, started_at, completed_at, completed_by, updated_at FROM candidate_stage_progress WHERE candidate_id = ? ORDER BY completed_at, started_at, stage_key").bind(id).all(),
     db.prepare(`SELECT cp.id, cp.status, cp.due_at, cp.started_at, cp.submitted_at, cp.ai_score, cp.final_score, cp.result_status, cp.admin_feedback, cp.reviewed_at, qs.title AS question_set_title FROM candidate_prescreens cp JOIN prescreen_question_sets qs ON qs.id = cp.question_set_id WHERE cp.candidate_id = ? ORDER BY cp.created_at DESC`).bind(id).all(),
+    getCandidateJourney(context.env, id),
   ]);
   if (!candidate) return json({ message: "Candidate not found." }, 404);
 
@@ -39,6 +41,7 @@ export async function onRequestGet(context) {
     invitations: invitations.results || [],
     stageProgress: stageProgress.results || [],
     prescreens: prescreens.results || [],
+    journey,
   });
 }
 

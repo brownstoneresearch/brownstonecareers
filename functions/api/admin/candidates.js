@@ -2,7 +2,8 @@ import { candidateStageInvitationEmail, onboardingCorrectionEmail, validateInvit
 import { hasAdminPermission, requireAdmin } from "../../_admin-auth.js";
 import { hasResendChannel, sendResendEmail } from "../../_shared.js";
 import { onboardingPortalUrl } from "../../_domains.js";
-import { completeStage, markStageInProgress, nextRecruitmentStage, normalizeStageKey, recalculateAllRanks, recalculateCandidatePipeline } from "../../_pipeline.js";
+import { PIPELINE_STAGES, completeStage, markStageInProgress, nextRecruitmentStage, normalizeStageKey, recalculateAllRanks, recalculateCandidatePipeline } from "../../_pipeline.js";
+import { getCandidateJourney, validateStageCompletion, validateStageTransition } from "../../_journey.js";
 import {
   auditEvent,
   clean,
@@ -85,7 +86,9 @@ export async function onRequestGet(context) {
   const status = clean(url.searchParams.get("status"), 40);
   const stage = clean(url.searchParams.get("stage"), 60);
   const inviteEligible = url.searchParams.get("inviteEligible") === "1";
-  const limit = Math.min(100, Math.max(1, Number(url.searchParams.get("limit") || 50)));
+  const page = Math.max(1, Number(url.searchParams.get("page") || 1));
+  const pageSize = Math.min(100, Math.max(5, Number(url.searchParams.get("pageSize") || url.searchParams.get("limit") || 25)));
+  const offset = (page - 1) * pageSize;
   const conditions = [];
   const values = [];
 
@@ -109,20 +112,27 @@ export async function onRequestGet(context) {
   }
 
   const where = conditions.length ? `WHERE ${conditions.join(" AND ")}` : "";
-  const result = await context.env.WORKFORCE_DB.prepare(`
-    SELECT id, reference, first_name, last_name, email, phone, city, state_province, country,
-           role, status, recruitment_stage, onboarding_progress, assigned_admin_id,
-           application_source, application_submitted_at, invited_from_application_at,
-           invitation_origin, manual_invite_reason, manual_invite_approved_by, manual_invite_approved_at,
-           invitation_status_key, invitation_stage_key, invitation_template_key,
-           last_invitation_id, last_invited_at,
-           pipeline_score, pipeline_rank, prescreening_score,
-           created_at, updated_at, last_activity_at
-    FROM candidates ${where}
-    ORDER BY COALESCE(last_activity_at, created_at) DESC
-    LIMIT ?
-  `).bind(...values, limit).all();
-  return json({ candidates: result.results || [] });
+  const [result, count] = await Promise.all([
+    context.env.WORKFORCE_DB.prepare(`
+      SELECT id, reference, first_name, last_name, email, phone, city, state_province, country,
+             role, status, recruitment_stage, onboarding_progress, assigned_admin_id,
+             application_source, application_submitted_at, invited_from_application_at,
+             invitation_origin, manual_invite_reason, manual_invite_approved_by, manual_invite_approved_at,
+             invitation_status_key, invitation_stage_key, invitation_template_key,
+             last_invitation_id, last_invited_at,
+             pipeline_score, pipeline_rank, prescreening_score,
+             created_at, updated_at, last_activity_at
+      FROM candidates ${where}
+      ORDER BY COALESCE(pipeline_rank, 999999), COALESCE(last_activity_at, created_at) DESC
+      LIMIT ? OFFSET ?
+    `).bind(...values, pageSize, offset).all(),
+    context.env.WORKFORCE_DB.prepare(`SELECT COUNT(*) AS count FROM candidates ${where}`).bind(...values).first(),
+  ]);
+  const total = Number(count?.count || 0);
+  return json({
+    candidates: result.results || [],
+    pagination: { page, pageSize, total, totalPages: Math.max(1, Math.ceil(total / pageSize)) },
+  });
 }
 
 export async function onRequestPost(context) {
@@ -139,6 +149,9 @@ export async function onRequestPost(context) {
 
   const initialStatus = selection.status;
   const initialStage = selection.stage;
+  if (invitationMode !== "manual" && initialStage !== "application_received") {
+    return json({ message: "Application-linked invitations must begin at the Application stage. Complete each stage in order before advancing." }, 409);
+  }
   const expirationHours = Math.min(168, Math.max(1, Number(payload.expirationHours || 72)));
   const timestamp = nowIso();
   let candidate;
@@ -265,6 +278,23 @@ export async function onRequestPost(context) {
   `).bind(invitationId, timestamp, timestamp, timestamp, candidateId).run();
 
   candidate = await context.env.WORKFORCE_DB.prepare("SELECT * FROM candidates WHERE id = ? LIMIT 1").bind(candidateId).first();
+
+  if (invitationMode === "manual") {
+    const targetStageKey = normalizeStageKey(initialStage);
+    const targetIndex = PIPELINE_STAGES.findIndex((stage) => stage.key === targetStageKey);
+    for (const priorStage of PIPELINE_STAGES.slice(0, Math.max(0, targetIndex))) {
+      await completeStage(context.env, {
+        candidateId,
+        stageKey: priorStage.key,
+        source: "admin_manual_override",
+        score: 100,
+        notes: `Administratively satisfied for a controlled manual invitation starting at ${selection.stageConfig.label}. Reason: ${clean(payload.manualInviteReason, 1000)}`,
+        completedBy: auth.admin.id,
+        candidateName: `${candidate.first_name} ${candidate.last_name}`,
+      });
+    }
+  }
+
   const emailResult = await sendInvite(context, candidate, code, expiresAt, selection, invitationOrigin);
   if (emailResult.ok) await context.env.WORKFORCE_DB.prepare("UPDATE invitations SET sent_at = ? WHERE id = ?").bind(nowIso(), invitationId).run();
 
@@ -349,6 +379,8 @@ export async function onRequestPatch(context) {
   if (action === "complete-stage") {
     if (!hasAdminPermission(auth.admin, "candidate.stage")) return json({ message: "Your administrator role cannot complete recruitment stages." }, 403);
     const stageKey = normalizeStageKey(payload.stageKey || candidate.recruitment_stage);
+    const gate = await validateStageCompletion(context.env, candidateId, stageKey);
+    if (!gate.ok) return json({ message: gate.message, missingStages: gate.missingStages || [], journey: gate.journey || null }, 409);
     const score = Math.max(0, Math.min(100, Number(payload.score == null ? 100 : payload.score)));
     const notes = clean(payload.notes, 2000);
     const completed = await completeStage(context.env, {
@@ -360,11 +392,12 @@ export async function onRequestPatch(context) {
       completedBy: auth.admin.id,
       candidateName: `${candidate.first_name} ${candidate.last_name}`,
     });
-    const nextStage = payload.advance === false ? candidate.recruitment_stage : nextRecruitmentStage(stageKey);
-    const nextStatus = nextStage === "active_worker" ? "active" : candidate.status === "applicant" ? "approved" : candidate.status;
+    const completingActivation = stageKey === "active_worker";
+    const nextStage = completingActivation ? "active_worker" : payload.advance === false ? candidate.recruitment_stage : nextRecruitmentStage(stageKey);
+    const nextStatus = completingActivation ? "active" : nextStage === "active_worker" ? "completed" : candidate.status === "applicant" ? "approved" : candidate.status;
     await context.env.WORKFORCE_DB.prepare("UPDATE candidates SET recruitment_stage = ?, status = ?, updated_at = ?, last_activity_at = ? WHERE id = ?")
       .bind(nextStage, nextStatus, timestamp, timestamp, candidateId).run();
-    if (nextStage !== "active_worker") await markStageInProgress(context.env, { candidateId, stageKey: nextStage, source: "admin_advancement", completionPercent: 0 });
+    if (!completingActivation) await markStageInProgress(context.env, { candidateId, stageKey: nextStage, source: "admin_advancement", completionPercent: 0 });
     const pipeline = await recalculateCandidatePipeline(context.env, candidateId);
     await recalculateAllRanks(context.env);
     await context.env.WORKFORCE_DB.prepare("INSERT INTO candidate_notifications (id, candidate_id, title, message, notification_type, status, action_url, created_at) VALUES (?, ?, ?, ?, 'stage', 'unread', '/onboarding_portal/#progress', ?)")
@@ -381,6 +414,10 @@ export async function onRequestPatch(context) {
     const stage = clean(payload.stage, 60);
     if (status === "invited") return json({ message: "Use the invitation workflow—submitted application or controlled Manual invitation—so a protected access code and audit record are created." }, 400);
     if (!allowedStatuses.has(status) || !allowedStages.has(stage)) return json({ message: "Unsupported status or stage." }, 400);
+    if (stage !== candidate.recruitment_stage) {
+      const transition = await validateStageTransition(context.env, candidateId, stage);
+      if (!transition.ok) return json({ message: transition.message, missingStages: transition.missingStages || [], journey: transition.journey || null }, 409);
+    }
     const invalidateSession = ["suspended", "rejected"].includes(status);
     await context.env.WORKFORCE_DB.prepare(`
       UPDATE candidates
@@ -436,6 +473,18 @@ export async function onRequestPatch(context) {
     if (!hasAdminPermission(auth.admin, "identity.review")) return json({ message: "Your administrator role cannot review identity records." }, 403);
     const verificationStatus = clean(payload.verificationStatus, 40);
     if (!["approved", "rejected", "correction_required"].includes(verificationStatus)) return json({ message: "Unsupported identity review status." }, 400);
+    if (verificationStatus === "approved") {
+      const transition = await validateStageTransition(context.env, candidateId, "verification");
+      if (!transition.ok || normalizeStageKey(candidate.recruitment_stage) !== "verification") {
+        return json({
+          message: transition.ok
+            ? "Verification approval is locked until verification is the candidate’s current stage."
+            : transition.message,
+          missingStages: transition.missingStages || [],
+          journey: transition.journey || null,
+        }, 409);
+      }
+    }
     await context.env.WORKFORCE_DB.prepare("UPDATE sensitive_identity SET verification_status = ?, reviewed_at = ?, reviewed_by = ?, updated_at = ? WHERE candidate_id = ?")
       .bind(verificationStatus, timestamp, auth.admin.id, timestamp, candidateId).run();
     await context.env.WORKFORCE_DB.prepare("UPDATE documents SET status = ?, reviewed_at = ?, reviewed_by = ? WHERE candidate_id = ? AND category IN ('identity-front','identity-back')")

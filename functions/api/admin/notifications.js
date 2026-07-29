@@ -8,6 +8,9 @@ export async function onRequestGet(context) {
   const url = new URL(context.request.url);
   const status = clean(url.searchParams.get("status") || "unread", 40);
   const since = clean(url.searchParams.get("since"), 60);
+  const page = Math.max(1, Number(url.searchParams.get("page") || 1));
+  const pageSize = Math.min(50, Math.max(5, Number(url.searchParams.get("pageSize") || 12)));
+  const offset = (page - 1) * pageSize;
   const conditions = ["(n.admin_id IS NULL OR n.admin_id = ?)"];
   const values = [auth.admin.id];
   if (status !== "all") { conditions.push("n.status = ?"); values.push(status); }
@@ -17,13 +20,23 @@ export async function onRequestGet(context) {
     FROM admin_notifications n
     LEFT JOIN candidates c ON c.id = n.candidate_id
     WHERE ${conditions.join(" AND ")}
-    ORDER BY n.created_at DESC LIMIT 100
-  `).bind(...values).all();
+    ORDER BY n.created_at DESC LIMIT ? OFFSET ?
+  `).bind(...values, pageSize, offset).all();
   const count = await context.env.WORKFORCE_DB.prepare(`
     SELECT COUNT(*) AS count FROM admin_notifications
     WHERE (admin_id IS NULL OR admin_id = ?) AND status = 'unread'
   `).bind(auth.admin.id).first();
-  return json({ notifications: rows.results || [], unreadCount: Number(count?.count || 0), serverTime: nowIso() });
+  const totalQuery = await context.env.WORKFORCE_DB.prepare(`
+    SELECT COUNT(*) AS count FROM admin_notifications n
+    WHERE ${conditions.join(" AND ")}
+  `).bind(...values).first();
+  const total = Number(totalQuery?.count || 0);
+  return json({
+    notifications: rows.results || [],
+    unreadCount: Number(count?.count || 0),
+    pagination: { page, pageSize, total, totalPages: Math.max(1, Math.ceil(total / pageSize)) },
+    serverTime: nowIso(),
+  });
 }
 
 export async function onRequestPost(context) {

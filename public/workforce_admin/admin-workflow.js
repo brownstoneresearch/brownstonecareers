@@ -7,6 +7,9 @@
   let candidates = [];
   let selectedSubmission = null;
   let selectedConversation = null;
+  let supportPage = 1;
+  let submissionPage = 1;
+  let submissionPagination = { page: 1, totalPages: 1, total: 0 };
 
   function escapeHtml(value = "") {
     return String(value).replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[char]));
@@ -62,8 +65,11 @@
     const filter = $("[data-submission-filter]")?.value || "all";
     const container = $("[data-submission-list]");
     try {
-      const data = await api(`/api/admin/workflow?mode=submissions&status=${encodeURIComponent(filter)}`);
+      const data = await api(`/api/admin/workflow?mode=submissions&status=${encodeURIComponent(filter)}&page=${submissionPage}&pageSize=12`);
       submissions = data.submissions || [];
+      submissionPagination = data.pagination || { page: submissionPage, totalPages: 1, total: submissions.length };
+      submissionPage = Number(submissionPagination.page || submissionPage);
+      window.BrownstoneAdmin?.renderSmartPagination?.("[data-submission-pagination]", submissionPagination, (page) => { submissionPage = page; loadSubmissions(); });
       if (!submissions.length) {
         container.innerHTML = '<div class="empty-state">No submissions match this review queue.</div>';
         return;
@@ -71,7 +77,7 @@
       container.innerHTML = submissions.map((item) => {
         const name = `${item.first_name || ""} ${item.last_name || ""}`.trim() || "Candidate";
         return `<article class="submission-review-row ${escapeHtml(item.status)}">
-          <div><span>${escapeHtml(statusLabel(item.category))}</span><h3>${escapeHtml(item.task_title)}</h3><p>${escapeHtml(name)} · ${escapeHtml(item.role || "Role pending")}</p><small>${escapeHtml(formatDate(item.submitted_at))}${item.signature_name ? ` · Signed by ${escapeHtml(item.signature_name)}` : ""}</small></div>
+          <div><span>${escapeHtml(statusLabel(item.stage_key || item.category))} · ${escapeHtml(statusLabel(item.category))}</span><h3>${escapeHtml(item.task_title)}</h3><p>${escapeHtml(name)} · ${escapeHtml(item.role || "Role pending")}</p><small>${escapeHtml(formatDate(item.submitted_at))}${item.signature_name ? ` · Signed by ${escapeHtml(item.signature_name)}` : ""}</small></div>
           <span class="status-pill ${escapeHtml(item.status)}">${escapeHtml(statusLabel(item.status))}</span>
           <button class="secondary-button" type="button" data-review-submission="${escapeHtml(item.id)}">Review</button>
         </article>`;
@@ -158,14 +164,16 @@
   async function loadSupport() {
     const list = $("[data-support-list]");
     try {
-      const data = await api("/api/admin/support");
+      const data = await api(`/api/admin/support?page=${supportPage}&pageSize=12`);
       const conversations = data.conversations || [];
       if (!conversations.length) {
         list.innerHTML = '<div class="empty-state">No AI escalations or human support conversations yet.</div>';
+        window.BrownstoneAdmin?.renderSmartPagination?.("[data-support-pagination]", data.pagination, () => {});
         return;
       }
       list.innerHTML = conversations.map((item) => `<button type="button" class="support-conversation ${escapeHtml(item.status)}" data-support-id="${escapeHtml(item.id)}"><span>${escapeHtml(`${item.first_name} ${item.last_name}`)}</span><strong>${escapeHtml(statusLabel(item.topic || "general support"))}</strong><p>${escapeHtml((item.last_message || "No messages").slice(0, 150))}</p><small>${escapeHtml(statusLabel(item.status))} · ${escapeHtml(formatDate(item.last_message_at || item.updated_at))}</small></button>`).join("");
       $$('[data-support-id]').forEach((button) => button.addEventListener("click", () => openSupport(button.dataset.supportId)));
+      window.BrownstoneAdmin?.renderSmartPagination?.("[data-support-pagination]", data.pagination, (page) => { supportPage = page; loadSupport(); });
     } catch (error) { list.innerHTML = `<div class="empty-state">${escapeHtml(error.message)}</div>`; }
   }
 
@@ -198,8 +206,8 @@
       if (button.dataset.adminView === "submissions") loadSubmissions();
       if (button.dataset.adminView === "support") loadSupport();
     }));
-    $("[data-refresh-submissions]")?.addEventListener("click", loadSubmissions);
-    $("[data-submission-filter]")?.addEventListener("change", loadSubmissions);
+    $("[data-refresh-submissions]")?.addEventListener("click", () => { submissionPage = 1; loadSubmissions(); });
+    $("[data-submission-filter]")?.addEventListener("change", () => { submissionPage = 1; loadSubmissions(); });
     $("[data-open-task-assignment]")?.addEventListener("click", () => openAssignment());
     window.addEventListener("brownstone:assign-task", (event) => openAssignment(event.detail?.candidateId || ""));
     $$('[data-close-task-modal]').forEach((button) => button.addEventListener("click", () => $("#taskAssignmentModal").close()));

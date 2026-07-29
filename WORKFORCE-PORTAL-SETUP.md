@@ -291,7 +291,7 @@ Before deploying v10.0.3 Functions, apply:
 npx --yes wrangler@latest d1 migrations apply brownstone-workforce --remote
 ```
 
-Confirm both `0008_invitation_status_stage_templates.sql` and `0009_autonomous_operations.sql` are recorded. Migration `0008` adds persistent status/stage/template metadata and controlled access-enabled statuses; migration `0009` adds automation rules, run history, journey events, and operations-health snapshots.
+Confirm `0008_invitation_status_stage_templates.sql`, `0009_autonomous_operations.sql`, and `0010_mature_journey_orchestration.sql` are recorded. Migration `0010` adds the strict sequential journey, task-stage ownership, mature next directives, legacy stage backfill, and paging indexes.
 
 The Admin Invite form now selects:
 

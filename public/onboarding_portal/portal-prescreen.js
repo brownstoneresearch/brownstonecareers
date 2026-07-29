@@ -69,6 +69,7 @@
       const assignment = detail.assignment;
       if (assignment.status === "reviewed") {
         status.innerHTML = resultCard(assignment);
+        window.dispatchEvent(new CustomEvent("brownstone:journey-refresh"));
         return;
       }
       if (["submitted", "ai_scored"].includes(assignment.status)) {
@@ -93,7 +94,7 @@
     try {
       const response = await api({ method: "POST", body: JSON.stringify({ action, answers: collectAnswers() }) });
       result.textContent = response.message || (action === "submit" ? "Submitted successfully." : "Progress saved.");
-      if (action === "submit") await load();
+      if (action === "submit") { await load(); window.dispatchEvent(new CustomEvent("brownstone:journey-refresh")); }
     } catch (error) { result.textContent = error.message; }
   }
 

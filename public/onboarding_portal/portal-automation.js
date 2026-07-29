@@ -5,6 +5,8 @@
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
   let workflow = { configured: false, tasks: [], summary: { total: 0, done: 0, progress: 0 }, journeyStart: { required: false, satisfied: true } };
   let activeTask = null;
+  let workflowPage = 1;
+  const workflowPageSize = 6;
   let conversationId = sessionStorage.getItem("bcGuideConversation") || "";
 
   function escapeHtml(value = "") {
@@ -56,6 +58,37 @@
     return result;
   }
 
+  function taskPriority(task) {
+    if (task.locked) return 9;
+    if (task.status === "correction_required") return 0;
+    if (["assigned", "in_progress"].includes(task.status)) return 1;
+    if (task.status === "submitted") return 2;
+    return 3;
+  }
+
+  function renderWorkflowPagination(total) {
+    const nav = $("[data-workflow-pagination]");
+    if (!nav) return;
+    const pages = Math.max(1, Math.ceil(total / workflowPageSize));
+    workflowPage = Math.min(Math.max(1, workflowPage), pages);
+    if (pages <= 1) { nav.innerHTML = ""; nav.hidden = true; return; }
+    nav.hidden = false;
+    const windowStart = Math.max(1, Math.min(workflowPage - 2, pages - 4));
+    const windowEnd = Math.min(pages, windowStart + 4);
+    const pageButtons = [];
+    for (let page = windowStart; page <= windowEnd; page += 1) {
+      pageButtons.push(`<button type="button" class="${page === workflowPage ? "active" : ""}" data-workflow-page="${page}">${page}</button>`);
+    }
+    nav.innerHTML = `<button type="button" data-workflow-page="${workflowPage - 1}" ${workflowPage === 1 ? "disabled" : ""}>← Previous</button><span>Page ${workflowPage} of ${pages}</span>${pageButtons.join("")}<button type="button" data-workflow-page="${workflowPage + 1}" ${workflowPage === pages ? "disabled" : ""}>Next →</button>`;
+    $$('[data-workflow-page]', nav).forEach((button) => button.addEventListener("click", () => {
+      const page = Number(button.dataset.workflowPage);
+      if (!Number.isFinite(page) || page < 1 || page > pages) return;
+      workflowPage = page;
+      renderWorkflow();
+      $("[data-workflow-tasks]")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }));
+  }
+
   function renderWorkflow() {
     const container = $("[data-workflow-tasks]");
     if (!container) return;
@@ -78,7 +111,11 @@
       ? `<div class="application-first-banner"><span>01</span><div><strong>Your journey begins with the confidential application</strong><p>Complete and submit the application before the remaining onboarding tasks unlock.</p></div><button type="button" data-open-journey-start>Begin application</button></div>`
       : "";
 
-    container.innerHTML = journeyBanner + workflow.tasks.map((task) => {
+    const orderedTasks = [...workflow.tasks].sort((a, b) => taskPriority(a) - taskPriority(b) || Number(a.sort_order || 0) - Number(b.sort_order || 0) || String(a.title || "").localeCompare(String(b.title || "")));
+    const totalPages = Math.max(1, Math.ceil(orderedTasks.length / workflowPageSize));
+    workflowPage = Math.min(workflowPage, totalPages);
+    const pageTasks = orderedTasks.slice((workflowPage - 1) * workflowPageSize, workflowPage * workflowPageSize);
+    container.innerHTML = journeyBanner + pageTasks.map((task) => {
       const complete = ["approved", "completed", "waived"].includes(task.status);
       const pending = task.status === "submitted";
       const correction = task.status === "correction_required";
@@ -104,6 +141,7 @@
       </article>`;
     }).join("");
 
+    renderWorkflowPagination(orderedTasks.length);
     $$('[data-workflow-open]').forEach((button) => button.addEventListener("click", () => openTask(button.dataset.workflowOpen)));
     $("[data-open-journey-start]")?.addEventListener("click", () => openJourneyStart());
   }
@@ -123,6 +161,7 @@
     try {
       workflow = await request("/api/portal/workflow");
       renderWorkflow();
+      window.dispatchEvent(new CustomEvent("brownstone:journey-refresh"));
       const requestedView = location.hash.replace("#", "");
       if (workflow.journeyStart?.required && !workflow.journeyStart?.satisfied && (!requestedView || ["dashboard", "submissions"].includes(requestedView))) {
         openJourneyStart({ automatic: true });
@@ -231,6 +270,7 @@
         $("#workflowSubmissionModal").close();
         form.reset();
         loadWorkflow({ quiet: true });
+        window.dispatchEvent(new CustomEvent("brownstone:journey-refresh"));
       }, 900);
     } catch (error) {
       result.className = "workflow-form-result error";
@@ -309,6 +349,20 @@
   }
 
   function setupWorkflow() {
+    window.addEventListener("brownstone:open-task", async (event) => {
+      const id = event.detail?.candidateTaskId;
+      if (!id) return;
+      if (!workflow.tasks?.length) await loadWorkflow({ quiet: true });
+      const task = workflow.tasks.find((item) => item.candidate_task_id === id);
+      if (task) {
+        const ordered = [...workflow.tasks].sort((a, b) => taskPriority(a) - taskPriority(b) || Number(a.sort_order || 0) - Number(b.sort_order || 0));
+        const index = ordered.findIndex((item) => item.candidate_task_id === id);
+        workflowPage = Math.floor(Math.max(0, index) / workflowPageSize) + 1;
+        renderWorkflow();
+        window.BrownstonePortal?.showView?.("submissions");
+        window.setTimeout(() => openTask(id), 80);
+      }
+    });
     $("[data-workflow-refresh]")?.addEventListener("click", () => loadWorkflow());
     $$('[data-workflow-close]').forEach((button) => button.addEventListener("click", () => $("#workflowSubmissionModal").close()));
     $("[data-workflow-form]")?.addEventListener("submit", submitWorkflow);

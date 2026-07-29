@@ -21,16 +21,24 @@ export async function onRequestGet(context) {
       const messages = await db.prepare("SELECT * FROM support_messages WHERE conversation_id = ? ORDER BY created_at ASC").bind(id).all();
       return json({ conversation, messages: messages.results || [] });
     }
-    const rows = await db.prepare(`
-      SELECT sc.*, c.first_name, c.last_name, c.email, c.role,
-        (SELECT message FROM support_messages sm WHERE sm.conversation_id = sc.id ORDER BY sm.created_at DESC LIMIT 1) AS last_message,
-        (SELECT created_at FROM support_messages sm WHERE sm.conversation_id = sc.id ORDER BY sm.created_at DESC LIMIT 1) AS last_message_at
-      FROM support_conversations sc JOIN candidates c ON c.id = sc.candidate_id
-      ORDER BY CASE sc.status WHEN 'escalated' THEN 0 WHEN 'open' THEN 1 ELSE 2 END,
-               CASE sc.priority WHEN 'high' THEN 0 WHEN 'normal' THEN 1 ELSE 2 END,
-               sc.updated_at DESC LIMIT 250
-    `).all();
-    return json({ conversations: rows.results || [] });
+    const page = Math.max(1, Number(url.searchParams.get("page") || 1));
+    const pageSize = Math.min(50, Math.max(5, Number(url.searchParams.get("pageSize") || 12)));
+    const offset = (page - 1) * pageSize;
+    const [rows, count] = await Promise.all([
+      db.prepare(`
+        SELECT sc.*, c.first_name, c.last_name, c.email, c.role,
+          (SELECT message FROM support_messages sm WHERE sm.conversation_id = sc.id ORDER BY sm.created_at DESC LIMIT 1) AS last_message,
+          (SELECT created_at FROM support_messages sm WHERE sm.conversation_id = sc.id ORDER BY sm.created_at DESC LIMIT 1) AS last_message_at
+        FROM support_conversations sc JOIN candidates c ON c.id = sc.candidate_id
+        ORDER BY CASE sc.status WHEN 'escalated' THEN 0 WHEN 'open' THEN 1 ELSE 2 END,
+                 CASE sc.priority WHEN 'high' THEN 0 WHEN 'normal' THEN 1 ELSE 2 END,
+                 sc.updated_at DESC
+        LIMIT ? OFFSET ?
+      `).bind(pageSize, offset).all(),
+      db.prepare("SELECT COUNT(*) AS count FROM support_conversations").first(),
+    ]);
+    const total = Number(count?.count || 0);
+    return json({ conversations: rows.results || [], pagination: { page, pageSize, total, totalPages: Math.max(1, Math.ceil(total / pageSize)) } });
   } catch (error) {
     console.error("Support dashboard query failed", error?.message || error);
     return json({ message: "Support tables are unavailable. Apply migration 0004_workflow_ai_support.sql." }, 503);

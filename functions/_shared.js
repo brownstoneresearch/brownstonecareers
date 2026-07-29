@@ -8,7 +8,7 @@ import { auditEvent, generateCandidateId, hasWorkforceDb, nowIso } from "./_work
 import { productionUrls } from "./_domains.js";
 import { completeStage, recalculateCandidatePipeline } from "./_pipeline.js";
 
-const HANDLER_VERSION = "2026-07-29.10.0.5";
+const HANDLER_VERSION = "2026-07-29.10.1.0";
 const TURNSTILE_SITEKEY = "0x4AAAAAAEA0g9ELRe9IQHmp";
 const TURNSTILE_ACTION = "turnstile-spin-v2";
 const TURNSTILE_SITEVERIFY_URL = "https://challenges.cloudflare.com/turnstile/v0/siteverify";
@@ -76,7 +76,7 @@ export function health(env) {
     aiGenerativeConfigured: Boolean(env?.OPENAI_API_KEY),
     aiAssistantModel: clean(env?.OPENAI_MODEL || "gpt-5.6", 80),
     supabaseConfigured: Boolean(env?.SUPABASE_URL && (env?.SUPABASE_SECRET_KEY || env?.SUPABASE_SERVICE_ROLE_KEY)),
-    workflowMigrationRequired: "0009_autonomous_operations.sql",
+    workflowMigrationRequired: "0010_mature_journey_orchestration.sql",
     applicationFirstInvites: true,
     adminControlledManualInvites: true,
     rankedPipeline: true,
@@ -85,6 +85,9 @@ export function health(env) {
     aiPrescreenGradingConfigured: Boolean(env?.OPENAI_API_KEY),
     invitationStatusStageTemplates: true,
     persistentInvitationIdentity: true,
+    sequentialJourneyEnforced: true,
+    candidateNextDirective: true,
+    smartPagination: true,
     serviceUrls: productionUrls(env),
     service: "Brownstone Careers",
     runtime: "Cloudflare Pages Functions",

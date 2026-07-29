@@ -10,6 +10,12 @@
   let notificationInitialized = false;
   let notificationServerTime = "";
   let audioContext = null;
+  let rankingPage = 1;
+  let rankingPagination = { page: 1, totalPages: 1, total: 0 };
+  let prescreenPage = 1;
+  let prescreenPagination = { page: 1, totalPages: 1, total: 0 };
+  let notificationPage = 1;
+  let notificationPagination = { page: 1, totalPages: 1, total: 0 };
 
   const tonePatterns = {
     application: [[523.25, .12], [659.25, .14]],
@@ -54,12 +60,13 @@
     } catch {}
   }
 
-  function renderNotifications(items, unreadCount) {
+  function renderNotifications(items, unreadCount, pagination = notificationPagination) {
     const list = $("[data-admin-notification-list]");
     const count = $("[data-admin-notification-count]");
     if (count) { count.textContent = String(unreadCount || 0); count.hidden = !unreadCount; }
     if (!list) return;
     list.innerHTML = items.length ? items.map((item) => `<button type="button" class="admin-notification-item ${escapeHtml(item.tone_key)}" data-notification-id="${escapeHtml(item.id)}" data-notification-url="${escapeHtml(item.action_url || "")}"><i></i><div><span>${escapeHtml(statusLabel(item.stage_key || item.notification_type))}</span><strong>${escapeHtml(item.title)}</strong><p>${escapeHtml(item.message)}</p><small>${escapeHtml(formatDate(item.created_at))}</small></div></button>`).join("") : '<div class="empty-state">No unread administrator notifications.</div>';
+    admin()?.renderSmartPagination?.("[data-admin-notification-pagination]", pagination, (page) => { notificationPage = page; loadNotifications(false); });
     $$('[data-notification-id]', list).forEach((button) => button.addEventListener("click", async () => {
       await api("/api/admin/notifications", { method: "POST", body: JSON.stringify({ action: "mark-read", id: button.dataset.notificationId }) });
       const url = button.dataset.notificationUrl || "";
@@ -79,19 +86,16 @@
 
   async function loadNotifications(playNew = true) {
     try {
-      const params = new URLSearchParams({ status: "unread" });
-      if (notificationServerTime) params.set("since", notificationServerTime);
-      const data = await api(`/api/admin/notifications?${params}`);
-      if (notificationInitialized && playNew && data.notifications?.length) {
-        const ordered = [...data.notifications].reverse();
-        for (const item of ordered.slice(-4)) await playTone(item.tone_key);
+      if (notificationInitialized && playNew && notificationServerTime) {
+        const fresh = await api(`/api/admin/notifications?status=unread&since=${encodeURIComponent(notificationServerTime)}&page=1&pageSize=8`);
+        for (const item of [...(fresh.notifications || [])].reverse().slice(-4)) await playTone(item.tone_key);
       }
+      const data = await api(`/api/admin/notifications?status=unread&page=${notificationPage}&pageSize=8`);
       notificationInitialized = true;
       notificationServerTime = data.serverTime || notificationServerTime;
-      const all = notificationServerTime
-        ? await api("/api/admin/notifications?status=unread")
-        : data;
-      renderNotifications(all.notifications || [], all.unreadCount || 0);
+      notificationPagination = data.pagination || { page: notificationPage, totalPages: 1, total: data.notifications?.length || 0 };
+      notificationPage = Number(notificationPagination.page || notificationPage);
+      renderNotifications(data.notifications || [], data.unreadCount || 0, notificationPagination);
     } catch (error) { console.warn("Admin notification polling failed", error.message); }
   }
 
@@ -109,13 +113,16 @@
     if (!body) return;
     body.innerHTML = '<tr><td colspan="7"><div class="empty-state">Calculating pipeline rankings…</div></td></tr>';
     try {
-      const params = new URLSearchParams({ stage: $("[data-ranking-stage]")?.value || "all", role: $("[data-ranking-role]")?.value || "all" });
+      const params = new URLSearchParams({ stage: $("[data-ranking-stage]")?.value || "all", role: $("[data-ranking-role]")?.value || "all", page: String(rankingPage), pageSize: "20" });
       const data = await api(`/api/admin/rankings?${params}`);
       rankings = data.rankings || [];
-      const roles = [...new Set(rankings.map((item) => item.role).filter(Boolean))].sort();
+      rankingPagination = data.pagination || { page: rankingPage, totalPages: 1, total: rankings.length };
+      rankingPage = Number(rankingPagination.page || rankingPage);
+      const roles = (data.roles || [...new Set(rankings.map((item) => item.role).filter(Boolean))]).sort();
       const roleSelect = $("[data-ranking-role]");
       if (roleSelect && roleSelect.options.length <= 1) roleSelect.insertAdjacentHTML("beforeend", roles.map((role) => `<option value="${escapeHtml(role)}">${escapeHtml(role)}</option>`).join(""));
       body.innerHTML = rankings.length ? rankings.map((candidate) => `<tr><td><span class="rank-number">#${Number(candidate.pipeline_rank || 0)}</span></td><td><strong>${escapeHtml(`${candidate.first_name} ${candidate.last_name}`)}</strong><small>${escapeHtml(candidate.email)} · ${escapeHtml(candidate.id)}</small></td><td>${escapeHtml(candidate.role || "—")}</td><td><span class="status-pill ${escapeHtml(candidate.status)}">${escapeHtml(statusLabel(candidate.recruitment_stage))}</span></td><td><div class="rank-score"><strong>${Number(candidate.pipeline_score || 0).toFixed(1)}%</strong><div class="progress-line"><i style="width:${Math.max(0, Math.min(100, Number(candidate.pipeline_score || 0)))}%"></i></div><small>${Number(candidate.completed_stage_count || 0)}/${Number(candidate.total_ranked_stages || 8)} weighted stages complete${Number(candidate.in_progress_stage_count || 0) ? ` · ${Number(candidate.in_progress_stage_count)} in progress` : ""}${candidate.prescreening_score == null ? " · Pre-screen pending" : ` · Pre-screen ${Number(candidate.prescreening_score).toFixed(1)}%`}</small></div></td><td><div class="rank-stage-dots">${stageDots(candidate, data.stages || [])}</div></td><td><button class="table-action" type="button" data-ranked-candidate="${escapeHtml(candidate.id)}">Open →</button></td></tr>`).join("") : '<tr><td colspan="7"><div class="empty-state">No candidates match these ranking filters.</div></td></tr>';
+      admin()?.renderSmartPagination?.("[data-ranking-pagination]", rankingPagination, (page) => { rankingPage = page; loadRankings(); });
       $$('[data-ranked-candidate]', body).forEach((button) => button.addEventListener("click", () => { admin().setView("candidates"); admin().openCandidate(button.dataset.rankedCandidate); }));
     } catch (error) { body.innerHTML = `<tr><td colspan="7"><div class="empty-state">${escapeHtml(error.message)}</div></td></tr>`; }
   }
@@ -130,15 +137,15 @@
     queue.innerHTML = '<div class="empty-state">Loading pre-screening queue…</div>';
     try {
       const status = $("[data-prescreen-filter]")?.value || "all";
-      const data = await api(`/api/admin/prescreen?status=${encodeURIComponent(status)}`);
+      const data = await api(`/api/admin/prescreen?status=${encodeURIComponent(status)}&page=${prescreenPage}&pageSize=12`);
       assignments = data.assignments || [];
-      const counts = { assigned: 0, submitted: 0, ai_scored: 0, reviewed: 0 };
-      for (const item of assignments) {
-        if (["assigned", "in_progress"].includes(item.status)) counts.assigned += 1;
-        else if (counts[item.status] != null) counts[item.status] += 1;
-      }
+      prescreenPagination = data.pagination || { page: prescreenPage, totalPages: 1, total: assignments.length };
+      prescreenPage = Number(prescreenPagination.page || prescreenPage);
+      const serverCounts = data.counts || {};
+      const counts = { assigned: Number(serverCounts.assigned || 0) + Number(serverCounts.in_progress || 0), submitted: Number(serverCounts.submitted || 0), ai_scored: Number(serverCounts.ai_scored || 0), reviewed: Number(serverCounts.reviewed || 0) };
       Object.entries(counts).forEach(([key, value]) => { const node = $(`[data-prescreen-count="${key}"]`); if (node) node.textContent = value; });
       queue.innerHTML = assignments.length ? assignments.map(assignmentCard).join("") : '<div class="empty-state">No pre-screening assignments match this filter.</div>';
+      admin()?.renderSmartPagination?.("[data-prescreen-pagination]", prescreenPagination, (page) => { prescreenPage = page; loadPrescreenQueue(); });
       $$('[data-prescreen-review]', queue).forEach((button) => button.addEventListener("click", () => openPrescreenReview(button.dataset.prescreenReview)));
     } catch (error) { queue.innerHTML = `<div class="empty-state">${escapeHtml(error.message)}</div>`; }
   }
@@ -326,11 +333,11 @@
       if (button.dataset.adminView === "rankings") loadRankings();
       if (button.dataset.adminView === "prescreen") loadPrescreenQueue();
     }));
-    $("[data-refresh-rankings]")?.addEventListener("click", loadRankings);
-    $("[data-ranking-stage]")?.addEventListener("change", loadRankings);
-    $("[data-ranking-role]")?.addEventListener("change", loadRankings);
-    $("[data-refresh-prescreen]")?.addEventListener("click", loadPrescreenQueue);
-    $("[data-prescreen-filter]")?.addEventListener("change", loadPrescreenQueue);
+    $("[data-refresh-rankings]")?.addEventListener("click", () => { rankingPage = 1; loadRankings(); });
+    $("[data-ranking-stage]")?.addEventListener("change", () => { rankingPage = 1; loadRankings(); });
+    $("[data-ranking-role]")?.addEventListener("change", () => { rankingPage = 1; loadRankings(); });
+    $("[data-refresh-prescreen]")?.addEventListener("click", () => { prescreenPage = 1; loadPrescreenQueue(); });
+    $("[data-prescreen-filter]")?.addEventListener("change", () => { prescreenPage = 1; loadPrescreenQueue(); });
     $("[data-assign-prescreen]")?.addEventListener("click", openAssignment);
     $("[data-manage-prescreen]")?.addEventListener("click", openManager);
     $$('[data-close-prescreen-assignment]').forEach((button) => button.addEventListener("click", () => $("#prescreenAssignmentModal").close()));
@@ -341,7 +348,7 @@
     $("[data-generate-ai-grade]")?.addEventListener("click", generateAiGrade);
     $("[data-admin-notification-toggle]")?.addEventListener("click", () => { const panel = $("[data-admin-notification-panel]"); if (!panel) return; panel.classList.add("open"); panel.setAttribute("aria-hidden", "false"); loadNotifications(false); });
     $("[data-admin-notification-close]")?.addEventListener("click", () => { const panel = $("[data-admin-notification-panel]"); if (!panel) return; panel.classList.remove("open"); panel.setAttribute("aria-hidden", "true"); });
-    $("[data-admin-notification-read-all]")?.addEventListener("click", async () => { await api("/api/admin/notifications", { method: "POST", body: JSON.stringify({ action: "mark-all-read" }) }); await loadNotifications(false); });
+    $("[data-admin-notification-read-all]")?.addEventListener("click", async () => { await api("/api/admin/notifications", { method: "POST", body: JSON.stringify({ action: "mark-all-read" }) }); notificationPage = 1; await loadNotifications(false); });
     loadNotifications(false);
     setInterval(() => loadNotifications(true), 30000);
     const hash = location.hash;

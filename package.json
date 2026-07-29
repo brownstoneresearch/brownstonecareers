@@ -1,6 +1,6 @@
 {
   "name": "brownstone-careers-pages",
-  "version": "10.0.5",
+  "version": "10.1.0",
   "private": true,
   "description": "Brownstone Careers autonomous recruitment operating system with production-hardened workforce administration, canonical Cloudflare Turnstile siteverify protection, governed workflow automation, ranked stage intelligence, administrator-managed AI evaluation, private onboarding, unified communications, scheduled operations health, and human-controlled hiring decisions.",
   "type": "module",

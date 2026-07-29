@@ -1,4 +1,5 @@
 import { readSession } from "../../_portal-auth.js";
+import { getCandidateJourney } from "../../_journey.js";
 import { createAdminNotification, markStageInProgress, recalculateCandidatePipeline } from "../../_pipeline.js";
 import { auditEvent, clean, hasWorkforceDb, json, nowIso } from "../../_workforce-db.js";
 
@@ -71,6 +72,11 @@ export async function onRequestPost(context) {
   try { payload = await context.request.json(); } catch { return json({ message: "Invalid pre-screening request." }, 400); }
   const action = clean(payload.action, 40);
   const db = context.env.WORKFORCE_DB;
+  const journey = await getCandidateJourney(context.env, session.id);
+  const prescreenStage = journey?.stages?.find((stage) => stage.key === "pre_screening");
+  if (prescreenStage?.locked || prescreenStage?.access === "blocked") {
+    return json({ message: `Pre-screening is locked. ${journey?.directive?.message || "Complete the current stage first."}`, currentStage: journey?.currentStage?.key, directive: journey?.directive }, 409);
+  }
   const detail = await loadAssignment(db, session.id);
   if (!detail) return json({ message: "No pre-screening assignment is available." }, 404);
   if (["reviewed", "submitted", "ai_scored"].includes(detail.assignment.status) && action !== "read") {

@@ -8,7 +8,7 @@
   <meta name="theme-color" content="#061735">
   <title>Workforce Administration | Brownstone Careers</title>
   <link rel="icon" href="/assets/brand-logo-icon-new.webp" type="image/webp">
-  <link rel="stylesheet" href="/workforce_admin/admin.css?v=10.0.4">
+  <link rel="stylesheet" href="/workforce_admin/admin.css?v=10.1.0">
 </head>
 <body>
   <div class="admin-shell">
@@ -88,6 +88,7 @@
             <tbody data-candidate-table></tbody>
           </table>
         </div>
+        <nav class="smart-pagination" data-candidate-pagination aria-label="Candidate pages"></nav>
       </section>
 
 
@@ -102,6 +103,7 @@
         <div class="section-heading"><div><span>RECRUITMENT PIPELINE RANKINGS</span><h1>Rank candidates by verified stage completion.</h1><p>Pipeline position is based on completed recruitment stages, administrator-reviewed pre-screening results, and approved onboarding progress—not protected personal characteristics.</p></div><button class="secondary-button" type="button" data-refresh-rankings>Refresh rankings</button></div>
         <div class="candidate-toolbar"><select data-ranking-stage><option value="all">All stages</option><option value="application_received">Application</option><option value="pre_screening">Pre-screening</option><option value="assessment">Assessment</option><option value="interview">Interview</option><option value="offer">Offer</option><option value="verification">Verification</option><option value="onboarding">Onboarding</option><option value="orientation">Orientation</option><option value="active_worker">Active worker</option></select><select data-ranking-role><option value="all">All roles</option></select></div>
         <div class="table-wrap admin-card ranking-table-wrap"><table><thead><tr><th>Rank</th><th>Candidate</th><th>Role</th><th>Current stage</th><th>Pipeline score</th><th>Stage completion</th><th></th></tr></thead><tbody data-ranking-table><tr><td colspan="7"><div class="empty-state">Loading candidate rankings…</div></td></tr></tbody></table></div>
+        <nav class="smart-pagination" data-ranking-pagination aria-label="Ranking pages"></nav>
       </section>
 
       <section class="admin-view" data-view="prescreen">
@@ -109,6 +111,7 @@
         <div class="workflow-admin-metrics"><article class="admin-card"><span>AWAITING ANSWERS</span><strong data-prescreen-count="assigned">0</strong></article><article class="admin-card"><span>READY TO GRADE</span><strong data-prescreen-count="submitted">0</strong></article><article class="admin-card"><span>AI DRAFT READY</span><strong data-prescreen-count="ai_scored">0</strong></article><article class="admin-card"><span>REVIEWED</span><strong data-prescreen-count="reviewed">0</strong></article></div>
         <div class="candidate-toolbar"><select data-prescreen-filter><option value="all">All pre-screening statuses</option><option value="assigned">Assigned</option><option value="in_progress">In progress</option><option value="submitted">Ready to grade</option><option value="ai_scored">AI draft ready</option><option value="reviewed">Reviewed</option></select><button class="secondary-button" type="button" data-refresh-prescreen>Refresh</button></div>
         <div class="admin-card prescreen-queue" data-prescreen-queue><div class="empty-state">Loading pre-screening queue…</div></div>
+        <nav class="smart-pagination" data-prescreen-pagination aria-label="Pre-screening pages"></nav>
       </section>
 
       <section class="admin-view" data-view="submissions">
@@ -120,19 +123,20 @@
         </div>
         <div class="candidate-toolbar"><select data-submission-filter><option value="all">All submission statuses</option><option value="submitted">Awaiting review</option><option value="correction_required">Correction required</option><option value="approved">Approved</option><option value="rejected">Rejected</option></select><button type="button" class="secondary-button" data-refresh-submissions>Refresh</button></div>
         <div class="admin-card submission-review-list" data-submission-list><div class="empty-state">Loading submission queue…</div></div>
+        <nav class="smart-pagination" data-submission-pagination aria-label="Submission pages"></nav>
       </section>
 
       <section class="admin-view" data-view="support">
         <div class="section-heading"><div><span>BROWNSTONE GUIDE &amp; HUMAN SUPPORT</span><h1>Monitor AI assistance and intervene when people need a representative.</h1><p>The assistant handles routine onboarding guidance, blocks sensitive chat input, and escalates material issues for accountable human follow-up.</p></div></div>
         <div class="support-layout">
-          <div class="admin-card support-queue" data-support-list><div class="empty-state">Loading support conversations…</div></div>
+          <div><div class="admin-card support-queue" data-support-list><div class="empty-state">Loading support conversations…</div></div><nav class="smart-pagination" data-support-pagination aria-label="Support conversation pages"></nav></div>
           <div class="admin-card support-transcript" data-support-transcript><div class="empty-state">Select a conversation to review the transcript.</div></div>
         </div>
       </section>
 
       <section class="admin-view" data-view="activity">
         <div class="section-heading"><div><span>AUDIT &amp; ACCOUNTABILITY</span><h1>Material activity, preserved for review.</h1><p>The log tracks sign-ins, submissions, document access, status changes, invitation actions, and administrative decisions without recording passwords, complete SSNs, or document contents.</p></div></div>
-        <div class="admin-card"><div class="activity-list full" data-full-activity></div></div>
+        <div class="candidate-toolbar"><label><span class="sr-only">Search activity</span><input type="search" placeholder="Search event or description…" data-activity-search></label><button type="button" class="secondary-button" data-refresh-activity>Refresh activity</button></div><div class="admin-card"><div class="activity-list full" data-full-activity></div></div><nav class="smart-pagination" data-activity-pagination aria-label="Activity pages"></nav>
       </section>
 
       <section class="admin-view" data-view="settings">
@@ -236,7 +240,7 @@
     </form>
   </dialog>
 
-  <aside class="admin-notification-panel" data-admin-notification-panel aria-hidden="true"><div class="notification-panel-head"><div><span>STAGE ALERTS</span><h2>Administrator notifications</h2></div><button type="button" data-admin-notification-close aria-label="Close notifications">×</button></div><div class="notification-panel-actions"><button type="button" data-admin-notification-read-all>Mark all read</button><label><input type="checkbox" data-admin-tone-enabled checked> Stage tones</label></div><div data-admin-notification-list><div class="empty-state">No unread notifications.</div></div></aside>
+  <aside class="admin-notification-panel" data-admin-notification-panel aria-hidden="true"><div class="notification-panel-head"><div><span>STAGE ALERTS</span><h2>Administrator notifications</h2></div><button type="button" data-admin-notification-close aria-label="Close notifications">×</button></div><div class="notification-panel-actions"><button type="button" data-admin-notification-read-all>Mark all read</button><label><input type="checkbox" data-admin-tone-enabled checked> Stage tones</label></div><div data-admin-notification-list><div class="empty-state">No unread notifications.</div></div><nav class="smart-pagination notification-pagination" data-admin-notification-pagination aria-label="Notification pages"></nav></aside>
 
   <aside class="candidate-drawer" data-candidate-drawer aria-hidden="true">
     <div class="drawer-head"><div><span>CANDIDATE RECORD</span><h2 data-drawer-name>Candidate</h2><small data-drawer-id></small></div><button type="button" data-close-drawer aria-label="Close">×</button></div>
@@ -244,9 +248,9 @@
   </aside>
   <div class="drawer-overlay" data-drawer-overlay></div>
   <div class="admin-toast" data-admin-toast role="status" aria-live="polite"></div>
-  <script src="/workforce_admin/admin.js?v=10.0.4" defer></script>
-  <script src="/workforce_admin/admin-workflow.js?v=10.0.4" defer></script>
-  <script src="/workforce_admin/admin-scale.js?v=10.0.4" defer></script>
-  <script src="/workforce_admin/admin-autopilot.js?v=10.0.4" defer></script>
+  <script src="/workforce_admin/admin.js?v=10.1.0" defer></script>
+  <script src="/workforce_admin/admin-workflow.js?v=10.1.0" defer></script>
+  <script src="/workforce_admin/admin-scale.js?v=10.1.0" defer></script>
+  <script src="/workforce_admin/admin-autopilot.js?v=10.1.0" defer></script>
 </body>
 </html>

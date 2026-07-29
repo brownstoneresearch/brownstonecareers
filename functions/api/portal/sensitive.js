@@ -1,4 +1,5 @@
 import { readSession } from "../../_portal-auth.js";
+import { getCandidateJourney } from "../../_journey.js";
 import { encryptSensitiveValue } from "../../_pii.js";
 import {
   auditEvent,
@@ -86,6 +87,11 @@ export async function onRequestPost(context) {
   if (!session) return json({ message: "Candidate authentication required." }, 401);
   if (!hasWorkforceDb(context.env) || !context.env.PRIVATE_DOCUMENTS || !context.env.PII_ENCRYPTION_KEY) {
     return json({ message: "Secure identity submission has not been activated by the administrator." }, 503);
+  }
+  const journey = await getCandidateJourney(context.env, session.id);
+  const verificationStage = journey?.stages?.find((stage) => stage.key === "verification");
+  if (verificationStage?.locked || verificationStage?.access === "blocked") {
+    return json({ message: `Secure verification is locked. ${journey?.directive?.message || "Complete the current stage first."}`, currentStage: journey?.currentStage?.key, directive: journey?.directive }, 409);
   }
 
   const form = await context.request.formData();

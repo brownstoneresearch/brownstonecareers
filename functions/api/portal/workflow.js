@@ -8,7 +8,8 @@ import {
   nowIso,
   updateCandidateActivity,
 } from "../../_workforce-db.js";
-import { completeStage, markStageInProgress, recalculateAllRanks, recalculateCandidatePipeline } from "../../_pipeline.js";
+import { createAdminNotification, markStageInProgress, recalculateAllRanks, recalculateCandidatePipeline } from "../../_pipeline.js";
+import { getCandidateJourney } from "../../_journey.js";
 
 const FINAL_STATUSES = new Set(["approved", "completed", "waived"]);
 const APPLICATION_TASK_ID = "confidential-candidate-application";
@@ -136,7 +137,7 @@ async function loadTasks(env, candidateId) {
            ct.signature_name, ct.signature_at,
            t.id AS task_id, t.title, t.description, t.category, t.requires_submission,
            t.requires_signature, t.requires_admin_review, t.form_schema_json, t.instructions,
-           t.sort_order
+           COALESCE(t.stage_key, 'onboarding') AS stage_key, t.sort_order
     FROM candidate_tasks ct
     JOIN onboarding_tasks t ON t.id = ct.task_id
     WHERE ct.candidate_id = ?
@@ -164,15 +165,19 @@ async function loadTasks(env, candidateId) {
     formSchema: parseJson(task.form_schema_json, { fields: [] }),
     submission: byTask.get(task.candidate_task_id) || null,
   }));
-  const applicationTask = normalized.find((task) => task.task_id === APPLICATION_TASK_ID);
-  const applicationSatisfied = !applicationTask || APPLICATION_UNLOCK_STATUSES.has(applicationTask.status);
-  return normalized.map((task) => ({
-    ...task,
-    locked: task.task_id !== APPLICATION_TASK_ID && !applicationSatisfied,
-    lock_reason: task.task_id !== APPLICATION_TASK_ID && !applicationSatisfied
-      ? "Complete and submit the confidential candidate application first."
-      : null,
-  }));
+  const journey = await getCandidateJourney(env, candidateId);
+  const currentStageIndex = journey?.stages?.findIndex((stage) => stage.access === "current") ?? 0;
+  const stageIndex = new Map((journey?.stages || []).map((stage, index) => [stage.key, index]));
+  return normalized.map((task) => {
+    const taskStageIndex = stageIndex.get(task.stage_key) ?? stageIndex.get("onboarding") ?? 0;
+    const locked = taskStageIndex > currentStageIndex;
+    const blockedBy = journey?.stages?.[currentStageIndex]?.label || "the current stage";
+    return {
+      ...task,
+      locked,
+      lock_reason: locked ? `Complete ${blockedBy} before this ${task.stage_key.replaceAll("_", " ")} task unlocks.` : null,
+    };
+  });
 }
 
 export async function onRequestGet(context) {
@@ -185,15 +190,17 @@ export async function onRequestGet(context) {
     const candidate = await getCandidateById(context.env, session.id);
     if (!candidate) return json({ message: "Candidate record not found." }, 404);
     await ensureCandidateTasks(context.env, candidate);
-    const [tasks, summary] = await Promise.all([
+    const [tasks, summary, journey] = await Promise.all([
       loadTasks(context.env, candidate.id),
       calculateProgress(context.env, candidate.id),
+      getCandidateJourney(context.env, candidate.id),
     ]);
     const applicationTask = tasks.find((task) => task.task_id === APPLICATION_TASK_ID) || null;
     return json({
       configured: true,
       tasks,
       summary,
+      journey,
       journeyStart: applicationTask ? {
         required: true,
         taskId: applicationTask.task_id,
@@ -237,22 +244,23 @@ export async function onRequestPost(context) {
   if (!VALID_ACTIONS.has(action) || !candidateTaskId) return json({ message: "Unsupported workflow action." }, 400);
 
   const task = await context.env.WORKFORCE_DB.prepare(`
-    SELECT ct.*, t.title, t.requires_signature, t.requires_admin_review, t.form_schema_json
+    SELECT ct.*, t.title, t.requires_signature, t.requires_admin_review, t.form_schema_json,
+           COALESCE(t.stage_key, 'onboarding') AS stage_key
     FROM candidate_tasks ct JOIN onboarding_tasks t ON t.id = ct.task_id
     WHERE ct.id = ? AND ct.candidate_id = ? LIMIT 1
   `).bind(candidateTaskId, session.id).first();
   if (!task) return json({ message: "Assigned task not found." }, 404);
-  if (task.task_id !== APPLICATION_TASK_ID) {
-    const applicationTask = await context.env.WORKFORCE_DB.prepare(`
-      SELECT status FROM candidate_tasks
-      WHERE candidate_id = ? AND task_id = ? LIMIT 1
-    `).bind(session.id, APPLICATION_TASK_ID).first();
-    if (applicationTask && !APPLICATION_UNLOCK_STATUSES.has(applicationTask.status)) {
-      return json({
-        message: "Begin with the confidential candidate application. Submit it before opening other onboarding tasks.",
-        journeyStartRequired: true,
-      }, 409);
-    }
+  const journeyGate = await getCandidateJourney(context.env, session.id);
+  const currentStageIndex = journeyGate?.stages?.findIndex((stage) => stage.access === "current") ?? 0;
+  const taskStageIndex = journeyGate?.stages?.findIndex((stage) => stage.key === task.stage_key) ?? 0;
+  if (taskStageIndex > currentStageIndex) {
+    const currentLabel = journeyGate?.stages?.[currentStageIndex]?.label || "the current stage";
+    return json({
+      message: `This task is locked. Complete ${currentLabel} before moving to the next stage.`,
+      stageLocked: true,
+      currentStage: journeyGate?.currentStage?.key || null,
+      directive: journeyGate?.directive || null,
+    }, 409);
   }
   const timestamp = nowIso();
 
@@ -343,7 +351,7 @@ export async function onRequestPost(context) {
           role = COALESCE(NULLIF(?, ''), role),
           application_source = COALESCE(NULLIF(application_source, ''), 'confidential_portal_application'),
           application_submitted_at = COALESCE(application_submitted_at, ?),
-          recruitment_stage = CASE WHEN recruitment_stage = 'application_received' THEN 'pre_screening' ELSE recruitment_stage END,
+          recruitment_stage = CASE WHEN recruitment_stage = 'application_received' THEN 'application' ELSE recruitment_stage END,
           updated_at = ?, last_activity_at = ?
       WHERE id = ?
     `).bind(
@@ -352,19 +360,23 @@ export async function onRequestPost(context) {
       clean(responses.sponsorshipRequired, 30), clean(responses.role, 160),
       timestamp, timestamp, timestamp, session.id,
     ).run();
-    await completeStage(context.env, {
-      candidateId: session.id,
-      stageKey: "application",
-      source: "confidential_portal_application",
-      score: 100,
-      notes: "Candidate submitted the authenticated confidential application.",
-      candidateName: `${candidate?.first_name || "Candidate"} ${candidate?.last_name || ""}`.trim(),
-    });
     await markStageInProgress(context.env, {
       candidateId: session.id,
-      stageKey: "pre_screening",
-      source: "confidential_application_submitted",
-      completionPercent: 0,
+      stageKey: "application",
+      source: "confidential_portal_application_submitted",
+      completionPercent: 90,
+      notes: "Candidate submitted the authenticated confidential application and is waiting for administrator approval.",
+    });
+    const candidateName = `${candidate?.first_name || "Candidate"} ${candidate?.last_name || ""}`.trim();
+    await createAdminNotification(context.env, {
+      candidateId: session.id,
+      notificationType: "application_submitted",
+      stageKey: "application",
+      toneKey: "application",
+      title: "Confidential application ready for review",
+      message: `${candidateName} submitted the confidential application. Approve it before pre-screening can unlock.`,
+      actionUrl: `/workforce_admin/#candidate=${encodeURIComponent(session.id)}`,
+      uniqueKey: `application-submitted:${session.id}:${submissionId}`,
     });
     pipeline = await recalculateCandidatePipeline(context.env, session.id);
     await recalculateAllRanks(context.env);

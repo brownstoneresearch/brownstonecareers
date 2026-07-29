@@ -9,7 +9,7 @@
   <meta name="description" content="Private Brownstone Careers candidate onboarding workspace for documents, training, orientation, and professional development.">
   <title>Candidate Onboarding Portal | Brownstone Careers</title>
   <link rel="icon" href="/assets/brand-logo-icon-new.webp" type="image/webp">
-  <link rel="stylesheet" href="/onboarding_portal/portal.css">
+  <link rel="stylesheet" href="/onboarding_portal/portal.css?v=10.1.0">
 </head>
 <body class="portal-body">
   <a class="skip-link" href="#portalMain">Skip to portal content</a>
@@ -81,6 +81,18 @@
               <div class="identity-pulse"><i></i><i></i><i></i></div>
             </div>
           </div>
+          <section class="journey-command-center" data-journey-command aria-live="polite">
+            <div class="journey-command-icon" data-journey-directive-icon>→</div>
+            <div class="journey-command-copy">
+              <span data-journey-stage-label>CURRENT STAGE</span>
+              <h2 data-journey-directive-title>Loading your next directive…</h2>
+              <p data-journey-directive-message>Your secure journey status is being synchronized.</p>
+              <div class="journey-command-meta"><b data-journey-position>Stage — of —</b><small data-journey-waiting></small></div>
+            </div>
+            <button class="journey-command-action" type="button" data-journey-directive-action>View next step <span>→</span></button>
+          </section>
+
+          <div class="journey-stage-rail" data-journey-stage-rail aria-label="Recruitment stage progress"></div>
 
           <div class="dashboard-grid">
             <article class="surface-card progress-card">
@@ -175,6 +187,7 @@
             <button class="secondary-action" type="button" data-workflow-refresh>Refresh status</button>
           </div>
           <div class="workflow-task-grid" data-workflow-tasks><div class="workflow-loading">Loading assigned tasks…</div></div>
+          <nav class="smart-pagination portal-pagination" data-workflow-pagination aria-label="Task pages" hidden></nav>
           <div class="surface-card notice-panel"><strong>Submission integrity</strong><p>Complete your own work, use the legal-name signature field only for yourself, and never place SSNs, passwords, banking credentials, or full ID numbers in ordinary task responses or the AI chat.</p></div>
         </section>
 
@@ -272,8 +285,9 @@
       </main>
 
       <aside class="notification-panel" data-notification-panel aria-hidden="true">
-        <div class="notification-head"><div><span>UPDATES</span><h2>Notifications</h2></div><button type="button" data-notification-close aria-label="Close notifications">×</button></div>
-        <div class="notification-list"><article><span>NOW</span><h3>Welcome to your secure application portal</h3><p>Begin with the confidential candidate application. Remaining onboarding tasks unlock after submission.</p></article><article><span>SECURITY</span><h3>Protect your information</h3><p>Never share passwords, PINs, or full banking credentials in community messages.</p></article><article><span>COMMUNITY</span><h3>Teams access is available</h3><p>Join the official Brownstone Careers community when instructed.</p></article></div>
+        <div class="notification-head"><div><span>UPDATES</span><h2>Notifications</h2></div><div class="notification-head-actions"><button type="button" data-notification-read-all>Mark all read</button><button type="button" data-notification-close aria-label="Close notifications">×</button></div></div>
+        <div class="notification-list" data-candidate-notification-list><div class="workflow-loading">Loading secure updates…</div></div>
+        <nav class="smart-pagination notification-pagination" data-candidate-notification-pagination aria-label="Notification pages" hidden></nav>
       </aside>
 
       <button class="guide-launcher" type="button" data-guide-launcher aria-expanded="false"><span>✦</span><b>Brownstone Guide</b><i>AI</i></button>
@@ -311,8 +325,9 @@
   </dialog>
 
   <div class="toast" role="status" aria-live="polite" data-toast></div>
-  <script src="/onboarding_portal/portal.js" defer></script>
-  <script src="/onboarding_portal/portal-automation.js" defer></script>
-  <script src="/onboarding_portal/portal-prescreen.js" defer></script>
+  <script src="/onboarding_portal/portal.js?v=10.1.0" defer></script>
+  <script src="/onboarding_portal/portal-automation.js?v=10.1.0" defer></script>
+  <script src="/onboarding_portal/portal-prescreen.js?v=10.1.0" defer></script>
+  <script src="/onboarding_portal/portal-journey.js?v=10.1.0" defer></script>
 </body>
 </html>

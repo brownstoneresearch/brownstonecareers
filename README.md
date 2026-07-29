@@ -1,4 +1,4 @@
-# Brownstone Careers Workforce Platform v10.0.4
+# Brownstone Careers Workforce Platform v10.1.0
 
 Brownstone Careers operates as one connected workforce system with four service identities:
 
@@ -18,7 +18,9 @@ The standard public path remains application-first:
 
 Authorized administrators can also create a first-time **Manual invitation** for an arbitrary name and email. Manual invitations require an explicit confirmation, a meaningful business reason, the authenticated administrator ID, and a timestamp. The invite form includes controlled **Initial status** and **Starting stage** selections. D1 prevents every access-enabled application-less status unless all override controls are present and the approving administrator is active. Each valid status/stage selection has an exclusive branded email variant that always contains the unchanged candidate ID and a personal access code. The confidential portal application remains available as the privacy-controlled record, and pre-screening assignments remain administrator managed.
 
-## Ranked recruitment pipeline
+## Mature sequential candidate journey
+
+Every candidate follows one server-enforced sequence. A future stage remains locked until all prior stages are verified complete. After each submission, the candidate dashboard publishes one exact directive: complete the next action, correct a returned submission, or wait for an administrator result. Application submission does not unlock pre-screening until an administrator approves the confidential application.
 
 Candidates are ranked by verified stage completion across:
 
@@ -26,7 +28,7 @@ Application → Pre-screening → Skills assessment → Interview → Offer → 
 
 The ranking is a workflow-progress tool. It does not use protected characteristics and does not make an automated hiring decision. Pre-screening scores are displayed separately from completion rank.
 
-Every completed stage creates an administrator notification with a distinct optional browser tone and a direct link to the candidate record.
+Every completed stage creates an administrator notification with a distinct optional browser tone and a direct link to the candidate record. Smart pagination is enabled for candidate, ranking, pre-screening, submission, support, notification, audit, onboarding-task, and candidate-notification queues.
 
 ## Administrator-managed pre-screening
 
@@ -74,7 +76,7 @@ Never place candidate SSNs, government ID numbers, banking information, password
 
 ## Autonomous operations
 
-Migration `0009_autonomous_operations.sql` adds governed automation rules, run history, candidate journey events, and operations-health snapshots. The separate `brownstone-careers-autopilot` Worker uses the same D1 database and runs every 15 minutes. Deploy it with `scripts/configure-autopilot.sh`, which now always passes the dedicated Worker configuration explicitly and cannot be mistaken for a Pages command.
+Migration `0009_autonomous_operations.sql` adds governed automation rules, run history, candidate journey events, and operations-health snapshots. Migration `0010_mature_journey_orchestration.sql` adds task-to-stage ownership, server-enforced stage order, journey initialization, legacy-stage backfill, and pagination indexes. The separate `brownstone-careers-autopilot` Worker uses the same D1 database and runs every 15 minutes. Deploy it with `scripts/configure-autopilot.sh`, which always passes the dedicated Worker configuration explicitly and cannot be mistaken for a Pages command.
 
 ## Local validation
 
@@ -87,9 +89,9 @@ The production build is written to `dist/`.
 
 ## Deployment order
 
-1. Read `DEPLOY-v10.0.4.md` and `WORKFORCE-PORTAL-SETUP.md`.
+1. Read `DEPLOY-v10.1.0.md` and `WORKFORCE-PORTAL-SETUP.md`.
 2. Preserve the existing `WORKFORCE_DB` and `PRIVATE_DOCUMENTS` bindings.
-3. Apply every D1 migration through `0009_autonomous_operations.sql` **before** deploying the v10.0.4 Functions.
+3. Apply every D1 migration through `0010_mature_journey_orchestration.sql` **before** deploying the v10.1.0 Functions.
 4. Keep the existing `PII_ENCRYPTION_KEY`; never replace it after encrypted records exist.
 5. Keep only the shared encrypted `RESEND_API_KEY` for email delivery.
 6. Add `OPENAI_API_KEY` when generative Brownstone Guide and AI-assisted pre-screening drafts are required.

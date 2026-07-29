@@ -7,6 +7,9 @@
   let capabilities = {};
   let permissions = [];
   let selectedCandidate = null;
+  let candidatePage = 1;
+  let candidatePagination = { page: 1, totalPages: 1, total: 0, pageSize: 20 };
+  let activityPage = 1;
 
   const invitationStatusRules = Object.freeze({
     invited: ["application_received", "pre_screening", "assessment", "interview", "offer", "verification", "onboarding", "orientation", "active_worker"],
@@ -58,6 +61,34 @@
     return permissions.includes("*") || permissions.includes(permission);
   }
 
+
+  function renderSmartPagination(selector, pagination, onPage) {
+    const nav = $(selector);
+    if (!nav) return;
+    const page = Number(pagination?.page || 1);
+    const pages = Math.max(1, Number(pagination?.totalPages || 1));
+    const total = Number(pagination?.total || 0);
+    if (pages <= 1) { nav.hidden = true; nav.innerHTML = total ? `<span>${total} record${total === 1 ? "" : "s"}</span>` : ""; return; }
+    nav.hidden = false;
+    const start = Math.max(1, Math.min(page - 2, pages - 4));
+    const end = Math.min(pages, start + 4);
+    const buttons = [];
+    for (let value = start; value <= end; value += 1) buttons.push(`<button type="button" class="${value === page ? "active" : ""}" data-page="${value}">${value}</button>`);
+    nav.innerHTML = `<button type="button" data-page="${page - 1}" ${page === 1 ? "disabled" : ""}>← Previous</button><span>${total.toLocaleString("en-US")} records · Page ${page} of ${pages}</span>${buttons.join("")}<button type="button" data-page="${page + 1}" ${page === pages ? "disabled" : ""}>Next →</button>`;
+    $$('[data-page]', nav).forEach((button) => button.addEventListener("click", () => {
+      const target = Number(button.dataset.page);
+      if (!Number.isFinite(target) || target < 1 || target > pages || target === page) return;
+      onPage(target);
+    }));
+  }
+
+  function journeyBoardHtml(journey) {
+    if (!journey?.stages?.length) return '<p>Journey orchestration data is not yet available.</p>';
+    const directive = journey.directive || {};
+    const type = directive.type || "waiting";
+    return `<div class="admin-journey-command ${escapeHtml(type)}"><div class="admin-directive-icon">${type === "action" ? "→" : type === "correction" ? "!" : type === "complete" ? "✓" : "⌛"}</div><div><span>NEXT DIRECTIVE · ${escapeHtml(statusLabel(journey.currentStage?.label || journey.currentStage?.key || "stage"))}</span><h4>${escapeHtml(directive.title || "Review candidate journey")}</h4><p>${escapeHtml(directive.message || "Confirm the current stage evidence before advancing.")}</p>${directive.waitingFor ? `<small>Waiting for: ${escapeHtml(directive.waitingFor)}</small>` : ""}</div></div>
+      <div class="admin-journey-grid">${journey.stages.map((stage, index) => `<article class="admin-journey-stage ${escapeHtml(stage.access || stage.status)}"><i>${stage.status === "completed" ? "✓" : String(index + 1).padStart(2, "0")}</i><div><strong>${escapeHtml(stage.label)}</strong><small>${escapeHtml(stage.status === "completed" ? "Verified complete" : stage.access === "current" ? "Current controlled stage" : stage.locked ? `Locked by ${statusLabel(stage.blockedBy || "previous stage")}` : statusLabel(stage.access || "pending"))}</small><p>${escapeHtml(stage.evidenceReason || "Administrator evidence required.")}</p></div><b>${Math.round(Number(stage.percent || 0))}%</b></article>`).join("")}</div>`;
+  }
   function toast(message) {
     const element = $("[data-admin-toast]");
     if (!element) return;
@@ -111,10 +142,10 @@
   function setView(view) {
     $$("[data-view]").forEach((element) => element.classList.toggle("active", element.dataset.view === view));
     $$("[data-admin-view]").forEach((button) => button.classList.toggle("active", button.dataset.adminView === view));
-    $("[data-page-title]").textContent = ({ overview: "Workforce overview", candidates: "Candidate management", rankings: "Candidate rankings", prescreen: "Pre-screening management", submissions: "Submission review", support: "AI & human support", activity: "Audit activity", settings: "System status" })[view] || "Administration";
+    $("[data-page-title]").textContent = ({ overview: "Workforce overview", candidates: "Candidate management", autopilot: "Autonomous operations", rankings: "Candidate rankings", prescreen: "Pre-screening management", submissions: "Submission review", support: "AI & human support", activity: "Audit activity", settings: "System status" })[view] || "Administration";
     $("#adminSidebar").classList.remove("open");
     if (view === "candidates") loadCandidates();
-    if (view === "activity") renderFullActivity();
+    if (view === "activity") loadActivity();
   }
 
   async function loadSession() {
@@ -138,6 +169,9 @@
       ["Recruitment email", emailChannels.recruitment, "Applications, contact submissions, and public confirmations"],
       ["Controlled invitation origins", capabilities.applicationFirstInvites && capabilities.adminControlledManualInvites, "Invite from a submitted application or use an audited administrator manual override with a recorded reason"],
       ["Ranked recruitment pipeline", capabilities.rankedPipeline, "Candidates are ranked by verified stage completion—not by protected traits or an automated hiring decision"],
+      ["Sequential journey gates", capabilities.sequentialJourneyEnforced, "Every stage is server-locked until all prior stages are verified complete"],
+      ["Candidate next directive", capabilities.candidateNextDirective, "Candidates always see whether to act, correct, or wait for an official result"],
+      ["Smart queue pagination", capabilities.smartPagination, "Candidate, ranking, pre-screening, submission, support, notification, and audit queues are paginated"],
       ["Stage completion alerts", capabilities.stageNotifications, "Every completed stage creates an administrator notification with a distinct optional tone"],
       ["Managed pre-screening", capabilities.prescreenManagement, capabilities.aiPrescreenGrading ? "Administrator-managed questions with optional AI rubric drafts and mandatory human final review" : "Administrator-managed questions and human review are ready; OPENAI_API_KEY enables advisory rubric drafts"],
       ["Candidate invitation email", emailChannels.candidateInvites, "Protected portal credentials sent through the unified Resend channel"],
@@ -187,19 +221,32 @@
     $("[data-recent-activity]").innerHTML = list.length ? list.map(activityRow).join("") : '<div class="empty-state">No material activity recorded yet.</div>';
   }
 
-  function renderFullActivity() {
-    const list = summary?.recentActivity || [];
-    $("[data-full-activity]").innerHTML = list.length ? list.map(activityRow).join("") : '<div class="empty-state">No material activity recorded yet.</div>';
+  async function loadActivity() {
+    const target = $("[data-full-activity]");
+    const search = $("[data-activity-search]")?.value.trim() || "";
+    if (target) target.innerHTML = '<div class="empty-state">Loading audit activity…</div>';
+    try {
+      const params = new URLSearchParams({ page: String(activityPage), pageSize: "20", search });
+      const data = await api(`/api/admin/activity?${params}`);
+      const items = data.activity || [];
+      if (target) target.innerHTML = items.length ? items.map(activityRow).join("") : '<div class="empty-state">No material activity matches this view.</div>';
+      renderSmartPagination("[data-activity-pagination]", data.pagination, (page) => { activityPage = page; loadActivity(); });
+    } catch (error) {
+      if (target) target.innerHTML = `<div class="empty-state">${escapeHtml(error.message)}</div>`;
+    }
   }
 
   async function loadCandidates() {
-    const search = $("[data-candidate-search]").value.trim();
-    const status = $("[data-status-filter]").value;
-    const params = new URLSearchParams({ search, status, limit: "100" });
+    const search = $("[data-candidate-search]")?.value.trim() || "";
+    const status = $("[data-status-filter]")?.value || "all";
+    const params = new URLSearchParams({ search, status, page: String(candidatePage), pageSize: "20" });
     try {
       const data = await api(`/api/admin/candidates?${params}`);
       candidates = data.candidates || [];
+      candidatePagination = data.pagination || { page: candidatePage, pageSize: 20, total: candidates.length, totalPages: 1 };
+      candidatePage = Number(candidatePagination.page || candidatePage);
       renderCandidateTable();
+      renderSmartPagination("[data-candidate-pagination]", candidatePagination, (page) => { candidatePage = page; loadCandidates(); });
     } catch (error) {
       toast(error.message);
       $("[data-candidate-table]").innerHTML = `<tr><td colspan="6"><div class="empty-state">${escapeHtml(error.message)}</div></td></tr>`;
@@ -215,7 +262,7 @@
     body.innerHTML = candidates.map((candidate) => {
       const name = `${candidate.first_name || ""} ${candidate.last_name || ""}`.trim() || "Candidate";
       const progress = Number(candidate.pipeline_score ?? candidate.onboarding_progress ?? 0);
-      return `<tr><td><strong>${escapeHtml(name)}</strong><small>${escapeHtml(candidate.email || "")} · ${escapeHtml(candidate.id)}</small></td><td>${escapeHtml(candidate.role || "—")}</td><td><span class="status-pill ${escapeHtml(candidate.status || "")}">${escapeHtml(statusLabel(candidate.recruitment_stage || candidate.status))}</span></td><td class="progress-cell"><strong>${candidate.pipeline_rank ? `#${Number(candidate.pipeline_rank)} · ` : ""}${progress}%</strong><div class="progress-line"><i style="width:${Math.max(0, Math.min(100, progress))}%"></i></div></td><td>${escapeHtml(formatDate(candidate.last_activity_at || candidate.created_at))}</td><td><button class="table-action" type="button" data-candidate-id="${escapeHtml(candidate.id)}">Open →</button></td></tr>`;
+      return `<tr><td><strong>${escapeHtml(name)}</strong><small>${escapeHtml(candidate.email || "")} · ${escapeHtml(candidate.id)}</small></td><td>${escapeHtml(candidate.role || "—")}</td><td><span class="status-pill ${escapeHtml(candidate.status || "")}">${escapeHtml(statusLabel(candidate.recruitment_stage || candidate.status))}</span><small class="stage-lock-copy">Sequential stage ${escapeHtml(statusLabel(candidate.recruitment_stage || "application"))}</small></td><td class="progress-cell"><strong>${candidate.pipeline_rank ? `#${Number(candidate.pipeline_rank)} · ` : ""}${progress}%</strong><div class="progress-line"><i style="width:${Math.max(0, Math.min(100, progress))}%"></i></div><small>Verified journey completion</small></td><td>${escapeHtml(formatDate(candidate.last_activity_at || candidate.created_at))}</td><td><button class="table-action" type="button" data-candidate-id="${escapeHtml(candidate.id)}">Open journey →</button></td></tr>`;
     }).join("");
     $$('[data-candidate-id]', body).forEach((button) => button.addEventListener("click", () => openCandidate(button.dataset.candidateId)));
   }
@@ -257,18 +304,19 @@
     const accessActions = latestInvite
       ? (can("invitation.manage") ? '<div class="drawer-actions"><button class="primary-button" type="button" data-regenerate-code>Regenerate and email code</button><button class="secondary-button" type="button" data-revoke-access>Revoke access</button></div>' : '<p class="permission-note">Your role has read-only access to invitations.</p>')
       : (applicationEligible && can("candidate.invite") ? `<button class="primary-button" type="button" data-invite-from-application="${escapeHtml(candidate.id)}">Invite from this application</button>` : '');
-    return `<div class="drawer-summary"><div><span>Status</span><strong>${escapeHtml(statusLabel(candidate.status))}</strong></div><div><span>Stage</span><strong>${escapeHtml(statusLabel(candidate.recruitment_stage))}</strong></div><div><span>Pipeline score</span><strong>${Number(candidate.pipeline_score ?? candidate.onboarding_progress ?? 0)}%</strong></div><div><span>Rank</span><strong>${candidate.pipeline_rank ? `#${Number(candidate.pipeline_rank)}` : "—"}</strong></div></div>
+    return `<div class="drawer-summary"><div><span>Status</span><strong>${escapeHtml(statusLabel(candidate.status))}</strong></div><div><span>Stage</span><strong>${escapeHtml(statusLabel(data.journey?.currentStage?.label || candidate.recruitment_stage))}</strong></div><div><span>Pipeline score</span><strong>${Number(candidate.pipeline_score ?? candidate.onboarding_progress ?? 0)}%</strong></div><div><span>Rank</span><strong>${candidate.pipeline_rank ? `#${Number(candidate.pipeline_rank)}` : "—"}</strong></div></div>
+      <section class="drawer-section journey-control-section"><div class="drawer-section-heading"><div><span>ORDERED RECRUITMENT JOURNEY</span><h3>Stage control and next directive</h3></div><strong>${Number(data.journey?.completedCount || 0)}/${Number(data.journey?.totalStages || 9)}</strong></div>${journeyBoardHtml(data.journey)}</section>
       <section class="drawer-section application-origin-section"><h3>Application origin</h3>${applicationOrigin}${candidate.invited_from_application_at ? `<p><strong>Invitation created from application:</strong> ${escapeHtml(formatDate(candidate.invited_from_application_at))}</p>` : ""}</section>
       <section class="drawer-section"><h3>Candidate details</h3><p><strong>Role:</strong> ${escapeHtml(candidate.role || "—")}<br><strong>Phone:</strong> ${escapeHtml(candidate.phone || "—")}<br><strong>Location:</strong> ${escapeHtml([candidate.city, candidate.state_province, candidate.country].filter(Boolean).join(", ") || "—")}<br><strong>Last activity:</strong> ${escapeHtml(formatDate(candidate.last_activity_at || candidate.created_at))}</p></section>
       <section class="drawer-section"><h3>Personal access</h3><p>${latestInvite ? `Latest invitation: <strong>${escapeHtml(statusLabel(latestInvite.status))}</strong><br>Candidate ID: <strong>${escapeHtml(candidate.id)}</strong><br>Code ending: <strong>••••${escapeHtml(latestInvite.code_hint || "")}</strong><br>Selected status: <strong>${escapeHtml(statusLabel(latestInvite.initial_status || candidate.invitation_status_key || candidate.status))}</strong><br>Selected stage: <strong>${escapeHtml(statusLabel(latestInvite.initial_stage || candidate.invitation_stage_key || candidate.recruitment_stage))}</strong><br>Template: <strong>${escapeHtml(statusLabel(latestInvite.template_key || candidate.invitation_template_key || "secure-application.invited"))}</strong><br>Expires: ${escapeHtml(formatDate(latestInvite.expires_at))}` : "No invitation exists."}</p>${accessActions}</section>
 
-      <section class="drawer-section"><h3>Recruitment stage progress</h3>${stageProgress.length ? `<div class="candidate-stage-timeline">${stageProgress.map((stage) => `<article class="candidate-stage-row ${escapeHtml(stage.status)}"><i>${stage.status === "completed" ? "✓" : ""}</i><div><strong>${escapeHtml(statusLabel(stage.stage_key))}</strong><small>${Number(stage.completion_percent || 0)}%${stage.score == null ? "" : ` · score ${Number(stage.score).toFixed(1)}%`} · ${escapeHtml(statusLabel(stage.source || "system"))}</small>${stage.notes ? `<p>${escapeHtml(stage.notes)}</p>` : ""}</div></article>`).join("")}</div>` : "<p>No stage milestones recorded yet.</p>"}</section>
+      <section class="drawer-section"><h3>Stage audit history</h3>${stageProgress.length ? `<div class="candidate-stage-timeline">${stageProgress.map((stage) => `<article class="candidate-stage-row ${escapeHtml(stage.status)}"><i>${stage.status === "completed" ? "✓" : ""}</i><div><strong>${escapeHtml(statusLabel(stage.stage_key))}</strong><small>${Number(stage.completion_percent || 0)}%${stage.score == null ? "" : ` · score ${Number(stage.score).toFixed(1)}%`} · ${escapeHtml(statusLabel(stage.source || "system"))}</small>${stage.notes ? `<p>${escapeHtml(stage.notes)}</p>` : ""}</div></article>`).join("")}</div>` : "<p>No stage milestones recorded yet.</p>"}</section>
       <section class="drawer-section"><h3>Pre-screening history</h3>${prescreens.length ? prescreens.map((item) => `<div class="document-row"><div><strong>${escapeHtml(item.question_set_title || "Pre-screening")}</strong><small>${escapeHtml(statusLabel(item.status))}${item.final_score == null ? "" : ` · ${Number(item.final_score).toFixed(1)}%`} · ${escapeHtml(formatDate(item.submitted_at || item.due_at))}</small></div>${can("prescreen.read") ? `<button class="table-action" type="button" data-open-prescreen-assignment="${escapeHtml(item.id)}">Open →</button>` : ""}</div>`).join("") : "<p>No pre-screening assignment has been recorded.</p>"}</section>
       <section class="drawer-section"><h3>Secure identity status</h3><p>${identity ? `Verification: <strong>${escapeHtml(statusLabel(identity.verification_status))}</strong><br>SSN on file: <strong>${escapeHtml(identity.maskedSsn || "Not submitted")}</strong><br>Submitted: ${escapeHtml(formatDate(identity.submitted_at))}` : "Sensitive identity details have not been submitted."}</p>${identity && can("identity.review") ? `<div class="drawer-actions"><button class="primary-button" type="button" data-identity-approve>Approve identity</button><button class="secondary-button" type="button" data-identity-correction>Request correction</button></div>` : ""}</section>
       <section class="drawer-section"><h3>Private documents</h3>${documents.length ? documents.map((document) => `<div class="document-row"><div><strong>${escapeHtml(statusLabel(document.category))}</strong><small>${escapeHtml(document.filename)} · ${escapeHtml(statusLabel(document.status))}</small></div>${can("document.view") ? `<a href="/api/admin/document?id=${encodeURIComponent(document.id)}" target="_blank" rel="noopener">Download securely</a>` : '<span class="permission-note">Restricted</span>'}</div>`).join("") : "<p>No private documents submitted.</p>"}</section>
       <section class="drawer-section"><div class="drawer-section-heading"><h3>Assigned tasks and submissions</h3><button class="secondary-button compact-button" type="button" data-assign-candidate-task="${escapeHtml(candidate.id)}">Assign task</button></div><div data-candidate-workflow-panel><div class="empty-state">Loading task history…</div></div></section>
-      ${can("candidate.status") ? '<section class="drawer-section"><h3>Status and stage</h3><div class="form-grid"><label>Status<select data-update-status><option value="applicant">Applicant</option><option value="approved">Approved</option><option value="invited" disabled>Invited (managed by access workflow)</option><option value="onboarding">Onboarding</option><option value="correction_required">Correction required</option><option value="completed">Completed</option><option value="active">Active</option><option value="suspended">Suspended</option><option value="rejected">Rejected</option></select></label><label>Stage<select data-update-stage><option value="application_received">Application received</option><option value="pre_screening">Pre-screening</option><option value="assessment">Assessment</option><option value="interview">Interview</option><option value="offer">Offer</option><option value="verification">Verification</option><option value="onboarding">Onboarding</option><option value="orientation">Orientation</option><option value="active_worker">Active worker</option></select></label></div><button class="primary-button" type="button" data-save-status>Save status</button></section>' : ''}
-      ${can("candidate.stage") ? `<section class="drawer-section stage-completion-section"><h3>Complete current stage</h3><p>Completing a stage creates an administrator alert with its unique sound, updates the ranking score, and advances the candidate.</p><div class="form-grid"><label>Stage score<input data-stage-score type="number" min="0" max="100" step="0.1" value="100"></label><label class="full">Completion note<textarea data-stage-note rows="3" placeholder="Record the job-related evidence supporting completion."></textarea></label></div><button class="primary-button" type="button" data-complete-stage>Complete stage and advance</button></section>` : ""}
+      ${can("candidate.status") ? '<section class="drawer-section"><h3>Status and stage</h3><div class="form-grid"><label>Status<select data-update-status><option value="applicant">Applicant</option><option value="approved">Approved</option><option value="invited" disabled>Invited (managed by access workflow)</option><option value="onboarding">Onboarding</option><option value="correction_required">Correction required</option><option value="completed">Completed</option><option value="active">Active</option><option value="suspended">Suspended</option><option value="rejected">Rejected</option></select></label><label>Stage (controlled by completion)<select data-update-stage disabled><option value="application_received">Application received</option><option value="pre_screening">Pre-screening</option><option value="assessment">Assessment</option><option value="interview">Interview</option><option value="offer">Offer</option><option value="verification">Verification</option><option value="onboarding">Onboarding</option><option value="orientation">Orientation</option><option value="active_worker">Active worker</option></select></label></div><button class="primary-button" type="button" data-save-status>Save status</button></section>' : ''}
+      ${can("candidate.stage") ? `<section class="drawer-section stage-completion-section"><h3>Verify and complete current stage</h3><p>The next stage remains locked until the current stage evidence is complete. Completion creates a unique stage alert, recalculates ranking, notifies the candidate, and publishes their next directive.</p><div class="form-grid"><label>Stage score<input data-stage-score type="number" min="0" max="100" step="0.1" value="100"></label><label class="full">Completion note<textarea data-stage-note rows="3" placeholder="Record the job-related evidence supporting completion."></textarea></label></div><button class="primary-button" type="button" data-complete-stage>Complete stage and advance</button></section>` : ""}
       ${can("correction.request") ? '<section class="drawer-section"><h3>Request correction</h3><textarea rows="4" placeholder="Explain what the candidate should update…" data-correction-message></textarea><button class="secondary-button" type="button" data-request-correction>Send correction request</button></section>' : ''}
       <section class="drawer-section"><h3>Recent candidate activity</h3><div class="activity-list">${activity.length ? activity.slice(0, 20).map(activityRow).join("") : '<div class="empty-state">No activity recorded.</div>'}</div></section>`;
   }
@@ -296,11 +344,13 @@
     const stage = $("[data-update-stage]");
     if (status) status.value = candidate.status;
     if (stage) stage.value = candidate.recruitment_stage;
+    const journeyStageKey = data.journey?.currentStage?.key || candidate.recruitment_stage;
+    const journeyStageLabel = data.journey?.currentStage?.label || statusLabel(candidate.recruitment_stage);
     $$(`[data-open-prescreen-assignment]`).forEach((button) => button.addEventListener("click", () => { closeDrawer(); setView("prescreen"); location.hash = `prescreen=${encodeURIComponent(button.dataset.openPrescreenAssignment)}`; window.dispatchEvent(new CustomEvent("brownstone:open-prescreen", { detail: { id: button.dataset.openPrescreenAssignment } })); }));
     $("[data-invite-from-application]")?.addEventListener("click", () => openInviteModal(candidate.id));
     $("[data-save-status]")?.addEventListener("click", async () => {
       try {
-        await api("/api/admin/candidates", { method: "PATCH", body: JSON.stringify({ action: "update-status", candidateId: candidate.id, status: status.value, stage: stage.value }) });
+        await api("/api/admin/candidates", { method: "PATCH", body: JSON.stringify({ action: "update-status", candidateId: candidate.id, status: status.value, stage: candidate.recruitment_stage }) });
         toast("Candidate status updated.");
         await refreshAfterAction(candidate.id);
       } catch (error) { toast(error.message); }
@@ -308,10 +358,10 @@
     $("[data-complete-stage]")?.addEventListener("click", async () => {
       const scoreValue = Number($("[data-stage-score]")?.value || 100);
       const note = $("[data-stage-note]")?.value.trim() || "Stage requirements reviewed and completed by administrator.";
-      if (!confirm(`Complete ${statusLabel(candidate.recruitment_stage)} and advance this candidate?`)) return;
+      if (!confirm(`Complete ${journeyStageLabel} and unlock the next controlled stage for this candidate?`)) return;
       try {
-        const result = await api("/api/admin/candidates", { method: "PATCH", body: JSON.stringify({ action: "complete-stage", candidateId: candidate.id, stageKey: candidate.recruitment_stage, score: scoreValue, notes: note, advance: true }) });
-        toast(`${statusLabel(result.stage?.label || candidate.recruitment_stage)} completed. Ranking updated.`);
+        const result = await api("/api/admin/candidates", { method: "PATCH", body: JSON.stringify({ action: "complete-stage", candidateId: candidate.id, stageKey: journeyStageKey, score: scoreValue, notes: note, advance: true }) });
+        toast(`${statusLabel(result.stage?.label || journeyStageLabel)} completed. The next directive is now live.`);
         await refreshAfterAction(candidate.id);
       } catch (error) { toast(error.message); }
     });
@@ -408,7 +458,8 @@
     const statusSelect = $("[data-invite-status]");
     const stageSelect = $("[data-invite-stage]");
     if (!statusSelect || !stageSelect) return;
-    const allowed = invitationStatusRules[statusSelect.value] || invitationStatusRules.invited;
+    const applicationMode = $('[name="invitationMode"]:checked')?.value !== "manual";
+    const allowed = applicationMode ? ["application_received"] : (invitationStatusRules[statusSelect.value] || invitationStatusRules.invited);
     [...stageSelect.options].forEach((option) => {
       option.disabled = !allowed.includes(option.value);
       option.hidden = !allowed.includes(option.value);
@@ -436,6 +487,16 @@
     if (manualFields) manualFields.hidden = applicationMode;
     const applicationSelect = $("[data-application-select]");
     if (applicationSelect) applicationSelect.required = applicationMode;
+    const stageSelect = $("[data-invite-stage]");
+    const statusSelect = $("[data-invite-status]");
+    if (applicationMode && stageSelect) {
+      stageSelect.value = "application_received";
+      [...stageSelect.options].forEach((option) => { option.hidden = option.value !== "application_received"; option.disabled = option.value !== "application_received"; });
+      if (statusSelect) statusSelect.value = "invited";
+    } else {
+      enforceInvitationSelection();
+    }
+    renderInvitationTemplatePreview();
     $$('[data-invite-manual-fields] input, [data-invite-manual-fields] select, [data-invite-manual-fields] textarea').forEach((field) => {
       field.required = !applicationMode && ["firstName", "lastName", "email", "role", "manualInviteReason", "adminOverrideConfirmed"].includes(field.name);
     });
@@ -507,11 +568,13 @@
     $$('[data-admin-view]').forEach((button) => button.addEventListener("click", () => setView(button.dataset.adminView)));
     $("[data-jump-candidates]")?.addEventListener("click", () => setView("candidates"));
     $("[data-admin-menu]")?.addEventListener("click", () => $("#adminSidebar")?.classList.toggle("open"));
-    $("[data-refresh-candidates]")?.addEventListener("click", loadCandidates);
+    $("[data-refresh-candidates]")?.addEventListener("click", () => { candidatePage = 1; loadCandidates(); });
+    $("[data-refresh-activity]")?.addEventListener("click", () => { activityPage = 1; loadActivity(); });
+    $("[data-activity-search]")?.addEventListener("input", debounce(() => { activityPage = 1; loadActivity(); }, 300));
     $("[data-admin-retry]")?.addEventListener("click", () => location.reload());
     let timer;
-    $("[data-candidate-search]")?.addEventListener("input", () => { clearTimeout(timer); timer = setTimeout(loadCandidates, 280); });
-    $("[data-status-filter]")?.addEventListener("change", loadCandidates);
+    $("[data-candidate-search]")?.addEventListener("input", () => { clearTimeout(timer); timer = setTimeout(() => { candidatePage = 1; loadCandidates(); }, 280); });
+    $("[data-status-filter]")?.addEventListener("change", () => { candidatePage = 1; loadCandidates(); });
     $("[data-close-drawer]")?.addEventListener("click", closeDrawer);
     $("[data-drawer-overlay]")?.addEventListener("click", closeDrawer);
   }
@@ -524,7 +587,7 @@
     overlay?.classList.remove("open");
   }
 
-  window.BrownstoneAdmin = { api, openCandidate, setView, loadCandidates, loadSummary, toast, can, escapeHtml, formatDate, statusLabel };
+  window.BrownstoneAdmin = { api, openCandidate, setView, loadCandidates, loadSummary, toast, can, escapeHtml, formatDate, statusLabel, renderSmartPagination };
 
   async function init() {
     setupNavigation();

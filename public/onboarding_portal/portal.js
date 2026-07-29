@@ -166,6 +166,10 @@
   }
 
   function showView(name, push = true) {
+    if (window.BrownstoneJourney && !window.BrownstoneJourney.canOpen(name)) {
+      window.BrownstoneJourney.blocked(name);
+      return;
+    }
     const target = $(`[data-view="${name}"]`);
     if (!target) return;
     $$('[data-view]').forEach((view) => view.classList.toggle("active", view === target));
@@ -222,6 +226,7 @@
       : percent >= 60
         ? "Strong progress. Finish the remaining milestones with the same care."
         : "Each completed milestone moves you closer to workforce readiness.";
+    if (window.BrownstoneJourney?.rendered) return;
     const next = taskDefinitions.find((task) => !isTaskComplete(task.id));
     $("[data-next-title]").textContent = next ? next.title : "Onboarding ready for review";
     $("[data-next-description]").textContent = next ? next.description : "Your administrator can now review completion and advance your workforce status.";
@@ -229,6 +234,10 @@
   }
 
   function renderRoadmaps() {
+    if (window.BrownstoneJourney?.rendered) {
+      window.BrownstoneJourney.render?.();
+      return;
+    }
     const percent = completion().percent;
     const currentStage = Math.min(journeyStages.length - 1, Math.floor(percent / 10) + 5);
     const mini = $("[data-mini-roadmap]");
@@ -554,6 +563,8 @@
       }
     };
   }
+
+  window.BrownstonePortal = { showView, toast, renderAll };
 
   async function init() {
     try {

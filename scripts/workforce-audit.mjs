@@ -48,6 +48,17 @@ const [applicationHtml, contactHtml, publicScript, portalHtml, portalScript, por
   read("emails/index.js"),
 ]);
 
+const [migration10, journeyRuntime, portalJourneyApi, adminJourneyApi, portalJourneyScript, portalStateApi, portalSensitiveApi, adminActivityApi] = await Promise.all([
+  read("migrations/0010_mature_journey_orchestration.sql"),
+  read("functions/_journey.js"),
+  read("functions/api/portal/journey.js"),
+  read("functions/api/admin/journey.js"),
+  read("public/onboarding_portal/portal-journey.js"),
+  read("functions/api/portal/state.js"),
+  read("functions/api/portal/sensitive.js"),
+  read("functions/api/admin/activity.js"),
+]);
+
 for (const prohibited of ["ssnLast4", "motherMaidenName", 'name="idFront"', 'name="idBack"', 'name="ssn"']) {
   assert.ok(!applicationHtml.includes(prohibited), `Public application still contains ${prohibited}`);
   assert.ok(!publicScript.includes(prohibited), `Public application JavaScript still contains ${prohibited}`);
@@ -112,13 +123,41 @@ assert.match(migration9, /CREATE TABLE IF NOT EXISTS automation_rules/);
 assert.match(migration9, /CREATE TABLE IF NOT EXISTS automation_runs/);
 assert.match(migration9, /CREATE TABLE IF NOT EXISTS candidate_journey_events/);
 assert.match(migration9, /CREATE TABLE IF NOT EXISTS operations_health_snapshots/);
-assert.match(sharedRuntime, /workflowMigrationRequired:\s*"0009_autonomous_operations\.sql"/);
+assert.match(migration10, /ALTER TABLE onboarding_tasks ADD COLUMN stage_key/);
+assert.match(migration10, /v10_1_sequence_backfill/);
+assert.match(migration10, /idx_candidates_pipeline_page/);
+assert.match(journeyRuntime, /validateStageCompletion/);
+assert.match(journeyRuntime, /validateStageTransition/);
+assert.match(journeyRuntime, /candidateTaskId/);
+assert.match(journeyRuntime, /Final workforce activation pending/);
+assert.match(portalJourneyApi, /getCandidateJourney/);
+assert.match(adminJourneyApi, /getCandidateJourney/);
+assert.match(portalJourneyScript, /brownstone:open-task/);
+assert.match(portalJourneyScript, /paginationMarkup/);
+assert.match(workflowApi, /This task is locked/);
+assert.match(portalStateApi, /is locked\./);
+assert.match(portalSensitiveApi, /Secure verification is locked/);
+assert.match(adminWorkflowApi, /confidential_application_approved/);
+assert.match(adminWorkflowApi, /application_approved/);
+assert.match(adminCandidatesApi, /validateStageCompletion/);
+assert.match(adminCandidatesApi, /validateStageTransition/);
+assert.match(adminRankingsApi, /pageSize/);
+assert.match(adminNotificationsApi, /totalPages/);
+assert.match(adminHtml, /data-candidate-pagination/);
+assert.match(adminHtml, /data-ranking-pagination/);
+assert.match(adminHtml, /data-support-pagination/);
+assert.match(adminHtml, /data-activity-pagination/);
+assert.match(adminActivityApi, /LIMIT \? OFFSET \?/);
+assert.match(adminSupportApi, /pagination/);
+assert.match(portalHtml, /data-journey-command/);
+assert.match(portalHtml, /data-workflow-pagination/);
+assert.match(sharedRuntime, /workflowMigrationRequired:\s*"0010_mature_journey_orchestration\.sql"/);
 assert.match(adminAutopilot, /\/api\/admin\/autopilot/);
 assert.ok(!adminAutopilot.includes("e.currentTarget.disabled"), "Autopilot must not dereference event.currentTarget after an await");
 assert.match(adminAutopilot, /const runButton = \$/);
 assert.match(adminScale, /if \(!button \|\| !result\)/);
 assert.match(adminScript, /if \(submit\) submit\.disabled/);
-assert.match(adminHtml, /admin-autopilot\.js\?v=10\.0\.4/);
+assert.match(adminHtml, /admin-autopilot\.js\?v=10\.1\.0/);
 assert.match(autopilotApi, /runAutopilot/);
 assert.match(autopilotRuntime, /automation_runs/);
 assert.match(configureAutopilot, /--config\s+automation-worker\/wrangler\.toml/);
@@ -131,9 +170,10 @@ assert.match(assistantApi, /Never ask for or repeat SSNs/i);
 assert.match(workflowApi, /signature/i);
 assert.match(workflowApi, /uploadWorkflowFile/);
 assert.match(workflowApi, /APPLICATION_TASK_ID/);
-assert.match(workflowApi, /Begin with the confidential candidate application/);
+assert.match(workflowApi, /waiting for administrator approval/);
 assert.match(workflowApi, /confidential_portal_application/);
-assert.match(workflowApi, /completeStage/);
+assert.match(workflowApi, /createAdminNotification/);
+assert.ok(!workflowApi.includes("completeStage"), "Candidate application submission must wait for administrator approval before stage completion");
 assert.match(adminCandidatesApi, /application_submitted_at IS NOT NULL/);
 assert.match(adminCandidatesApi, /candidate\.invited_from_application/);
 assert.match(adminCandidatesApi, /candidate\.invited_by_admin_override/);
@@ -159,7 +199,7 @@ assert.match(adminPrescreenApi, /humanReviewConfirmed/);
 assert.match(adminPrescreenApi, /advisory/i);
 assert.match(adminPrescreenApi, /protected characteristic/i);
 assert.match(adminPrescreenApi, /applicationRequired/);
-assert.match(adminPrescreenApi, /confidential portal application before pre-screening/i);
+assert.match(adminPrescreenApi, /application stage is verified complete/i);
 assert.match(portalPrescreenApi, /prescreen\.submitted/);
 assert.match(adminNotificationsApi, /admin_notifications/);
 assert.match(adminRankingsApi, /recalculateAllRanks/);

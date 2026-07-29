@@ -18,6 +18,18 @@ async function candidateProgress(env, candidateId) {
   return progress;
 }
 
+async function stageTaskProgress(env, candidateId, stageKey) {
+  const counts = await env.WORKFORCE_DB.prepare(`
+    SELECT COUNT(*) AS total,
+      SUM(CASE WHEN ct.status IN ('approved','completed','waived') THEN 1 ELSE 0 END) AS done
+    FROM candidate_tasks ct JOIN onboarding_tasks t ON t.id = ct.task_id
+    WHERE ct.candidate_id = ? AND COALESCE(t.stage_key, 'onboarding') = ?
+  `).bind(candidateId, stageKey).first();
+  const total = Number(counts?.total || 0);
+  const done = Number(counts?.done || 0);
+  return { total, done, progress: total ? Math.round((done / total) * 100) : 0 };
+}
+
 export async function onRequestGet(context) {
   const auth = await requireAdmin(context, "dashboard.read");
   if (auth.response) return auth.response;
@@ -44,21 +56,32 @@ export async function onRequestGet(context) {
 
     if (mode === "submissions") {
       const status = clean(url.searchParams.get("status") || "all", 40);
+      const page = Math.max(1, Number(url.searchParams.get("page") || 1));
+      const pageSize = Math.min(50, Math.max(5, Number(url.searchParams.get("pageSize") || 12)));
+      const offset = (page - 1) * pageSize;
       const where = status === "all" ? "" : "WHERE s.status = ?";
-      const statement = db.prepare(`
-        SELECT s.id, s.status, s.submitted_at, s.updated_at, s.reviewed_at, s.reviewer_feedback,
-               s.response_json, ct.id AS candidate_task_id, ct.signature_name, ct.signature_at, ct.due_at,
-               t.title AS task_title, t.category, c.id AS candidate_id, c.first_name, c.last_name, c.email, c.role
-        FROM submissions s
-        JOIN candidate_tasks ct ON ct.id = s.candidate_task_id
-        JOIN onboarding_tasks t ON t.id = ct.task_id
-        JOIN candidates c ON c.id = s.candidate_id
-        ${where}
-        ORDER BY CASE s.status WHEN 'submitted' THEN 0 WHEN 'correction_required' THEN 1 ELSE 2 END, s.submitted_at DESC
-        LIMIT 250
-      `);
-      const rows = status === "all" ? await statement.all() : await statement.bind(status).all();
-      return json({ submissions: (rows.results || []).map((row) => ({ ...row, response: parseJson(row.response_json, {}) })) });
+      const values = status === "all" ? [] : [status];
+      const [rows, count] = await Promise.all([
+        db.prepare(`
+          SELECT s.id, s.status, s.submitted_at, s.updated_at, s.reviewed_at, s.reviewer_feedback,
+                 s.response_json, ct.id AS candidate_task_id, ct.signature_name, ct.signature_at, ct.due_at,
+                 t.title AS task_title, t.category, COALESCE(t.stage_key, 'onboarding') AS stage_key,
+                 c.id AS candidate_id, c.first_name, c.last_name, c.email, c.role
+          FROM submissions s
+          JOIN candidate_tasks ct ON ct.id = s.candidate_task_id
+          JOIN onboarding_tasks t ON t.id = ct.task_id
+          JOIN candidates c ON c.id = s.candidate_id
+          ${where}
+          ORDER BY CASE s.status WHEN 'submitted' THEN 0 WHEN 'correction_required' THEN 1 ELSE 2 END, s.submitted_at DESC
+          LIMIT ? OFFSET ?
+        `).bind(...values, pageSize, offset).all(),
+        db.prepare(`SELECT COUNT(*) AS count FROM submissions s ${where}`).bind(...values).first(),
+      ]);
+      const total = Number(count?.count || 0);
+      return json({
+        submissions: (rows.results || []).map((row) => ({ ...row, response: parseJson(row.response_json, {}) })),
+        pagination: { page, pageSize, total, totalPages: Math.max(1, Math.ceil(total / pageSize)) },
+      });
     }
 
     if (mode === "catalog") {
@@ -70,7 +93,7 @@ export async function onRequestGet(context) {
       const candidateId = clean(url.searchParams.get("candidateId"), 100);
       if (!candidateId) return json({ message: "Candidate ID is required." }, 400);
       const rows = await db.prepare(`
-        SELECT ct.*, t.title, t.description, t.category, t.requires_signature, t.requires_admin_review,
+        SELECT ct.*, t.title, t.description, t.category, COALESCE(t.stage_key, 'onboarding') AS stage_key, t.requires_signature, t.requires_admin_review,
                s.id AS submission_id, s.status AS submission_status, s.response_json, s.submitted_at AS submission_date,
                s.reviewer_feedback
         FROM candidate_tasks ct JOIN onboarding_tasks t ON t.id = ct.task_id
@@ -128,7 +151,7 @@ export async function onRequestPost(context) {
     const submission = await db.prepare("SELECT * FROM submissions WHERE id = ? LIMIT 1").bind(submissionId).first();
     if (!submission) return json({ message: "Submission not found." }, 404);
     const taskMeta = await db.prepare(`
-      SELECT t.title, t.category FROM candidate_tasks ct
+      SELECT t.title, t.category, COALESCE(t.stage_key, 'onboarding') AS stage_key FROM candidate_tasks ct
       JOIN onboarding_tasks t ON t.id = ct.task_id WHERE ct.id = ? LIMIT 1
     `).bind(submission.candidate_task_id).first();
     if (decision === "correction_required" && !feedback) return json({ message: "Explain what the candidate should correct." }, 400);
@@ -149,19 +172,56 @@ export async function onRequestPost(context) {
     const progress = await candidateProgress(context.env, submission.candidate_id);
     const candidate = await db.prepare("SELECT first_name, last_name, recruitment_stage FROM candidates WHERE id = ? LIMIT 1").bind(submission.candidate_id).first();
     const candidateName = `${candidate?.first_name || "Candidate"} ${candidate?.last_name || ""}`.trim();
-    if (decision === "approved" && taskMeta?.category === "orientation") {
-      await completeStage(context.env, { candidateId: submission.candidate_id, stageKey: "orientation", source: "approved_orientation_submission", score: 100, completedBy: auth.admin.id, candidateName });
-    }
-    if (decision === "approved" && progress >= 100) {
-      await completeStage(context.env, { candidateId: submission.candidate_id, stageKey: "onboarding", source: "all_onboarding_tasks_approved", score: 100, completedBy: auth.admin.id, candidateName });
-      await db.prepare("UPDATE candidates SET recruitment_stage = CASE WHEN recruitment_stage = 'onboarding' THEN 'orientation' ELSE recruitment_stage END, updated_at = ? WHERE id = ?")
-        .bind(timestamp, submission.candidate_id).run();
+    if (decision === "approved" && taskMeta?.stage_key === "application") {
+      await completeStage(context.env, {
+        candidateId: submission.candidate_id,
+        stageKey: "application",
+        source: "confidential_application_approved",
+        score: 100,
+        completedBy: auth.admin.id,
+        candidateName,
+      });
+      await db.prepare(`UPDATE candidates
+        SET recruitment_stage = 'pre_screening',
+            status = CASE WHEN status IN ('rejected','suspended','active') THEN status ELSE 'approved' END,
+            updated_at = ?, last_activity_at = ?
+        WHERE id = ? AND recruitment_stage = 'application'`)
+        .bind(timestamp, timestamp, submission.candidate_id).run();
       await markStageInProgress(context.env, {
         candidateId: submission.candidate_id,
-        stageKey: "orientation",
-        source: "onboarding_completed",
+        stageKey: "pre_screening",
+        source: "application_approved",
         completionPercent: 0,
       });
+      await db.prepare(`INSERT INTO candidate_notifications
+        (id, candidate_id, title, message, notification_type, status, action_url, created_at)
+        VALUES (?, ?, 'Application approved — pre-screening is next',
+          'Your confidential application has been approved. Wait for the recruitment team to assign your pre-screening questions.',
+          'stage', 'unread', '/onboarding_portal/#journey', ?)`)
+        .bind(crypto.randomUUID(), submission.candidate_id, timestamp).run();
+    }
+
+    if (decision === "approved" && ["onboarding", "orientation"].includes(taskMeta?.stage_key)) {
+      const stageProgress = await stageTaskProgress(context.env, submission.candidate_id, taskMeta.stage_key);
+      if (stageProgress.total > 0 && stageProgress.done === stageProgress.total) {
+        await completeStage(context.env, {
+          candidateId: submission.candidate_id,
+          stageKey: taskMeta.stage_key,
+          source: `all_${taskMeta.stage_key}_tasks_approved`,
+          score: 100,
+          completedBy: auth.admin.id,
+          candidateName,
+        });
+        if (taskMeta.stage_key === "onboarding") {
+          await db.prepare("UPDATE candidates SET recruitment_stage = 'orientation', updated_at = ?, last_activity_at = ? WHERE id = ? AND recruitment_stage = 'onboarding'")
+            .bind(timestamp, timestamp, submission.candidate_id).run();
+          await markStageInProgress(context.env, { candidateId: submission.candidate_id, stageKey: "orientation", source: "onboarding_completed", completionPercent: 0 });
+        } else {
+          await db.prepare("UPDATE candidates SET recruitment_stage = 'active_worker', status = CASE WHEN status = 'active' THEN status ELSE 'completed' END, updated_at = ?, last_activity_at = ? WHERE id = ? AND recruitment_stage = 'orientation'")
+            .bind(timestamp, timestamp, submission.candidate_id).run();
+          await markStageInProgress(context.env, { candidateId: submission.candidate_id, stageKey: "active_worker", source: "orientation_completed", completionPercent: 0 });
+        }
+      }
     }
     const pipeline = await recalculateCandidatePipeline(context.env, submission.candidate_id);
     await recalculateAllRanks(context.env);
@@ -178,10 +238,10 @@ export async function onRequestPost(context) {
     const schema = payload.formSchema && typeof payload.formSchema === "object" ? payload.formSchema : { fields: [], attestation: "I confirm that this submission is accurate." };
     await db.prepare(`
       INSERT INTO onboarding_tasks
-        (id, title, description, category, role_scope, requires_submission, requires_signature, requires_admin_review, form_schema_json, instructions, sort_order, status, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, 1, ?, ?, ?, ?, ?, 'active', ?, ?)
+        (id, title, description, category, stage_key, role_scope, requires_submission, requires_signature, requires_admin_review, form_schema_json, instructions, sort_order, status, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, 1, ?, ?, ?, ?, ?, 'active', ?, ?)
     `).bind(
-      id, title, description, clean(payload.category || "general", 80), clean(payload.roleScope || "*", 500),
+      id, title, description, clean(payload.category || "general", 80), clean(payload.stageKey || "onboarding", 60), clean(payload.roleScope || "*", 500),
       payload.requiresSignature ? 1 : 0, payload.requiresAdminReview === false ? 0 : 1,
       JSON.stringify(schema), clean(payload.instructions, 2000), Number(payload.sortOrder || 100), timestamp, timestamp,
     ).run();

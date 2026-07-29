@@ -78,6 +78,7 @@ create table if not exists public.onboarding_tasks (
   title text not null,
   description text not null,
   category text not null default 'general',
+  stage_key text not null default 'onboarding',
   role_scope text[] not null default array['*'],
   requires_submission boolean not null default true,
   requires_signature boolean not null default false,

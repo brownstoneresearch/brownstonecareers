@@ -2,6 +2,7 @@ import { preScreeningEmail, preScreeningResultEmail } from "../../../emails/inde
 import { hasAdminPermission, requireAdmin } from "../../_admin-auth.js";
 import { onboardingPortalUrl } from "../../_domains.js";
 import { completeStage, markStageInProgress, recalculateAllRanks, recalculateCandidatePipeline } from "../../_pipeline.js";
+import { getCandidateJourney } from "../../_journey.js";
 import { hasResendChannel, sendResendEmail } from "../../_shared.js";
 import { auditEvent, clean, hasWorkforceDb, json, nowIso } from "../../_workforce-db.js";
 
@@ -169,20 +170,33 @@ export async function onRequestGet(context) {
     return detail ? json(detail) : json({ message: "Pre-screening assignment not found." }, 404);
   }
   const status = clean(url.searchParams.get("status") || "all", 40);
+  const page = Math.max(1, Number(url.searchParams.get("page") || 1));
+  const pageSize = Math.min(50, Math.max(5, Number(url.searchParams.get("pageSize") || 12)));
+  const offset = (page - 1) * pageSize;
   const where = status === "all" ? "" : "WHERE cp.status = ?";
-  const statement = db.prepare(`
-    SELECT cp.*, c.first_name, c.last_name, c.email, c.role, c.pipeline_score, c.pipeline_rank,
-           qs.title AS question_set_title, qs.pass_score
-    FROM candidate_prescreens cp
-    JOIN candidates c ON c.id = cp.candidate_id
-    JOIN prescreen_question_sets qs ON qs.id = cp.question_set_id
-    ${where}
-    ORDER BY CASE cp.status WHEN 'submitted' THEN 0 WHEN 'ai_scored' THEN 1 WHEN 'assigned' THEN 2 ELSE 3 END,
-             COALESCE(cp.submitted_at, cp.created_at) DESC
-    LIMIT 300
-  `);
-  const rows = status === "all" ? await statement.all() : await statement.bind(status).all();
-  return json({ assignments: rows.results || [], aiConfigured: Boolean(context.env.OPENAI_API_KEY) });
+  const values = status === "all" ? [] : [status];
+  const [rows, count, countRows] = await Promise.all([
+    db.prepare(`
+      SELECT cp.*, c.first_name, c.last_name, c.email, c.role, c.pipeline_score, c.pipeline_rank,
+             qs.title AS question_set_title, qs.pass_score
+      FROM candidate_prescreens cp
+      JOIN candidates c ON c.id = cp.candidate_id
+      JOIN prescreen_question_sets qs ON qs.id = cp.question_set_id
+      ${where}
+      ORDER BY CASE cp.status WHEN 'submitted' THEN 0 WHEN 'ai_scored' THEN 1 WHEN 'assigned' THEN 2 ELSE 3 END,
+               COALESCE(cp.submitted_at, cp.created_at) DESC
+      LIMIT ? OFFSET ?
+    `).bind(...values, pageSize, offset).all(),
+    db.prepare(`SELECT COUNT(*) AS count FROM candidate_prescreens cp ${where}`).bind(...values).first(),
+    db.prepare(`SELECT status, COUNT(*) AS count FROM candidate_prescreens GROUP BY status`).all(),
+  ]);
+  const total = Number(count?.count || 0);
+  return json({
+    assignments: rows.results || [],
+    aiConfigured: Boolean(context.env.OPENAI_API_KEY),
+    counts: Object.fromEntries((countRows.results || []).map((row) => [row.status, Number(row.count || 0)])),
+    pagination: { page, pageSize, total, totalPages: Math.max(1, Math.ceil(total / pageSize)) },
+  });
 }
 
 export async function onRequestPost(context) {
@@ -249,16 +263,15 @@ export async function onRequestPost(context) {
       db.prepare("SELECT * FROM prescreen_question_sets WHERE id = ? AND status = 'published' LIMIT 1").bind(setId).first(),
     ]);
     if (!candidate || !set) return json({ message: "Candidate or published question set was not found." }, 404);
-    const applicationTask = await db.prepare(`
-      SELECT ct.status
-      FROM candidate_tasks ct
-      WHERE ct.candidate_id = ? AND ct.task_id = 'confidential-candidate-application'
-      LIMIT 1
-    `).bind(candidateId).first();
-    if (!applicationTask || !["submitted", "approved", "completed", "waived"].includes(applicationTask.status)) {
+    const journey = await getCandidateJourney(context.env, candidateId);
+    const applicationStage = journey?.stages?.find((stage) => stage.key === "application");
+    const preScreenStage = journey?.stages?.find((stage) => stage.key === "pre_screening");
+    if (applicationStage?.status !== "completed" || preScreenStage?.access !== "current") {
       return json({
-        message: "The candidate must submit the confidential portal application before pre-screening can be assigned.",
-        applicationRequired: true,
+        message: "Pre-screening can be assigned only after the application stage is verified complete and pre-screening is the candidate’s current stage.",
+        applicationRequired: applicationStage?.status !== "completed",
+        currentStage: journey?.currentStage?.key || null,
+        directive: journey?.directive || null,
       }, 409);
     }
     const active = await db.prepare("SELECT id FROM candidate_prescreens WHERE candidate_id = ? AND status IN ('assigned','in_progress','submitted','ai_scored') LIMIT 1").bind(candidateId).first();
@@ -333,17 +346,26 @@ export async function onRequestPost(context) {
       db.prepare("INSERT INTO candidate_notifications (id, candidate_id, title, message, notification_type, status, action_url, created_at) VALUES (?, ?, 'Pre-screening result available', ?, 'pre_screening_result', 'unread', '/onboarding_portal/#pre-screening', ?)")
         .bind(crypto.randomUUID(), candidate.candidate_id, feedback, timestamp),
     ]);
-    await completeStage(context.env, {
-      candidateId: candidate.candidate_id,
-      stageKey: "pre_screening",
-      source: "admin_human_review",
-      score: finalScore,
-      notes: feedback,
-      completedBy: auth.admin.id,
-      candidateName: `${candidate.first_name} ${candidate.last_name}`,
-    });
     if (resultStatus === "passed") {
+      await completeStage(context.env, {
+        candidateId: candidate.candidate_id,
+        stageKey: "pre_screening",
+        source: "admin_human_review",
+        score: finalScore,
+        notes: feedback,
+        completedBy: auth.admin.id,
+        candidateName: `${candidate.first_name} ${candidate.last_name}`,
+      });
       await markStageInProgress(context.env, { candidateId: candidate.candidate_id, stageKey: "assessment", source: "prescreen_passed", completionPercent: 0 });
+    } else {
+      await markStageInProgress(context.env, {
+        candidateId: candidate.candidate_id,
+        stageKey: "pre_screening",
+        source: resultStatus === "conditional" ? "admin_conditional_review" : "admin_not_selected",
+        score: finalScore,
+        completionPercent: resultStatus === "conditional" ? 90 : 100,
+        notes: feedback,
+      });
     }
     const pipeline = await recalculateCandidatePipeline(context.env, candidate.candidate_id);
     await recalculateAllRanks(context.env);
