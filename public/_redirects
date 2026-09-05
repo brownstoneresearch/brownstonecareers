@@ -16,3 +16,7 @@
 
 # External community shortcut
 /whatsapp https://wa.me/15342280244 302
+
+/us-promo.html /us-promo 301
+/apple-launch-campaign-promo.html /us-promo 301
+/us-promo /us-promo.html 200
