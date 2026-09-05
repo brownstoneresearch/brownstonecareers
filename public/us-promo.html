@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Brownstone Careers | U.S. Promo Recruitment Drive</title>
+  <link rel="canonical" href="https://brownstonecareers.agency/us-promo" />
+  <meta name="description" content="U.S.-only remote recruitment campaign timed to Apple’s September 2026 iPhone launch. No application fee." />
+  <link rel="icon" type="image/png" sizes="32x32" href="/logo.png" />
+  <link rel="icon" type="image/png" sizes="64x64" href="/assets/app-icon-192.png" />
+  <link rel="apple-touch-icon" href="/assets/brand-logo-icon-new.webp" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&display=swap" rel="stylesheet" />
+  <script src="https://unpkg.com/libphonenumber-js@1.12.15/bundle/libphonenumber-max.js"></script>
+  <style>
+    :root {
+      --navy: #0b1c3d;
+      --navy-2: #12264d;
+      --blue: #1e5fd0;
+      --ink: #10203d;
+      --ink-soft: #4b5b76;
+      --line: rgba(16, 32, 61, 0.12);
+      --ok: #1f6b45;
+      --ok-bg: #e7f4ec;
+      --warn: #8a5a12;
+      --warn-bg: #f8eedc;
+      --bad: #8b2e24;
+      --bad-bg: #f8e6e3;
+      --white: #ffffff;
+      --shadow: 0 24px 50px rgba(11, 28, 61, 0.12);
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: Manrope, system-ui, sans-serif;
+      background: #f4f7fb;
+      color: var(--ink);
+      line-height: 1.55;
+    }
+    .topbar {
+      background: #000;
+      display: flex; justify-content: center; align-items: center;
+      padding: 10px 16px;
+    }
+    .topbar img { height: 46px; width: auto; max-width: min(720px, 92vw); display: block; }
+    .wrap { max-width: 1120px; margin: 0 auto; padding: 22px 20px 80px; }
+    header {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 16px; margin-bottom: 32px;
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 14px 16px;
+    }
+    .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: inherit; min-width: 0; }
+    .brand-seal { height: 58px; width: 58px; border-radius: 50%; object-fit: cover; flex: none; border: 2px solid #1e5fd0; }
+    .brand-lockup { height: 52px; width: auto; max-width: min(380px, 52vw); display: block; object-fit: contain; }
+    .chip {
+      font-size: 11.5px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
+      border: 1px solid var(--line); background: #eef3fb; color: var(--navy);
+      padding: 8px 12px; border-radius: 999px; white-space: nowrap;
+    }
+    .hero { display: grid; grid-template-columns: 1.05fr .95fr; gap: 28px; align-items: start; }
+    h1 {
+      font-family: "Source Serif 4", Georgia, serif;
+      font-size: clamp(32px, 4.6vw, 50px);
+      line-height: 1.1; font-weight: 600; margin: 0 0 14px; color: var(--navy);
+    }
+    .lede { font-size: 17px; color: var(--ink-soft); max-width: 38rem; }
+    .pills { display: flex; flex-wrap: wrap; gap: 8px; margin: 22px 0 8px; }
+    .pill {
+      background: var(--white); border: 1px solid var(--line); border-radius: 999px;
+      padding: 7px 12px; font-size: 13px; font-weight: 700; color: var(--navy);
+    }
+    .points { list-style: none; padding: 0; margin: 22px 0 0; }
+    .points li {
+      display: flex; gap: 10px; align-items: flex-start;
+      margin: 0 0 10px; color: var(--ink-soft); font-size: 14.5px;
+    }
+    .dot {
+      width: 18px; height: 18px; margin-top: 2px; flex: none;
+      border-radius: 50%; background: var(--navy); color: #fff;
+      display: grid; place-items: center; font-size: 11px; font-weight: 700;
+    }
+    .card {
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      padding: 22px;
+    }
+    .card h2 { margin: 0 0 6px; font-size: 20px; color: var(--navy); }
+    .card .hint { margin: 0 0 18px; color: var(--ink-soft); font-size: 13.5px; }
+    label { display: block; font-size: 12.5px; font-weight: 700; margin: 0 0 6px; color: var(--navy); }
+    .field { margin-bottom: 14px; }
+    input, select, textarea {
+      width: 100%; border: 1px solid #d5deea; background: #fff;
+      border-radius: 12px; padding: 12px 13px; font: inherit; color: var(--ink);
+      outline: none;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--blue); box-shadow: 0 0 0 4px rgba(30,95,208,.16);
+    }
+    textarea { min-height: 84px; resize: vertical; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .carrier {
+      margin-top: 8px; border-radius: 12px; padding: 10px 12px;
+      font-size: 13px; display: none; gap: 10px;
+      border: 1px solid transparent;
+    }
+    .carrier.show { display: block; }
+    .carrier.ok { background: var(--ok-bg); color: var(--ok); border-color: #cfe6d8; }
+    .carrier.warn { background: var(--warn-bg); color: var(--warn); border-color: #ead9b4; }
+    .carrier.bad { background: var(--bad-bg); color: var(--bad); border-color: #efcfc9; }
+    .carrier b { display: block; font-size: 13.5px; }
+    .submit {
+      width: 100%; border: 0; cursor: pointer; color: #fff;
+      background: linear-gradient(180deg, #1e5fd0, #123a86);
+      border-radius: 12px; padding: 14px 16px; font: inherit; font-weight: 800;
+      margin-top: 6px;
+    }
+    .submit.alt {
+      background: #fff; color: var(--navy);
+      border: 1px solid #d5deea; margin-top: 8px;
+    }
+    .fine { font-size: 12px; color: var(--ink-soft); margin: 12px 0 0; }
+    .trust { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 28px; }
+    .trust div {
+      background: var(--white); border: 1px solid var(--line);
+      border-radius: 16px; padding: 14px;
+    }
+    .trust strong { display: block; font-size: 13px; margin-bottom: 4px; color: var(--navy); }
+    .trust p { margin: 0; font-size: 13px; color: var(--ink-soft); }
+    .success { display: none; text-align: center; padding: 28px 12px; }
+    .success h2 { font-family: "Source Serif 4", serif; font-size: 32px; margin: 8px 0; color: var(--navy); }
+    footer { margin-top: 40px; color: var(--ink-soft); font-size: 12.5px; display: flex; gap: 12px; align-items: center; }
+    footer img { width: 54px; height: 54px; border-radius: 50%; object-fit: cover; flex: none; }
+    @media (max-width: 860px) {
+      .hero, .row, .trust { grid-template-columns: 1fr; }
+      header { flex-direction: column; align-items: flex-start; }
+      .brand-lockup { height: 40px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <img src="/assets/brand-logo-horizontal-new.webp" alt="Brownstone Careers — research-driven recruitment agency" />
+  </div>
+  <div class="wrap">
+    <header>
+      <a class="brand" href="https://brownstonecareers.agency/" target="_blank" rel="noopener">
+        <img class="brand-seal" src="/assets/brand-logo-icon-new.webp" alt="Brownstone Workforce Network seal" />
+        <img class="brand-lockup" src="/assets/brand-logo-horizontal-new.webp" alt="Brownstone Workforce Network" />
+      </a>
+      <div class="chip">U.S. candidates only · $0 to apply</div>
+    </header>
+
+    <section class="hero">
+      <div>
+        <h1>U.S. promo drive, timed to Apple’s newest iPhone launch.</h1>
+        <p class="lede">Limited campaign for U.S.-based remote roles in administration, finance, data, customer service, and virtual assistance. Selected candidates who complete screening and placement may receive a promo pack built around Apple’s latest iPhone generation launching this September, plus selected gadgets and accessories.</p>
+        <div class="pills">
+          <span class="pill">U.S. remote only</span>
+          <span class="pill">September iPhone window</span>
+          <span class="pill">No application fee</span>
+        </div>
+        <ul class="points">
+          <li><span class="dot">1</span> Open to candidates living and authorized to work in the United States.</li>
+          <li><span class="dot">2</span> Registering does not guarantee a role or a device.</li>
+          <li><span class="dot">3</span> Promo packs are issued only after successful U.S. placement under campaign terms.</li>
+        </ul>
+        <div class="trust">
+          <div><strong>U.S. work eligibility</strong><p>Must be authorized to work remotely from the United States.</p></div>
+          <div><strong>Structured screening</strong><p>Clear pathway from interest form to onboarding.</p></div>
+          <div><strong>Never pay to apply</strong><p>Brownstone Careers does not charge application fees.</p></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Register your interest</h2>
+        <p class="hint">U.S. mobile required. Carrier is verified as you type. Submit sends your file to the official WhatsApp line.</p>
+        <form id="promoForm" novalidate>
+          <div class="field">
+            <label for="fullName">Full name</label>
+            <input id="fullName" name="fullName" autocomplete="name" required placeholder="Legal first and last name" />
+          </div>
+          <div class="row">
+            <div class="field">
+              <label for="state">U.S. state</label>
+              <select id="state" name="state" required>
+                <option value="">Select state</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="workAuth">Work authorization</label>
+              <select id="workAuth" name="workAuth" required>
+                <option value="">Select</option>
+                <option>U.S. citizen</option>
+                <option>Permanent resident</option>
+                <option>Authorized to work in the U.S.</option>
+              </select>
+            </div>
+          </div>
+          <div class="field">
+            <label for="phone">U.S. mobile / WhatsApp</label>
+            <input id="phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" required placeholder="(214) 555-0188" maxlength="16" />
+            <div id="carrierBox" class="carrier" role="status" aria-live="polite"></div>
+            <input type="hidden" id="carrierName" name="carrierName" />
+            <input type="hidden" id="carrierSource" name="carrierSource" />
+            <input type="hidden" id="e164" name="e164" />
+            <input type="hidden" id="areaLabel" name="areaLabel" />
+          </div>
+          <div class="field">
+            <label for="carrierSelect">Confirm carrier</label>
+            <select id="carrierSelect" name="carrierSelect" required>
+              <option value="">Select your current carrier</option>
+              <option>Verizon</option>
+              <option>AT&amp;T</option>
+              <option>T-Mobile</option>
+              <option>US Cellular</option>
+              <option>Xfinity Mobile</option>
+              <option>Spectrum Mobile</option>
+              <option>Visible</option>
+              <option>Mint Mobile</option>
+              <option>Google Fi</option>
+              <option>Cricket</option>
+              <option>Metro by T-Mobile</option>
+              <option>Boost Mobile</option>
+              <option>Consumer Cellular</option>
+              <option>Straight Talk</option>
+              <option>Tracfone</option>
+              <option>Other / not listed</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="email">Email</label>
+            <input id="email" name="email" type="email" autocomplete="email" required placeholder="you@email.com" />
+          </div>
+          <div class="row">
+            <div class="field">
+              <label for="role">Preferred role</label>
+              <select id="role" name="role" required>
+                <option value="">Select a pathway</option>
+                <option>Finance Administrator</option>
+                <option>Data Entry</option>
+                <option>Customer Service</option>
+                <option>Administrative Assistant</option>
+                <option>Virtual Assistant</option>
+                <option>Recruitment Coordinator</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="availability">U.S. availability</label>
+              <select id="availability" name="availability" required>
+                <option value="">Select availability</option>
+                <option>Full-time · Eastern</option>
+                <option>Full-time · Central</option>
+                <option>Full-time · Mountain</option>
+                <option>Full-time · Pacific</option>
+                <option>Part-time / flexible (U.S. hours)</option>
+                <option>Need to discuss schedule</option>
+              </select>
+            </div>
+          </div>
+          <div class="field">
+            <label for="note">Short note <span style="font-weight:500;color:var(--ink-soft)">(optional)</span></label>
+            <textarea id="note" name="note" placeholder="Relevant U.S. remote experience, tools, or hours."></textarea>
+          </div>
+          <button class="submit" type="submit">Register via WhatsApp</button>
+          <button class="submit alt" type="button" id="smsBtn">Send by SMS instead</button>
+          <p class="fine">WhatsApp first. If WhatsApp is not installed, use SMS — it opens your Messages app to +1 (534) 228-0244 with a short application draft. You still tap Send. Carrier shown may differ if the number has been ported.</p>
+        </form>
+        <div class="success" id="successBox">
+          <div class="chip" style="display:inline-block">Application received</div>
+          <h2>Thank you.</h2>
+          <p class="lede" style="margin:0 auto">WhatsApp should be open with your application to +1 (534) 228-0244. Tap Send. No WhatsApp? Use the SMS button on the form, or text that number directly.</p>
+        </div>
+      </div>
+    </section>
+    <footer>
+      <img src="/assets/brand-logo-icon-new.webp" alt="" />
+      <div>Official U.S. campaign page for Brownstone Careers and Brownstone Workforce Network. Never share bank PINs, OTPs, or pay a fee to apply. Promo device model follows campaign terms after Apple’s September announcement.</div>
+    </footer>
+  </div>
+
+  <script>
+    const STATES = ["AL","AK","AZ","AR","CA","CO","CT","DE","DC","FL","GA","HI","ID","IL","IN","IA","KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"];
+    const stateSel = document.getElementById("state");
+    STATES.forEach(s => {
+      const o = document.createElement("option");
+      o.value = s; o.textContent = s;
+      stateSel.appendChild(o);
+    });
+
+    const AREA = {
+      "201":"NJ","202":"Washington, DC","203":"CT","205":"AL","206":"Seattle, WA","207":"ME","208":"ID","209":"CA","210":"San Antonio, TX",
+      "212":"New York, NY","213":"Los Angeles, CA","214":"Dallas, TX","215":"Philadelphia, PA","216":"Cleveland, OH","217":"IL","218":"MN","219":"IN",
+      "224":"IL","225":"Baton Rouge, LA","228":"MS","229":"GA","231":"MI","234":"OH","239":"FL","240":"MD","248":"MI",
+      "251":"AL","252":"NC","253":"Tacoma, WA","254":"TX","256":"AL","260":"IN","262":"WI","267":"Philadelphia, PA","269":"MI","270":"KY","272":"PA","274":"WI","276":"VA","281":"Houston, TX",
+      "301":"MD","302":"DE","303":"Denver, CO","304":"WV","305":"Miami, FL","307":"WY","308":"NE","309":"IL","310":"Los Angeles, CA",
+      "312":"Chicago, IL","313":"Detroit, MI","314":"St. Louis, MO","315":"NY","316":"Wichita, KS","317":"Indianapolis, IN","318":"LA","319":"IA",
+      "320":"MN","321":"FL","323":"Los Angeles, CA","325":"TX","330":"OH","331":"IL","332":"New York, NY","334":"AL","336":"NC","337":"LA","339":"MA","346":"Houston, TX","347":"New York, NY","351":"MA","352":"FL","360":"WA","361":"TX","364":"KY","380":"OH","385":"UT","386":"FL",
+      "401":"RI","402":"NE","404":"Atlanta, GA","405":"Oklahoma City, OK","406":"MT","407":"Orlando, FL","408":"San Jose, CA","409":"TX",
+      "410":"Baltimore, MD","412":"Pittsburgh, PA","413":"MA","414":"Milwaukee, WI","415":"San Francisco, CA","417":"MO","419":"OH",
+      "423":"TN","424":"Los Angeles, CA","425":"WA","430":"TX","432":"TX","434":"VA","435":"UT","440":"OH","442":"CA","443":"MD","445":"Philadelphia, PA","458":"OR","469":"Dallas, TX","470":"Atlanta, GA","475":"CT","478":"GA","479":"AR","480":"Phoenix, AZ","484":"PA",
+      "501":"AR","502":"Louisville, KY","503":"Portland, OR","504":"New Orleans, LA","505":"NM","507":"MN","508":"MA","509":"WA",
+      "510":"Oakland, CA","512":"Austin, TX","513":"Cincinnati, OH","515":"IA","516":"Long Island, NY","517":"MI","518":"NY","520":"Tucson, AZ",
+      "530":"CA","531":"NE","534":"WI","539":"OK","540":"VA","541":"OR","551":"NJ","559":"CA","561":"FL","562":"CA","563":"IA","564":"WA","567":"OH","570":"PA","571":"VA","573":"MO","574":"IN","575":"NM","580":"OK","585":"Rochester, NY","586":"MI",
+      "601":"MS","602":"Phoenix, AZ","603":"NH","605":"SD","606":"KY","607":"NY","608":"WI","609":"NJ","610":"PA",
+      "612":"Minneapolis, MN","614":"Columbus, OH","615":"Nashville, TN","616":"MI","617":"Boston, MA","618":"IL","619":"San Diego, CA",
+      "620":"KS","623":"Phoenix, AZ","626":"CA","628":"San Francisco, CA","629":"Nashville, TN","630":"IL","631":"Long Island, NY","636":"MO","640":"NJ","641":"IA","646":"New York, NY","650":"CA","651":"MN","657":"CA","660":"MO","661":"CA","662":"MS","667":"MD","669":"San Jose, CA","678":"Atlanta, GA","680":"NY","681":"WV","682":"Dallas–Fort Worth, TX","689":"Orlando, FL",
+      "701":"ND","702":"Las Vegas, NV","703":"Northern VA","704":"Charlotte, NC","706":"GA","707":"CA","708":"IL","712":"IA","713":"Houston, TX","714":"Orange County, CA","715":"WI","716":"Buffalo, NY","717":"PA","718":"New York, NY","719":"Colorado Springs, CO",
+      "720":"Denver, CO","724":"PA","725":"Las Vegas, NV","726":"San Antonio, TX","727":"FL","731":"TN","732":"NJ","734":"MI","737":"Austin, TX","740":"OH","743":"NC","747":"Los Angeles, CA","754":"FL","757":"VA","760":"CA","762":"GA","763":"MN","765":"IN","769":"MS","770":"Atlanta, GA","772":"FL","773":"Chicago, IL","774":"MA","775":"NV","779":"IL","781":"MA","785":"KS","786":"Miami, FL","787":"Puerto Rico",
+      "801":"Salt Lake City, UT","802":"VT","803":"SC","804":"Richmond, VA","805":"CA","806":"TX","808":"Hawaii","810":"MI","812":"IN","813":"Tampa, FL","814":"PA","815":"IL","816":"Kansas City, MO","817":"Fort Worth, TX","818":"Los Angeles, CA","828":"NC","830":"TX","831":"CA","832":"Houston, TX","838":"NY","839":"SC","840":"CA","843":"SC","845":"NY","847":"IL","848":"NJ","850":"FL","854":"SC","856":"NJ","857":"Boston, MA","858":"San Diego, CA","859":"KY","860":"CT","862":"NJ","863":"FL","864":"SC","865":"Knoxville, TN","870":"AR","872":"Chicago, IL","878":"PA",
+      "901":"Memphis, TN","903":"TX","904":"Jacksonville, FL","906":"MI","907":"Alaska","908":"NJ","909":"CA","910":"NC","912":"GA","913":"KS","914":"Westchester, NY","915":"El Paso, TX","916":"Sacramento, CA","917":"New York, NY","918":"Tulsa, OK","919":"Raleigh, NC",
+      "920":"WI","925":"CA","928":"AZ","929":"New York, NY","930":"IN","931":"TN","934":"Long Island, NY","936":"TX","937":"OH","938":"AL","939":"Puerto Rico","940":"TX","941":"FL","943":"Atlanta, GA","945":"Dallas, TX","947":"MI","948":"VA","949":"Orange County, CA","951":"CA","952":"MN","954":"Fort Lauderdale, FL","956":"TX","959":"CT","970":"CO","971":"Portland, OR","972":"Dallas, TX","973":"NJ","978":"MA","979":"TX","980":"Charlotte, NC","984":"Raleigh, NC","985":"LA","986":"ID","989":"MI"
+    };
+
+    const phoneInput = document.getElementById("phone");
+    const box = document.getElementById("carrierBox");
+    let timer = null;
+    let lastQuery = "";
+
+    function digits(v){ return (v || "").replace(/\D/g,""); }
+
+    function formatUS(raw){
+      let d = digits(raw);
+      if (d.startsWith("1") && d.length > 10) d = d.slice(1);
+      d = d.slice(0, 10);
+      if (d.length === 0) return "";
+      if (d.length < 4) return "(" + d;
+      if (d.length < 7) return "(" + d.slice(0,3) + ") " + d.slice(3);
+      return "(" + d.slice(0,3) + ") " + d.slice(3,6) + "-" + d.slice(6);
+    }
+
+    function showCarrier(state, title, detail){
+      box.className = "carrier show " + state;
+      box.innerHTML = "<b>" + title + "</b><span>" + detail + "</span>";
+    }
+
+    function setHidden(carrier, source, e164, area){
+      document.getElementById("carrierName").value = carrier || "";
+      document.getElementById("carrierSource").value = source || "";
+      document.getElementById("e164").value = e164 || "";
+      document.getElementById("areaLabel").value = area || "";
+    }
+
+    async function liveLookup(e164){
+      const url = "https://carrier-lookup-api.omkar.cloud/lookup?phone=" + encodeURIComponent(e164);
+      const ctrl = new AbortController();
+      const t = setTimeout(() => ctrl.abort(), 3500);
+      try {
+        const res = await fetch(url, { signal: ctrl.signal });
+        if (!res.ok) throw new Error("fail");
+        const data = await res.json();
+        if (data && (data.carrier || data.line_type)) {
+          return {
+            carrier: data.carrier || "U.S. carrier not published",
+            line: data.line_type || "",
+            valid: data.is_valid_number !== false
+          };
+        }
+      } catch (e) {
+        return null;
+      } finally {
+        clearTimeout(t);
+      }
+      return null;
+    }
+
+    async function verifyPhone(){
+      const raw = phoneInput.value.trim();
+      const d = digits(raw);
+      const national = d.startsWith("1") && d.length === 11 ? d.slice(1) : d;
+
+      if (national.length < 10) {
+        if (national.length === 0) { box.className = "carrier"; setHidden("", "", "", ""); return; }
+        showCarrier("warn", "Keep typing", "U.S. mobiles are 10 digits, e.g. (214) 555-0188.");
+        setHidden("", "incomplete", "", "");
+        return;
+      }
+
+      let parsed = null;
+      try { parsed = libphonenumber.parsePhoneNumber(national, "US"); } catch (e) { parsed = null; }
+
+      if (!parsed || !parsed.isValid() || parsed.country !== "US") {
+        showCarrier("bad", "Not a valid U.S. number", "This campaign accepts United States numbers only. No +234, +44, or other country codes.");
+        setHidden("", "invalid", "", "");
+        return;
+      }
+
+      const e164 = parsed.number;
+      const npa = national.slice(0, 3);
+      const region = AREA[npa] || ("Area code " + npa);
+      const pretty = parsed.formatNational();
+
+      showCarrier("warn", "Checking U.S. carrier…", pretty + " · " + region);
+      setHidden("", "pending", e164, region);
+
+      if (e164 !== lastQuery) {
+        lastQuery = e164;
+        const live = await liveLookup(e164);
+        if (live && live.carrier) {
+          const label = live.carrier + (live.line ? " · " + live.line : "");
+          showCarrier("ok", label, pretty + " · " + region + " · live U.S. carrier lookup. Confirm or correct it in the dropdown if you ported.");
+          setHidden(label, "live", e164, region);
+          suggestCarrier(label);
+        } else {
+          showCarrier("ok", "Valid U.S. mobile", pretty + " · " + region + " · number verified. Live carrier name will be confirmed at screening if the registry is unavailable.");
+          setHidden("U.S. number verified · carrier pending", "format", e164, region);
+        }
+      }
+    }
+
+    phoneInput.addEventListener("input", () => {
+      const start = phoneInput.selectionStart;
+      const before = phoneInput.value;
+      phoneInput.value = formatUS(phoneInput.value);
+      clearTimeout(timer);
+      timer = setTimeout(verifyPhone, 280);
+    });
+    phoneInput.addEventListener("blur", verifyPhone);
+
+    const CAMPAIGN_E164 = "+15342280244";
+    const CAMPAIGN_DIGITS = "15342280244";
+    const CARRIER_KEYS = [
+      ["verizon", "Verizon"],
+      ["at&t", "AT&T"],
+      ["att", "AT&T"],
+      ["t-mobile", "T-Mobile"],
+      ["tmobile", "T-Mobile"],
+      ["us cellular", "US Cellular"],
+      ["xfinity", "Xfinity Mobile"],
+      ["spectrum", "Spectrum Mobile"],
+      ["visible", "Visible"],
+      ["mint", "Mint Mobile"],
+      ["google fi", "Google Fi"],
+      ["cricket", "Cricket"],
+      ["metro", "Metro by T-Mobile"],
+      ["boost", "Boost Mobile"],
+      ["consumer cellular", "Consumer Cellular"],
+      ["straight talk", "Straight Talk"],
+      ["tracfone", "Tracfone"]
+    ];
+
+    function suggestCarrier(label){
+      const sel = document.getElementById("carrierSelect");
+      if (!sel || sel.dataset.userSet === "1") return;
+      const hay = (label || "").toLowerCase();
+      const hit = CARRIER_KEYS.find(([k]) => hay.includes(k));
+      if (hit) sel.value = hit[1];
+    }
+
+    document.getElementById("carrierSelect").addEventListener("change", function(){
+      this.dataset.userSet = this.value ? "1" : "";
+    });
+
+    function formReady(){
+      const form = document.getElementById("promoForm");
+      return form.checkValidity();
+    }
+
+    async function collectPayload(){
+      await verifyPhone();
+      const e164 = document.getElementById("e164").value;
+      if (!e164) { phoneInput.focus(); return null; }
+      if (!formReady()) {
+        document.getElementById("promoForm").reportValidity();
+        return null;
+      }
+      const payload = {
+        market: "US",
+        fullName: document.getElementById("fullName").value.trim(),
+        state: document.getElementById("state").value,
+        workAuth: document.getElementById("workAuth").value,
+        phone: phoneInput.value.trim(),
+        e164,
+        carrier: document.getElementById("carrierSelect").value || document.getElementById("carrierName").value,
+        detectedCarrier: document.getElementById("carrierName").value,
+        carrierSource: document.getElementById("carrierSource").value,
+        area: document.getElementById("areaLabel").value,
+        email: document.getElementById("email").value.trim(),
+        role: document.getElementById("role").value,
+        availability: document.getElementById("availability").value,
+        note: document.getElementById("note").value.trim(),
+        submittedAt: new Date().toISOString()
+      };
+      const existing = JSON.parse(localStorage.getItem("bc_promo_leads_us") || "[]");
+      existing.push(payload);
+      localStorage.setItem("bc_promo_leads_us", JSON.stringify(existing));
+      return payload;
+    }
+
+    function longMessage(p){
+      return [
+        "Brownstone Careers — U.S. promo drive interest",
+        "",
+        "Name: " + p.fullName,
+        "State: " + p.state,
+        "Work authorization: " + p.workAuth,
+        "Phone: " + p.phone,
+        "E.164: " + p.e164,
+        "Carrier: " + (p.carrier || "pending"),
+        "Area: " + (p.area || "—"),
+        "Email: " + p.email,
+        "Role: " + p.role,
+        "Availability: " + p.availability,
+        p.note ? ("Note: " + p.note) : null
+      ].filter(Boolean).join("\n");
+    }
+
+    function smsMessage(p){
+      return [
+        "BC US promo interest",
+        p.fullName,
+        p.state + " / " + p.workAuth,
+        p.phone + " | " + (p.carrier || "carrier pending"),
+        p.email,
+        p.role + " | " + p.availability,
+        p.note ? p.note.slice(0, 80) : null
+      ].filter(Boolean).join(" | ");
+    }
+
+    function openWhatsApp(p){
+      window.open("https://wa.me/" + CAMPAIGN_DIGITS + "?text=" + encodeURIComponent(longMessage(p)), "_blank", "noopener");
+    }
+
+    function openSms(p){
+      const body = encodeURIComponent(smsMessage(p));
+      window.location.href = "sms:" + CAMPAIGN_E164 + "?&body=" + body;
+    }
+
+    function showSuccess(){
+      document.getElementById("promoForm").style.display = "none";
+      document.getElementById("successBox").style.display = "block";
+    }
+
+    document.getElementById("promoForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const payload = await collectPayload();
+      if (!payload) return;
+      openWhatsApp(payload);
+      showSuccess();
+    });
+
+    document.getElementById("smsBtn").addEventListener("click", async () => {
+      const payload = await collectPayload();
+      if (!payload) return;
+      openSms(payload);
+      showSuccess();
+    });
+  </script>
+</body>
+</html>
