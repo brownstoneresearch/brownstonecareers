@@ -77,3 +77,9 @@
     <priority>0.4</priority>
   </url>
 </urlset>
+<url>
+    <loc>https://brownstonecareers.agency/us-promo</loc>
+    <lastmod>2026-09-05</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
